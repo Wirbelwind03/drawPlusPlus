@@ -15,4 +15,4 @@ class Window(tk.Tk):
 
         self.title("draw++ IDE")
 
-        self.mainFrame = MainFrame(self)
+        self.mainFrame = MainFrame(self, bg="#636363")

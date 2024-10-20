@@ -1,10 +1,29 @@
 import tkinter as tk
-from tkinter import scrolledtext
 
-class TextEditor(scrolledtext.ScrolledText):
-    def __init__(self, parentFrame) -> None:
-        scrolledtext.ScrolledText.__init__(self, parentFrame, wrap="none", width=50)
+from .Resources.Widgets.customText import CustomText
+from .Resources.Widgets.textLineNumbers import TextLineNumbers
+
+
+class TextEditor(tk.Frame):
+    def __init__(self, *args, **kwargs) -> None:
+        tk.Frame.__init__(self, *args, **kwargs)
         self.pack(side=tk.TOP, fill=tk.BOTH, expand=True)
+        self.text = CustomText(self)
+        self.vsb = tk.Scrollbar(self, orient="vertical", command=self.text.yview)
+        self.text.configure(yscrollcommand=self.vsb.set)
+        self.text.tag_configure("bigfont", font=("Helvetica", "24", "bold"))
+        self.linenumbers = TextLineNumbers(self, width=30)
+        self.linenumbers.attach(self.text)
+
+        self.vsb.pack(side="right", fill="y")
+        self.linenumbers.pack(side="left", fill="y")
+        self.text.pack(side="right", fill="both", expand=True)
+
+        self.text.bind("<<Change>>", self._on_change)
+        self.text.bind("<Configure>", self._on_change)
+
+    def _on_change(self, event):
+        self.linenumbers.redraw()
 
     # Fonction pour souligner la ligne contenant une erreur
     def highlight_error(self, error):

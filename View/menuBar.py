@@ -2,10 +2,10 @@ import tkinter as tk
 from tkinter import filedialog
 
 class MenuBar(tk.Menu):
-    def __init__(self, parentFrame) -> None:
-        tk.Menu.__init__(self, parentFrame)
+    def __init__(self, *args, **kwargs) -> None:
+        tk.Menu.__init__(self, *args, **kwargs)
 
-        self.parentFrame = parentFrame
+        self.parentFrame = self.master
 
         menuFile = tk.Menu(self, tearoff=0)
         self.add_cascade(label="File", menu=menuFile)
@@ -13,7 +13,7 @@ class MenuBar(tk.Menu):
         menuFile.add_command(label="Open", command=self.load_file)
         menuFile.add_command(label="Save", command=self.save_file)
         menuFile.add_separator()
-        menuFile.add_command(label="Exit", command=parentFrame.quit)  # Option Quitter
+        menuFile.add_command(label="Exit", command=self.parentFrame.quit)  # Option Quitter
 
         menuEdit = tk.Menu(self, tearoff=0)
         self.add_cascade(label="Edit", menu=menuEdit)
