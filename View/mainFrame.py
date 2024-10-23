@@ -41,7 +41,7 @@ class MainFrame(tk.Frame):
         # Canvas on the right side, expands vertically and horizontally
         self.canvas = Canvas(self, width=800, height=600, bg="white")
         self.canvas.grid(row=1, column=1, rowspan=2, sticky="nsew")  # Right side, expands in all directions
-        self.canvas.loadImage("View/circle.jpg")
+        self.canvas.drawImage("View/circle.jpg")
 
         # Terminal at the bottom
         self.terminal = Terminal(self, height=10, wrap="word", bg="lightgrey", fg="black")
