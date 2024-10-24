@@ -10,6 +10,16 @@ class Canvas(tk.Canvas):
         self.imgs = []
         self.currentImageId = 0
         self.selectionTool = SelectionTool(self)
+        
+        self.bind("<ButtonPress-1>", self.on_button_press)
+        self.bind("<B1-Motion>", self.on_mouse_drag)
+        self.bind("<ButtonRelease-1>", self.on_button_release)
+        self.bind("<Motion>", self.on_mouse_over)
+        self.bind('<Control-Key-x>', self.on_control_x)
+
+    def update(self):
+        for image in self.imgs:
+            self.create_image(image.coordinates.x, image.coordinates.y, anchor=tk.NW, image=image.photoImage)
 
     def drawImage(self, filePath):
         #image = self.cropImage(image)
@@ -20,26 +30,25 @@ class Canvas(tk.Canvas):
         self.create_image(canvasImage.coordinates.x, canvasImage.coordinates.y, anchor=tk.NW, image=canvasImage.photoImage)
         self.currentImageId += 1
 
-        canvasImage.cropImage()
-        self.create_image(canvasImage.coordinates.x, canvasImage.coordinates.y, anchor=tk.NW, image=canvasImage.photoImage)
+    def on_mouse_over(self, event):
+        self.selectionTool.on_mouse_over(event)
 
-    def cropImage(self, img):
-        width, height = img.size
+    def on_button_press(self, event):
+        self.focus_set()
 
-        # Define the crop rectangle to keep top left, top right, and bottom left
-        crop_rectangle = (0, 0, width, height)  # Keep the entire image
+        self.selectionTool.on_button_press(event)
+        
+    def on_mouse_drag(self, event):
+        self.selectionTool.on_mouse_drag(event)
 
-        # Create a new blank image with transparency
-        new_img = Image.new("RGBA", img.size)
+    def on_button_release(self, event):
+        self.selectionTool.on_button_release(event)
 
-        # Paste the original image onto the new image
-        new_img.paste(img)
+    def on_control_x(self, event):
+        
+        for img in self.imgs:
+            # check overlap with image and selection tool
+            
+            pass
 
-        # Create a mask to remove the bottom right corner
-        mask = Image.new("L", img.size, 255)  # White mask (opaque)
-        mask.paste(0, (width // 2, height // 2, width, height))  # Black (transparent) area
-
-        # Apply the mask to create the final image
-        new_img.putalpha(mask)
-
-        return new_img
+        self.update()

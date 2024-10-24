@@ -17,12 +17,6 @@ class CanvasImage:
         self.photoImage = ImageTk.PhotoImage(self.image)
 
     def cropImage(self):
-
-        width, height = self.image.size
-
-        # Define the crop rectangle to keep top left, top right, and bottom left
-        crop_rectangle = (0, 0, width, height)  # Keep the entire image
-
         # Create a new blank image with transparency
         new_img = Image.new("RGBA", self.image.size)
 
@@ -31,7 +25,7 @@ class CanvasImage:
 
         # Create a mask to remove the bottom right corner
         mask = Image.new("L", self.image.size, 255)  # White mask (opaque)
-        mask.paste(0, (width // 2, height // 2, width, height))  # Black (transparent) area
+        mask.paste(0, (self.width // 2, self.height // 2, self.width, self.height))  # Black (transparent) area
 
         # Apply the mask to create the final image
         new_img.putalpha(mask)
