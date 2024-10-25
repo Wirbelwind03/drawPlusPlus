@@ -1,15 +1,17 @@
 from PIL import Image, ImageTk
 
 from Core.Math.vector2 import Vector2
+from Core.Shapes.rectangle import Rectangle
 
 class CanvasImage:
     def __init__(self, id, x, y):
         self.id = id
         self.coordinates = Vector2(x, y)
-        self.width = 0
-        self.height = 0
+        self._width = 0
+        self._height = 0
         self.image = None
         self.photoImage = None
+        self.bbox = Rectangle(x, y)
 
     def loadImage(self, filePath):
         self.image = Image.open(filePath)
@@ -31,3 +33,21 @@ class CanvasImage:
         new_img.putalpha(mask)
 
         self.photoImage = ImageTk.PhotoImage(new_img)
+
+    @property
+    def width(self):
+        return self._width
+    
+    @width.setter
+    def width(self, width):
+        self._width = width
+        self.bbox.width = self.width
+
+    @property
+    def height(self):
+        return self._height
+    
+    @height.setter
+    def height(self, height):
+        self._height = height
+        self.bbox.height = self.height

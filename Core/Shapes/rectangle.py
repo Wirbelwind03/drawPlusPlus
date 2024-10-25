@@ -6,13 +6,13 @@ class Rectangle:
 
     Attributes:
     -----------
-    startCoordinates : Vector2
+    _startCoordinates : Vector2
         The top-left corner coordinates of the rectangle.
-    endCoordinates : Vector2
+    _endCoordinates : Vector2
         The bottom-right corner coordinates of the rectangle.
-    width : float
+    _width : float
         The width of the rectangle.
-    height : float
+    _height : float
         The height of the rectangle.
     """
 
@@ -31,10 +31,10 @@ class Rectangle:
         height : float
             The height of the rectangle (default is 0).
         """
-        self.startCoordinates = Vector2(x, y)
-        self.endCoordinates = Vector2(x + width, y + height)
-        self.width = width
-        self.height = height
+        self._startCoordinates = Vector2(x, y)
+        self._endCoordinates = Vector2(x + width, y + height)
+        self._width = width
+        self._height = height
 
         self.topLeftCoords = self.startCoordinates
         self.topRightCoords = Vector2(self.startCoordinates.x + self.width, self.startCoordinates.y)
@@ -50,6 +50,9 @@ class Rectangle:
     def startCoordinates(self, newCoordinates):
         """Sets the top-left coordinates of the rectangle."""
         self._startCoordinates = newCoordinates
+        # if self.startCoordinates != self.endCoordinates:
+        #     self.width = self.endCoordinates.x - self.startCoordinates.x
+        #     self.height = self.endCoordinates.y - self.startCoordinates.y
     
     @property
     def endCoordinates(self):
@@ -60,10 +63,25 @@ class Rectangle:
     def endCoordinates(self, newCoordinates):
         """Sets the bottom-right coordinates of the rectangle."""
         self._endCoordinates = newCoordinates
+        # if self.endCoordinates != self.startCoordinates:
+        #     self.width = self.endCoordinates.x - self.startCoordinates.x
+        #     self.height = self.endCoordinates.y - self.startCoordinates.y
 
     @property
     def width(self):
         return self._width
+    
+    @width.setter
+    def width(self, width):
+        self._width = width
+
+    @property
+    def height(self):
+        return self._height
+    
+    @height.setter
+    def height(self, height):
+        self._height = height
 
     def getArea(self):
         """

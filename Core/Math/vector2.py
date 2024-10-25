@@ -77,6 +77,31 @@ class Vector2:
         if not isinstance(other, Vector2):
             raise TypeError()    
         return self.x == other.x and self.y == other.y
+    
+    def __lt__(self, other):
+        if isinstance(other, Vector2):
+            return self.x < other.x and self.y < other.y
+        else:
+            raise TypeError()
+        
+    def __le__(self, other):
+        if isinstance(other, Vector2):
+            return self.x <= other.x and self.y <= other.y
+        else:
+            raise TypeError()
+        
+    def __gt__(self, other):
+        if isinstance(other, Vector2):
+            return self.x > other.x and self.y > other.y
+        else:
+            raise TypeError()
+        
+    def __ge__(self, other):
+        if isinstance(other, Vector2):
+            return self.x >= other.x and self.y >= other.y
+        else:
+            raise TypeError()
+        
 
     def __neg__(self):
         return Vector2(-self.x, -self.y)
