@@ -10,6 +10,24 @@ from .toolBar import *
 
 
 class MainFrame(tk.Frame):
+    """
+    A class to represent the Main Frame widget, the frame that contains all the widget
+
+    Attributes:
+    -----------
+    menuBar : MenuBar
+        Widget at the top of this one that contains operations tied to the file
+    textEditor : TextEditor
+        Widget where the code is written
+    toolBar : ToolBar
+        Widget that contains the tools to modify drawings that are on the canvas
+    terminal : Terminal
+        Widget which show if the code has a error or has been executed succesfully
+    canvas : Canvas
+        Widget where the drawing take place from the code
+    compiler : Compiler
+        The program which compile the text editor code to C
+    """
     def __init__(self, *args, **kwargs) -> None:
         tk.Frame.__init__(self, *args, **kwargs)
         

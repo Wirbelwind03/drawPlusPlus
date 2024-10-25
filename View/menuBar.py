@@ -2,6 +2,10 @@ import tkinter as tk
 from tkinter import filedialog
 
 class MenuBar(tk.Menu):
+    """
+    A class to represent the Menu Bar
+    """
+
     def __init__(self, *args, **kwargs) -> None:
         tk.Menu.__init__(self, *args, **kwargs)
 
