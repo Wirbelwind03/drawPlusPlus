@@ -108,3 +108,6 @@ class Vector2:
     
     def __abs__(self):
         return sqrt(self.x * self.x + self.y * self.y)
+    
+    def __repr__(self):
+        return f'({self.x}, {self.y})'
