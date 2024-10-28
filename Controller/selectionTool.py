@@ -4,84 +4,62 @@ from PIL import Image
 from enum import Enum
 
 from Core.Math.vector2 import Vector2
-from Core.Shapes.rectangle import Rectangle
+from Core.Collision.aabb import AABB
 
 class Action(Enum):
-    CREATE = 0
+    NONE = 0
     MOVE = 1
 
 class SelectionTool:
-    """
-    A class for the selection tool used in the canvas.
+    def __init__(self, canvas: tk.Canvas):
+        self.__canvas = canvas
+        self._action = Action.NONE
 
-    Attributes:
-    -----------
-    canvas : Canvas
-        The canvas widget where the selection tool is used
-    bbox : Rectangle
-        A rectangle called Bounding Box that define the minimum and maximum coordinates
-    canvasSelectionRectangle : int
-        The ID of the rectangle drawn on the Canvas
-    action : Action
-        What the user want to do with the selection tool, like deleting, moving, etc.
-    """
-
-    def __init__(self, canvas):
-        self.canvas = canvas
-        self.bbox = Rectangle()
-        self.canvasSelectionRectangle = None
-        self.action = Action.CREATE
+        self.selectedImage = None
+        self._canvasSelectedRectangle = -1
 
     def on_mouse_over(self, event):
-        if self.canvasSelectionRectangle:
-            # Check if the cursor is inside the selection rectangle
-            if event.x > self.bbox.startCoordinates.x and event.x < self.bbox.endCoordinates.x and event.y > self.bbox.startCoordinates.y and event.y < self.bbox.endCoordinates.y:
-                self.action = Action.MOVE
-                self.canvas.config(cursor="fleur")
+        mouseCoords = Vector2(event.x, event.y)
 
+        if self.selectedImage:
+            if self.selectedImage.bbox.isInside(mouseCoords):
+                self._action = Action.MOVE
+                self.__canvas.config(cursor="fleur")
             else:
-                self.action = Action.CREATE
-                self.canvas.config(cursor="arrow")
+                self.__canvas.config(cursor="arrow")
 
     def on_button_press(self, event):
-        mouseCoordinates = Vector2(event.x, event.y)
+        mouseCoords = Vector2(event.x, event.y)
 
-        if self.action == Action.MOVE:
-            # Calculate the offset between mouse click and rectangle's position
-            self.gap_offset = self.bbox.startCoordinates - mouseCoordinates
-            return
-        
-        # if the selection rectangle already exist on the canvas, delete it
-        if self.canvasSelectionRectangle:
-            self.canvas.delete(self.canvasSelectionRectangle)
-
-        # Save the starting point for the rectangle
-        self.bbox.startCoordinates = mouseCoordinates
-
-        # Create a rectangle (but don't specify the end point yet)
-        self.canvasSelectionRectangle = self.canvas.create_rectangle(self.bbox.startCoordinates.x, self.bbox.startCoordinates.y, self.bbox.startCoordinates.x, self.bbox.startCoordinates.y, outline="black", width=2, dash=(2, 2))
+        if not self.selectedImage:
+            for imageId, image in self.__canvas.canvasImagesManager.images.items():
+                if image.bbox.isInside(mouseCoords):
+                    self._canvasSelectedRectangle = self.__canvas.create_rectangle(image.bbox.startCoordinates.x, image.bbox.startCoordinates.y, image.bbox.endCoordinates.x, image.bbox.endCoordinates.y, outline="black", width=2, dash=(2, 2))
+                    self.selectedImage = image
+                    self._action = Action.MOVE
+                    self.__canvas.config(cursor="fleur")
+                    self._startGapOffset = image.bbox.startCoordinates - mouseCoords
+                    self._endGapOffset = image.bbox.endCoordinates - mouseCoords
+                    return
+        else:
+            pass
 
     def on_mouse_drag(self, event):
-        # Modify the coordinates of the rectangle
-        mouseCoordinates = Vector2(event.x, event.y)
+        mouseCoords = Vector2(event.x, event.y)
 
-        if self.action == Action.MOVE:
-            self.bbox.startCoordinates = mouseCoordinates + self.gap_offset
-            self.canvas.moveto(self.canvasSelectionRectangle, self.bbox.startCoordinates.x, self.bbox.startCoordinates.y)
+        if self._action == Action.MOVE:
+            self.selectedImage.bbox.startCoordinates = mouseCoords + self._startGapOffset
+            self.selectedImage.bbox.endCoordinates = mouseCoords + self._endGapOffset
+            self.__canvas.moveto(self._canvasSelectedRectangle, self.selectedImage.bbox.startCoordinates.x, self.selectedImage.bbox.startCoordinates.y)
+            self.__canvas.moveto(self.selectedImage.id, self.selectedImage.bbox.startCoordinates.x, self.selectedImage.bbox.startCoordinates.y)
             return
-
-        # Update the rectangle as the mouse is dragged
-        self.canvas.coords(self.canvasSelectionRectangle, self.bbox.startCoordinates.x, self.bbox.startCoordinates.y, mouseCoordinates.x, mouseCoordinates.y)
-
+        
     def on_button_release(self, event):
-        mouseCoordinates = Vector2(event.x, event.y)
+        mouseCoords = Vector2(event.x, event.y)
 
-        if self.action == Action.MOVE:
-            self.bbox.endCoordinates = Vector2(self.bbox.startCoordinates.x + self.bbox.width, self.bbox.startCoordinates.y + self.bbox.height)
-            return
+        if self._action == Action.MOVE:
+            self.__canvas.delete(self._canvasSelectedRectangle)
+            self.selectedImage = None
+        
+        self._action = Action.NONE
 
-        # On release, finalize the rectangle selection
-        self.bbox.endCoordinates = mouseCoordinates
-
-        self.bbox.width = self.bbox.endCoordinates.x - self.bbox.startCoordinates.x
-        self.bbox.height = self.bbox.endCoordinates.y - self.bbox.startCoordinates.y
