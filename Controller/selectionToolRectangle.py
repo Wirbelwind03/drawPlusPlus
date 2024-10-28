@@ -9,6 +9,8 @@ from Core.Collision.aabb import AABB
 class Action(Enum):
     CREATE = 0
     MOVE = 1
+    RESIZE = 2
+    ROTATE = 3
 
 class SelectionToolRectangle:
     """
@@ -44,7 +46,6 @@ class SelectionToolRectangle:
 
         self._debugBbox = self.__canvas.create_rectangle(self.bbox.startCoordinates.x, self.bbox.startCoordinates.y, self.bbox.endCoordinates.x, self.bbox.endCoordinates.y, outline="black", width=2)
 
-
     def on_mouse_over(self, event):
         mouseCoords = Vector2(event.x, event.y)
 
@@ -53,7 +54,6 @@ class SelectionToolRectangle:
             if self.bbox.isInside(mouseCoords):
                 self._action = Action.MOVE
                 self.__canvas.config(cursor="fleur")
-
             else:
                 self._action = Action.CREATE
                 self.__canvas.config(cursor="arrow")
@@ -99,6 +99,23 @@ class SelectionToolRectangle:
         # On release, finalize the rectangle selection
         self.bbox.endCoordinates = mouseCoords
 
-        self.bbox.changeStartCoordsToTopLeft()
+        self.bbox.changeOriginToTopLeft()
 
         self.createDebugBbox()
+
+    def on_control_x(self, event):
+        selectionToolRectangleBbox = self.bbox
+        
+        for imageId, image in self.__canvas.canvasImagesManager.images.items():
+            # check overlap with image and selection tool
+            if selectionToolRectangleBbox.isIntersecting(image.bbox):
+                x1 = max(selectionToolRectangleBbox.topLeft.x, image.bbox.topLeft.x)
+                y1 = max(selectionToolRectangleBbox.topRight.y, image.bbox.topRight.y)
+                x2 = min(selectionToolRectangleBbox.topRight.x, image.bbox.topRight.x)
+                y2 = min(selectionToolRectangleBbox.bottomRight.y, image.bbox.bottomRight.y)
+                #intersectRectangle = selectionToolBbox.getIntersectRectangle(canvasImage.bbox)
+                image.cutImage(x1, y1, x2 - x1, y2 - y1)
+                self.__canvas.canvasImagesManager.update()
+                #self.create_rectangle(x1, y1, x2, y2, outline="red", width=2)
+                
+        self.delete(self.selectionToolRectangle._debugBbox)

@@ -37,6 +37,6 @@ class AABB(Rectangle):
             y1 = max(self.topRight.y, other.topRight.y)
             x2 = min(self.topRight.x, other.topRight.x)
             y2 = min(self.bottomRight.y, other.bottomRight.y)
-            return AABB(x1, y1, x2 - x1, y2 - y1)
+            return AABB.fromCoordinates(x1, y1, x2, y2)
 
         return None

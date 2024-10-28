@@ -36,6 +36,10 @@ class Rectangle:
         self._width = width
         self._height = height
 
+    @classmethod
+    def fromCoordinates(cls, x1, y1, x2, y2):
+        return cls(x1, y1, x2 - x1, y2 - y1)
+
     @property
     def startCoordinates(self):
         """Returns the top-left coordinates of the rectangle."""
@@ -118,7 +122,7 @@ class Rectangle:
         """
         return (self.width + self.height) * 2
     
-    def changeStartCoordsToTopLeft(self):
+    def changeOriginToTopLeft(self):
         oldStartCoordinates = self.startCoordinates
         oldEndCoordinates = self.endCoordinates
 
