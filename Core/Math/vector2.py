@@ -12,7 +12,7 @@ class Vector2:
         The y-coordinate of the vector.
     """
 
-    def __init__(self, x, y) -> None:
+    def __init__(self, x=0, y=0) -> None:
         """
         Construct a Vector2 instance.
 

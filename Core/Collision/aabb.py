@@ -5,6 +5,16 @@ class AABB(Rectangle):
     def __init__(self, *args, **kwargs):
         Rectangle.__init__(self, *args, **kwargs)
 
+    @classmethod
+    def fromCoordinates(cls, x1, y1, x2, y2):
+        # Top left coordinates
+        xMin = min(x1, x2)
+        yMin = min(y1, y2)
+        # Bottom right coordinates
+        xMax = max(x1, x2)
+        yMax = max(y1, y2)
+        return Rectangle.fromCoordinates(cls, xMin, yMin, xMax, yMax)
+
     def isInside(self, other):
         if isinstance(other, Vector2):
             return (other.x > self.startCoordinates.x and other.x < self.endCoordinates.x and 
