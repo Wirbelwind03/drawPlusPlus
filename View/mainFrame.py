@@ -1,6 +1,7 @@
 import tkinter as tk
 
-from Controller.drawScriptParser import DrawScriptParser
+from Model.canvasImage import CanvasImage
+from DrawScript.drawScriptParser import DrawScriptParser
 
 from .menuBar import *
 from .textEditor import *
@@ -29,7 +30,7 @@ class MainFrame(tk.Frame):
         The program which compile the text editor code to C
     """
     def __init__(self, *args, **kwargs) -> None:
-        tk.Frame.__init__(self, *args, **kwargs)
+        super().__init__(*args, **kwargs)
         
         # Use grid for the main frame layout
         self.grid(row=0, column=0, sticky="nsew")
@@ -49,8 +50,8 @@ class MainFrame(tk.Frame):
         self.grid_columnconfigure(1, weight=2) 
 
         # # Create and grid the widgets
-        # self.toolBar = ToolBar(self, bg="black")
-        # self.toolBar.grid(row=0, column=0, columnspan=2, sticky="new")  # ToolBar spans across both columns
+        self.toolBar = ToolBar(self, bg="black")
+        self.toolBar.grid(row=0, column=0, columnspan=2, sticky="new")  # ToolBar spans across both columns
 
         # TextEditor on the left side, expands vertically
         self.textEditor = TextEditor(self, bg="white")
@@ -61,8 +62,8 @@ class MainFrame(tk.Frame):
         self.canvas.grid(row=1, column=1, rowspan=2, sticky="nsew")  # Right side, expands in all directions
         
         circleImage = CanvasImage()
-        circleImage.loadImage("View/circle.jpg")
-        self.canvas.canvasImagesManager.drawImage(circleImage)
+        circleImage.load("Data/Assets/circle.jpg")
+        self.canvas.canvasViewModel.drawImage(circleImage)
 
         # Terminal at the bottom
         self.terminal = Terminal(self, height=10, wrap="word", bg="lightgrey", fg="black")

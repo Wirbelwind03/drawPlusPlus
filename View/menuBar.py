@@ -7,7 +7,7 @@ class MenuBar(tk.Menu):
     """
 
     def __init__(self, *args, **kwargs) -> None:
-        tk.Menu.__init__(self, *args, **kwargs)
+        super().__init__(*args, **kwargs)
 
         self.parentFrame = self.master
 

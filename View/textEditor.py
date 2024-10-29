@@ -8,7 +8,7 @@ from .Resources.Widgets.textLineNumbers import TextLineNumbers
 
 class TextEditor(tk.Frame):
     def __init__(self, *args, **kwargs) -> None:
-        tk.Frame.__init__(self, *args, **kwargs)
+        super().__init__(*args, **kwargs)
         #self.text = CustomText(self)
         self.text = tk.Text(self)
         self.vsb = tk.Scrollbar(self, orient="vertical", command=self.text.yview)

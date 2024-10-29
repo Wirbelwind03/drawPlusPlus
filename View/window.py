@@ -5,7 +5,7 @@ from .mainFrame import *
 
 class Window(tk.Tk):
     def __init__(self, *args, **kwargs):
-        tk.Tk.__init__(self, *args, **kwargs)
+        super().__init__(*args, **kwargs)
 
         # Set window to full screen
         width= self.winfo_screenwidth() 
