@@ -2,7 +2,7 @@ import tkinter as tk
 
 class CustomText(tk.Text):
     def __init__(self, *args, **kwargs):
-        tk.Text.__init__(self, *args, **kwargs)
+        super().__init__(*args, **kwargs)
 
         # create a proxy for the underlying widget
         self._orig = self._w + "_orig"

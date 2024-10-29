@@ -2,7 +2,7 @@ import tkinter as tk
 
 class TextLineNumbers(tk.Canvas):
     def __init__(self, *args, **kwargs):
-        tk.Canvas.__init__(self, *args, **kwargs)
+        super().__init__(*args, **kwargs)
         self.textWidget = None
 
     def attach(self, textWidget):
