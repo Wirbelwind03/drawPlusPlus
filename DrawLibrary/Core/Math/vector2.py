@@ -25,7 +25,7 @@ class Vector2:
         """
         self.x, self.y = x, y
 
-    def __add__(self, other):
+    def __add__(self, other) -> 'Vector2':
         """
         Adds another vector or a tuple to this vector.
 
@@ -44,13 +44,13 @@ class Vector2:
         elif isinstance(other, tuple):
             return Vector2(self.x + other[0], self.y + other[1])
 
-    def __sub__(self, other):
+    def __sub__(self, other) -> 'Vector2':
         if isinstance(other, Vector2):
             return Vector2(self.x - other.x, self.y - other.y)
         elif isinstance(other, tuple):
             return Vector2(self.x - other[0], self.y - other[1])
         
-    def __mul__(self, scalar):
+    def __mul__(self, scalar) -> 'Vector2':
         """
         Multiplies the vector by a scalar.
 
@@ -73,41 +73,40 @@ class Vector2:
             raise TypeError()
         return Vector2(self.x * scalar, self.y * scalar)
         
-    def __eq__(self, other):
+    def __eq__(self, other) -> bool:
         if not isinstance(other, Vector2):
             raise TypeError()    
         return self.x == other.x and self.y == other.y
     
-    def __lt__(self, other):
+    def __lt__(self, other) -> bool:
         if isinstance(other, Vector2):
             return self.x < other.x and self.y < other.y
         else:
             raise TypeError()
         
-    def __le__(self, other):
+    def __le__(self, other) -> bool:
         if isinstance(other, Vector2):
             return self.x <= other.x and self.y <= other.y
         else:
             raise TypeError()
         
-    def __gt__(self, other):
+    def __gt__(self, other) -> bool:
         if isinstance(other, Vector2):
             return self.x > other.x and self.y > other.y
         else:
             raise TypeError()
         
-    def __ge__(self, other):
+    def __ge__(self, other) -> bool:
         if isinstance(other, Vector2):
             return self.x >= other.x and self.y >= other.y
         else:
             raise TypeError()
         
-
-    def __neg__(self):
+    def __neg__(self) -> 'Vector2':
         return Vector2(-self.x, -self.y)
     
-    def __abs__(self):
+    def __abs__(self) -> float:
         return sqrt(self.x * self.x + self.y * self.y)
     
-    def __repr__(self):
+    def __repr__(self) -> str:
         return f'({self.x}, {self.y})'

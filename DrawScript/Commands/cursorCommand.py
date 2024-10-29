@@ -1,4 +1,4 @@
-from Controller.Commands.baseCommand import BaseCommand
+from DrawScript.Commands.baseCommand import BaseCommand
 
 class CursorCommand(BaseCommand):
 

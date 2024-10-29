@@ -1,21 +1,20 @@
-import tkinter as tk
-from PIL import Image
-
 from enum import Enum
 
-from Core.Math.vector2 import Vector2
-from Core.Collision.aabb import AABB
+from DrawLibrary.Core.Math.vector2 import Vector2
+from DrawLibrary.Core.Collision.aabb import AABB
+
+from Model.canvasImage import CanvasImage
 
 class Action(Enum):
     NONE = 0
     MOVE = 1
 
 class SelectionTool:
-    def __init__(self, canvas: tk.Canvas):
+    def __init__(self, canvas):
         self.__canvas = canvas
         self._action = Action.NONE
 
-        self.selectedImage = None
+        self.selectedImage: CanvasImage = None
         self._canvasSelectedRectangle = -1
 
     def on_mouse_over(self, event):
@@ -32,7 +31,7 @@ class SelectionTool:
         mouseCoords = Vector2(event.x, event.y)
 
         if not self.selectedImage:
-            for imageId, image in self.__canvas.canvasImagesManager.images.items():
+            for imageId, image in self.__canvas.canvasViewModel.images.items():
                 if image.bbox.isInside(mouseCoords):
                     self._canvasSelectedRectangle = self.__canvas.create_rectangle(image.bbox.startCoordinates.x, image.bbox.startCoordinates.y, image.bbox.endCoordinates.x, image.bbox.endCoordinates.y, outline="black", width=2, dash=(2, 2))
                     self.selectedImage = image

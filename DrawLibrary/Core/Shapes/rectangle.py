@@ -1,4 +1,4 @@
-from Core.Math.vector2 import Vector2
+from DrawLibrary.Core.Math.vector2 import Vector2
 
 class Rectangle:
     """
@@ -37,7 +37,7 @@ class Rectangle:
         self._height = height
 
     @classmethod
-    def fromCoordinates(cls, x1, y1, x2, y2):
+    def fromCoordinates(cls, x1, y1, x2, y2) -> 'Rectangle':
         return cls(x1, y1, x2 - x1, y2 - y1)
 
     @property
@@ -67,19 +67,19 @@ class Rectangle:
             self.height = self.endCoordinates.y - self.startCoordinates.y
 
     @property
-    def topLeft(self):
+    def topLeft(self)  -> 'Vector2':
         return self.startCoordinates
     
     @property
-    def topRight(self):
+    def topRight(self)  -> 'Vector2':
         return Vector2(self.startCoordinates.x + self.width, self.startCoordinates.y)
     
     @property
-    def bottomLeft(self):
+    def bottomLeft(self)  -> 'Vector2':
         return Vector2(self.startCoordinates.x, self.startCoordinates.y + self.height)
     
     @property
-    def bottomRight(self):
+    def bottomRight(self)  -> 'Vector2':
         return self.endCoordinates
 
     @property
@@ -121,20 +121,3 @@ class Rectangle:
             The perimeter of the rectangle.
         """
         return (self.width + self.height) * 2
-    
-    def changeOriginToTopLeft(self):
-        oldStartCoordinates = self.startCoordinates
-        oldEndCoordinates = self.endCoordinates
-
-        # Bottom right start coordinates
-        if self.endCoordinates.x - self.startCoordinates.x < 0 and self.endCoordinates.y - self.startCoordinates.y < 0:
-            self.startCoordinates = oldEndCoordinates
-            self.endCoordinates = oldStartCoordinates
-        # Top right start coordinates
-        elif self.endCoordinates.x - self.startCoordinates.x < 0:
-            self.startCoordinates = Vector2(oldEndCoordinates.x, oldStartCoordinates.y)
-            self.endCoordinates = Vector2(oldStartCoordinates.x, oldEndCoordinates.y)
-        # Bottom left start coordinates
-        elif self.endCoordinates.y - self.startCoordinates.y < 0:
-            self.startCoordinates = Vector2(oldStartCoordinates.x, oldEndCoordinates.y)
-            self.endCoordinates = Vector2(oldEndCoordinates.x, oldStartCoordinates.y)

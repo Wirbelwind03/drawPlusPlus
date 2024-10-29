@@ -1,9 +1,17 @@
 import tkinter as tk
 from PIL import Image, ImageTk
+from enum import Enum
 
 from Model.canvasImage import CanvasImage
 
-class CanvasImagesManager:
+from ViewModel.selectionTool import SelectionTool
+from ViewModel.selectionToolRectangle import SelectionToolRectangle
+
+class Tools(Enum):
+    SELECTION_TOOL = 0
+    SELECTION_TOOL_RECTANGLE = 1
+
+class CanvasViewModel:
     """
     A class to manage the CanvasImage in a canvas.
 
@@ -15,7 +23,7 @@ class CanvasImagesManager:
         A dictonary to keep all the CanvasImage. The key are the Id of the canvas drawing, and the value is the CanvasImage itself.
     """
 
-    def __init__(self, canvas: tk.Canvas):
+    def __init__(self, canvas):
         """
         Constructs a new CanvasImagesManager to the canvas.
 
@@ -26,6 +34,10 @@ class CanvasImagesManager:
         """
         self.__canvas = canvas
         self.images = {}
+
+        self.selectionTool = SelectionTool(canvas)
+        self.selectionToolRectangle = SelectionToolRectangle(canvas)
+        self.activeTool = Tools.SELECTION_TOOL_RECTANGLE
 
     def drawImage(self, canvasImage: CanvasImage):
         """
@@ -50,3 +62,12 @@ class CanvasImagesManager:
         for imageId, canvasImage in self.images.items():
             # Update the image
             self.__canvas.itemconfig(imageId, image=canvasImage.photoImage)
+
+    def getActiveTool(self):
+        toolMap = {
+            Tools.SELECTION_TOOL: self.selectionTool,
+            Tools.SELECTION_TOOL_RECTANGLE: self.selectionToolRectangle,
+        }
+
+        tool = toolMap.get(self.activeTool)
+        return tool
