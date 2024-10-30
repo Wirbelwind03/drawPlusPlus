@@ -63,7 +63,9 @@ class MainFrame(tk.Frame):
         
         circleImage = CanvasImage()
         circleImage.load("Data/Assets/circle.jpg")
-        self.canvas.canvasViewModel.drawImage(circleImage)
+        
+        self.canvas.canvasViewModel.drawImage(circleImage, 0, 0, 256, 256)
+        self.canvas.canvasViewModel.drawImage(circleImage, 256, 0, 256, 256)
 
         # Terminal at the bottom
         self.terminal = Terminal(self, height=10, wrap="word", bg="lightgrey", fg="black")

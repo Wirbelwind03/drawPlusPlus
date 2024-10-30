@@ -1,4 +1,5 @@
 import tkinter as tk
+import copy
 from PIL import Image, ImageTk
 from enum import Enum
 
@@ -6,6 +7,10 @@ from Model.canvasImage import CanvasImage
 
 from ViewModel.selectionTool import SelectionTool
 from ViewModel.selectionToolRectangle import SelectionToolRectangle
+
+from DrawLibrary.Core.Collision.aabb import AABB
+
+from config import DEBUG
 
 class Tools(Enum):
     SELECTION_TOOL = 0
@@ -39,7 +44,7 @@ class CanvasViewModel:
         self.selectionToolRectangle = SelectionToolRectangle(canvas)
         self.activeTool = Tools.SELECTION_TOOL_RECTANGLE
 
-    def drawImage(self, canvasImage: CanvasImage):
+    def drawImage(self, canvasImage: CanvasImage, x, y, width, height):
         """
         Draw a image to the canvas
 
@@ -49,10 +54,16 @@ class CanvasViewModel:
             The image we want to draw to the Canvas
         """
         # Draw the image to the canvas
-        imageId = self.__canvas.create_image(canvasImage.coordinates.x, canvasImage.coordinates.y, anchor=tk.NW, image=canvasImage.photoImage) 
-        canvasImage.id = imageId
+        newCanvasImage = canvasImage.clone()
+        newCanvasImage.resize(width, height)
+        imageId = self.__canvas.create_image(x, y, anchor=tk.NW, image=newCanvasImage.photoImage) 
+        newCanvasImage.id = imageId
+        newCanvasImage.bbox = AABB(x, y, width, height)
         # Put the image to dictionary with the id as the key
-        self.images[imageId] = canvasImage 
+        self.images[imageId] = newCanvasImage 
+        
+        if DEBUG:
+            self.__canvas.create_rectangle(newCanvasImage.bbox.min.x, newCanvasImage.bbox.min.y, newCanvasImage.bbox.max.x, newCanvasImage.bbox.max.y, outline="black", width=2)
 
     def update(self):
         """
