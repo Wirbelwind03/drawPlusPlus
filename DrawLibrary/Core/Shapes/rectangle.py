@@ -6,13 +6,13 @@ class Rectangle:
 
     Attributes:
     -----------
-    _startCoordinates : Vector2
-        The top-left corner coordinates of the rectangle.
-    _endCoordinates : Vector2
-        The bottom-right corner coordinates of the rectangle.
-    _width : float
+    x : float
+        The x coordinate of the top-left corner of the rectangle.
+    y : float
+        The y coordinate of the top-left corner of the rectangle.
+    width : float
         The width of the rectangle.
-    _height : float
+    height : float
         The height of the rectangle.
     """
 
@@ -31,74 +31,32 @@ class Rectangle:
         height : float
             The height of the rectangle (default is 0).
         """
-        self._startCoordinates = Vector2(x, y)
-        self._endCoordinates = Vector2(x + width, y + height)
-        self._width = width
-        self._height = height
+        self.x = x
+        self.y = y
+        self.width = width
+        self.height = height
 
     @classmethod
     def fromCoordinates(cls, x1, y1, x2, y2) -> 'Rectangle':
-        return cls(x1, y1, x2 - x1, y2 - y1)
+        width = x2 - x1
+        height = y2 - y1
+        return cls(x1, y1, width, height)
 
     @property
-    def startCoordinates(self):
-        """Returns the top-left coordinates of the rectangle."""
-        return self._startCoordinates
-
-    @startCoordinates.setter
-    def startCoordinates(self, newCoordinates):
-        """Sets the top-left coordinates of the rectangle."""
-        self._startCoordinates = newCoordinates
-        if self.startCoordinates != self.endCoordinates:
-            self.width = self.endCoordinates.x - self.startCoordinates.x
-            self.height = self.endCoordinates.y - self.startCoordinates.y
+    def topLeft(self)  -> Vector2:
+        return Vector2(self.x, self.y)
     
     @property
-    def endCoordinates(self):
-        """Returns the bottom-right coordinates of the rectangle."""
-        return self._endCoordinates
-    
-    @endCoordinates.setter
-    def endCoordinates(self, newCoordinates):
-        """Sets the bottom-right coordinates of the rectangle."""
-        self._endCoordinates = newCoordinates
-        if self.endCoordinates != self.startCoordinates:
-            self.width = self.endCoordinates.x - self.startCoordinates.x
-            self.height = self.endCoordinates.y - self.startCoordinates.y
-
-    @property
-    def topLeft(self)  -> 'Vector2':
-        return self.startCoordinates
+    def topRight(self)  -> Vector2:
+        return Vector2(self.x + self.width, self.y)
     
     @property
-    def topRight(self)  -> 'Vector2':
-        return Vector2(self.startCoordinates.x + self.width, self.startCoordinates.y)
+    def bottomLeft(self)  -> Vector2:
+        return Vector2(self.x, self.y + self.height)
     
     @property
-    def bottomLeft(self)  -> 'Vector2':
-        return Vector2(self.startCoordinates.x, self.startCoordinates.y + self.height)
-    
-    @property
-    def bottomRight(self)  -> 'Vector2':
-        return self.endCoordinates
-
-    @property
-    def width(self):
-        return self._width
-    
-    @width.setter
-    def width(self, width):
-        self._width = width
-        self.endCoordinates.x = self.startCoordinates.x + self.width
-
-    @property
-    def height(self):
-        return self._height
-    
-    @height.setter
-    def height(self, height):
-        self._height = height
-        self.endCoordinates.y = self.startCoordinates.y + self.height
+    def bottomRight(self)  -> Vector2:
+        return Vector2(self.x + self.width, self.y + self.height)
 
     def getArea(self):
         """
