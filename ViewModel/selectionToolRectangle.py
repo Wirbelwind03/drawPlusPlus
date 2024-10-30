@@ -3,6 +3,8 @@ from enum import Enum
 from DrawLibrary.Core.Math.vector2 import Vector2
 from DrawLibrary.Core.Collision.aabb import AABB
 
+from config import DEBUG
+
 class Action(Enum):
     CREATE = 0
     MOVE = 1
@@ -37,13 +39,13 @@ class SelectionToolRectangle:
         self._startGapOffset = 0
         self._endGapOffset = 0
 
-        self._tempCoordinates = None
+        self._tempStartCoordinates = None
         
     def createDebugBbox(self):
         if self._debugBbox:
             self.__canvas.delete(self._debugBbox)
 
-        #self._debugBbox = self.__canvas.create_rectangle(self.bbox.startCoordinates.x, self.bbox.startCoordinates.y, self.bbox.endCoordinates.x, self.bbox.endCoordinates.y, outline="black", width=2)
+        self._debugBbox = self.__canvas.create_rectangle(self.bbox.min.x, self.bbox.min.y, self.bbox.max.x, self.bbox.max.y, outline="black", width=2)
 
     def on_mouse_over(self, event):
         """
@@ -82,8 +84,8 @@ class SelectionToolRectangle:
 
         if self._action == Action.MOVE:
             # Calculate the offset between mouse click and rectangle's position
-            self._startGapOffset = self.bbox.startCoordinates - mouseCoords
-            self._endGapOffset = self.bbox.endCoordinates - mouseCoords
+            self._startGapOffset = self.bbox.min - mouseCoords
+            self._endGapOffset = self.bbox.max - mouseCoords
             return
         
         # if the selection rectangle already exist on the canvas, delete it
@@ -91,10 +93,10 @@ class SelectionToolRectangle:
             self.__canvas.delete(self._canvasSelectionRectangle)
 
         # Save the starting point for the rectangle
-        self._tempCoordinates = mouseCoords
+        self._tempStartCoordinates = mouseCoords
 
         # Create a rectangle (but don't specify the end point yet)
-        self._canvasSelectionRectangle = self.__canvas.create_rectangle(self._tempCoordinates.x, self._tempCoordinates.y, self._tempCoordinates.x, self._tempCoordinates.y, outline="black", width=2, dash=(2, 2))
+        self._canvasSelectionRectangle = self.__canvas.create_rectangle(self._tempStartCoordinates.x, self._tempStartCoordinates.y, self._tempStartCoordinates.x, self._tempStartCoordinates.y, outline="black", width=2, dash=(2, 2))
 
     def on_mouse_drag(self, event):
         """
@@ -110,13 +112,13 @@ class SelectionToolRectangle:
 
         if self._action == Action.MOVE:
             # Update the coordinates and move the selection rectangle
-            self.bbox.startCoordinates = mouseCoords + self._startGapOffset
-            self.bbox.endCoordinates = mouseCoords + self._endGapOffset
-            self.__canvas.moveto(self._canvasSelectionRectangle, self.bbox.startCoordinates.x, self.bbox.startCoordinates.y)
+            self.bbox.min = mouseCoords + self._startGapOffset
+            self.bbox.max = mouseCoords + self._endGapOffset
+            self.__canvas.moveto(self._canvasSelectionRectangle, self.bbox.min.x, self.bbox.min.y)
             return
 
         # Update the rectangle as the mouse is dragged
-        self.__canvas.coords(self._canvasSelectionRectangle, self._tempCoordinates.x, self._tempCoordinates.y, mouseCoords.x, mouseCoords.y)
+        self.__canvas.coords(self._canvasSelectionRectangle, self._tempStartCoordinates.x, self._tempStartCoordinates.y, mouseCoords.x, mouseCoords.y)
 
     def on_button_release(self, event):
         """
@@ -131,13 +133,15 @@ class SelectionToolRectangle:
         mouseCoords = Vector2(event.x, event.y)
 
         if self._action == Action.MOVE:
-            self.createDebugBbox()
+            if DEBUG:
+                self.createDebugBbox()
             return
 
         # On release, finalize the rectangle selection by setting its end coordinates
-        self.bbox = AABB.fromCoordinates(self._tempCoordinates.x, self._tempCoordinates.y, mouseCoords.x, mouseCoords.y)
+        self.bbox = AABB.fromCoordinates(self._tempStartCoordinates.x, self._tempStartCoordinates.y, mouseCoords.x, mouseCoords.y)
 
-        self.createDebugBbox()
+        if DEBUG:
+            self.createDebugBbox()
 
     def on_delete(self, event):
         if self.bbox:
@@ -150,8 +154,12 @@ class SelectionToolRectangle:
                     x2 = min(selectionToolRectangleBbox.topRight.x, image.bbox.topRight.x)
                     y2 = min(selectionToolRectangleBbox.bottomRight.y, image.bbox.bottomRight.y)
                     #intersectRectangle = selectionToolRectangleBbox.getIntersectRectangle(image.bbox)
-                    image.cut(x1, y1, x2 - x1, y2 - y1)
+                    # Get the relative (to the image) position of the selection tool rectangle
+                    image.cut(x1 - image.bbox.topLeft.x, y1 - image.bbox.topLeft.y, x2 - x1, y2 - y1)
                     self.__canvas.canvasViewModel.update()
-                    #self.create_rectangle(x1, y1, x2, y2, outline="red", width=2)
+
+                    if DEBUG:
+                        self.__canvas.create_rectangle(x1, y1, x2, y2, outline="red", width=2)
+                        #self.__canvas.create_rectangle(intersectRectangle.topLeft.x, intersectRectangle.topLeft.y, intersectRectangle.bottomRight.x, intersectRectangle.bottomRight.y, outline="red", width=2)
                     
-            self.delete(self._debugBbox)
+            self.__canvas.delete(self._debugBbox)

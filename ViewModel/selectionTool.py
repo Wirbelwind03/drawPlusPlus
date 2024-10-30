@@ -33,12 +33,12 @@ class SelectionTool:
         if not self.selectedImage:
             for imageId, image in self.__canvas.canvasViewModel.images.items():
                 if image.bbox.isInside(mouseCoords):
-                    self._canvasSelectedRectangle = self.__canvas.create_rectangle(image.bbox.startCoordinates.x, image.bbox.startCoordinates.y, image.bbox.endCoordinates.x, image.bbox.endCoordinates.y, outline="black", width=2, dash=(2, 2))
+                    self._canvasSelectedRectangle = self.__canvas.create_rectangle(image.bbox.min.x, image.bbox.min.y, image.bbox.max.x, image.bbox.max.y, outline="black", width=2, dash=(2, 2))
                     self.selectedImage = image
                     self._action = Action.MOVE
                     self.__canvas.config(cursor="fleur")
-                    self._startGapOffset = image.bbox.startCoordinates - mouseCoords
-                    self._endGapOffset = image.bbox.endCoordinates - mouseCoords
+                    self._startGapOffset = image.bbox.min - mouseCoords
+                    self._endGapOffset = image.bbox.max - mouseCoords
                     return
         else:
             pass
@@ -47,10 +47,10 @@ class SelectionTool:
         mouseCoords = Vector2(event.x, event.y)
 
         if self._action == Action.MOVE:
-            self.selectedImage.bbox.startCoordinates = mouseCoords + self._startGapOffset
-            self.selectedImage.bbox.endCoordinates = mouseCoords + self._endGapOffset
-            self.__canvas.moveto(self._canvasSelectedRectangle, self.selectedImage.bbox.startCoordinates.x, self.selectedImage.bbox.startCoordinates.y)
-            self.__canvas.moveto(self.selectedImage.id, self.selectedImage.bbox.startCoordinates.x, self.selectedImage.bbox.startCoordinates.y)
+            self.selectedImage.bbox.min = mouseCoords + self._startGapOffset
+            self.selectedImage.bbox.max = mouseCoords + self._endGapOffset
+            self.__canvas.moveto(self._canvasSelectedRectangle, self.selectedImage.bbox.min.x, self.selectedImage.bbox.min.y)
+            self.__canvas.moveto(self.selectedImage.id, self.selectedImage.bbox.max.x, self.selectedImage.bbox.max.y)
             return
         
     def on_button_release(self, event):
