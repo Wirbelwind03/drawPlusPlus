@@ -7,7 +7,7 @@ class Cursor:
     def __init__(self, x=0, y=0, angle=0, visible=True, couleur="black", epaisseur=1):
         self.x = x
         self.y = y
-        self.angle = angle  # angle en degrés
+        self.angle = angle  # angle in degree
         self.visible = visible
         self.couleur = couleur
         self.epaisseur = epaisseur
@@ -91,7 +91,7 @@ def executer_commande(commande, curseur):
     except ValueError:
         print(f"Erreur: paramètres invalides dans la commande '{commande}'.")
 
-# IDE intégré avec Tkinter
+# IDE with tkinter
 """class DrawIDE:
     def __init__(self, master):
         self.master = master
