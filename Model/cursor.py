@@ -2,7 +2,7 @@ import math
 import tkinter as tk
 from tkinter import filedialog, messagebox
 
-# Classe Cursor
+# Cursor class
 class Cursor:
     def __init__(self, x=0, y=0, angle=0, visible=True, couleur="black", epaisseur=1):
         self.x = x
