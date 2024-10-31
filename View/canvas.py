@@ -15,7 +15,7 @@ class Canvas(tk.Canvas):
 
         self.toolManager.addTool("SELECTION_TOOL", SelectionTool(self.canvasViewModel))
         self.toolManager.addTool("SELECTION_TOOL_RECTANGLE", SelectionRectangleTool(self.canvasViewModel))
-        self.toolManager.setActiveTool("SELECTION_TOOL")
+        self.toolManager.setActiveTool("SELECTION_TOOL_RECTANGLE")
         
         # Mouse events
         self.bind("<ButtonPress-1>", self.on_button_press)
