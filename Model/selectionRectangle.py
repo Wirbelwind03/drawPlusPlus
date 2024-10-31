@@ -17,6 +17,8 @@ class SelectionRectangle(AABB):
     def fromCoordinates(cls, x1, y1, x2, y2) -> 'SelectionRectangle':
         instance =  super().fromCoordinates(x1, y1, x2, y2)
 
+        
+
         return instance
 
     def on_button_press(self, event):
