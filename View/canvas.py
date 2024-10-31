@@ -2,15 +2,20 @@ import tkinter as tk
 from enum import Enum
 
 from ViewModel.canvasVievModel import CanvasViewModel
+from ViewModel.toolManager import ToolManager
 
-class Tools(Enum):
-    SELECTION_TOOL = 0
-    SELECTION_TOOL_RECTANGLE = 1
+from ViewModel.Tools.selectionTool import SelectionTool
+from ViewModel.Tools.selectionRectangleTool import SelectionRectangleTool
 
 class Canvas(tk.Canvas):
     def __init__(self, *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)
         self.canvasViewModel = CanvasViewModel(self)
+        self.toolManager = ToolManager()
+
+        self.toolManager.addTool("SELECTION_TOOL", SelectionTool(self.canvasViewModel))
+        self.toolManager.addTool("SELECTION_TOOL_RECTANGLE", SelectionRectangleTool(self.canvasViewModel))
+        self.toolManager.setActiveTool("SELECTION_TOOL")
         
         # Mouse events
         self.bind("<ButtonPress-1>", self.on_button_press)
@@ -21,18 +26,13 @@ class Canvas(tk.Canvas):
         # Key events
         self.bind("<Delete>", self.on_delete)
         self.bind("<Control-Key-c>", self.on_control_c)
+        self.bind("<Control-Key-v>", self.on_control_v)
 
     def _invoke_active_tool_method(self, method_name, event):
-        tool = self.canvasViewModel.getActiveTool()
-        # If the tool exists and has the desired method, call it
-        if tool and hasattr(tool, method_name):
-            getattr(tool, method_name)(event)
+        self.toolManager.invoke_tool_method(method_name, event)
 
     def on_mouse_over(self, event):
         self._invoke_active_tool_method("on_mouse_over", event)
-
-    def on_mouse_move(self, event):
-        pass
 
     def on_button_press(self, event):
         self.focus_set()
@@ -50,3 +50,6 @@ class Canvas(tk.Canvas):
 
     def on_control_c(self, event):
         self._invoke_active_tool_method("on_control_c", event)
+
+    def on_control_v(self, event):
+        self._invoke_active_tool_method("on_control_v", event)
