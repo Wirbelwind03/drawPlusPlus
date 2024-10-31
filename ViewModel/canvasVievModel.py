@@ -59,11 +59,12 @@ class CanvasViewModel:
         imageId = self.__canvas.create_image(x, y, anchor=tk.NW, image=newCanvasImage.photoImage) 
         newCanvasImage.id = imageId
         newCanvasImage.bbox = AABB(x, y, width, height)
+
+        if DEBUG:
+            newCanvasImage._debugBbox = self.__canvas.create_rectangle(newCanvasImage.bbox.min.x, newCanvasImage.bbox.min.y, newCanvasImage.bbox.max.x, newCanvasImage.bbox.max.y, outline="black", width=2)
+
         # Put the image to dictionary with the id as the key
         self.images[imageId] = newCanvasImage 
-        
-        if DEBUG:
-            self.__canvas.create_rectangle(newCanvasImage.bbox.min.x, newCanvasImage.bbox.min.y, newCanvasImage.bbox.max.x, newCanvasImage.bbox.max.y, outline="black", width=2)
 
     def update(self):
         """
