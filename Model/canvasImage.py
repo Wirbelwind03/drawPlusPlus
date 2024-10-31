@@ -14,6 +14,20 @@ class CanvasImage:
         self.photoImage: ImageTk.PhotoImage = None
         self.bbox = None
 
+        self._debugBbox = -1
+
+    @staticmethod
+    def createBlank(width, height):
+        blankCanvasImage = CanvasImage()
+        blankCanvasImage.width = width
+        blankCanvasImage.height = height
+
+        blankImage = Image.new("RGB", (width, height), "white")
+        blankCanvasImage.image = blankImage
+        blankCanvasImage.photoImage = ImageTk.PhotoImage(blankImage)
+
+        return blankCanvasImage
+
     @property
     def width(self):
         return self._width
@@ -75,4 +89,15 @@ class CanvasImage:
         # Update the image
         self.image = resizedImage
         self.photoImage = ImageTk.PhotoImage(resizedImage)
+
+    def crop(self, x, y, width, height):
+        self.image = self.image.crop((x, y, x + width, y + height))
+
+    def copy(self, x, y, width, height):
+        newCanvasImage = self.clone()
+        newCanvasImage.crop(x, y, width, height)
+        return newCanvasImage
+
+    def paste(self, x, y, canvasImage: 'CanvasImage'):
+        self.image.paste(canvasImage.image, (x, y))
 
