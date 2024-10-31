@@ -42,8 +42,8 @@ class AABB(Rectangle):
     
     def isOutside(self, other) -> bool:
         if isinstance(other, Vector2):
-            return (other.x < self.min.x and other.x > self.max.x and
-                    other.y < self.min.y and other.y > self.max.y)
+            return (other.x < self.min.x or other.x > self.max.x or
+                    other.y < self.min.y or other.y > self.max.y)
         
         return False
 
