@@ -3,6 +3,8 @@ from enum import Enum
 from DrawLibrary.Core.Math.vector2 import Vector2
 from DrawLibrary.Core.Collision.aabb import AABB
 
+from Model.canvasImage import CanvasImage
+
 from config import DEBUG
 
 class Action(Enum):
@@ -49,7 +51,7 @@ class SelectionToolRectangle:
 
     def on_mouse_over(self, event):
         """
-        A event for when the mouse is over the canvas
+        A event for when the mouse is hovering on the canvas
 
         Attributes:
         -----------
@@ -155,11 +157,32 @@ class SelectionToolRectangle:
                     y2 = min(selectionToolRectangleBbox.bottomRight.y, image.bbox.bottomRight.y)
                     #intersectRectangle = selectionToolRectangleBbox.getIntersectRectangle(image.bbox)
                     # Get the relative (to the image) position of the selection tool rectangle
-                    image.cut(x1 - image.bbox.topLeft.x, y1 - image.bbox.topLeft.y, x2 - x1, y2 - y1)
-                    self.__canvas.canvasViewModel.update()
-
+                    relativeCoords = Vector2(x1 - image.bbox.topLeft.x, y1 - image.bbox.topLeft.y)
+                    image.cut(relativeCoords.x, relativeCoords.y, x2 - x1, y2 - y1)
+                    
                     if DEBUG:
                         self.__canvas.create_rectangle(x1, y1, x2, y2, outline="red", width=2)
                         #self.__canvas.create_rectangle(intersectRectangle.topLeft.x, intersectRectangle.topLeft.y, intersectRectangle.bottomRight.x, intersectRectangle.bottomRight.y, outline="red", width=2)
-                    
+                
+            self.__canvas.canvasViewModel.update()
             self.__canvas.delete(self._debugBbox)
+
+    def on_control_c(self, event):
+        if self.bbox:
+            blankCanvasImage = CanvasImage.createBlank(self.bbox.width, self.bbox.height)
+            for imageId, image in self.__canvas.canvasViewModel.images.items():
+                # check overlap with image and selection tool
+                if self.bbox.isIntersecting(image.bbox):
+                    x1 = max(self.bbox.topLeft.x, image.bbox.topLeft.x)
+                    y1 = max(self.bbox.topRight.y, image.bbox.topRight.y)
+                    x2 = min(self.bbox.topRight.x, image.bbox.topRight.x)
+                    y2 = min(self.bbox.bottomRight.y, image.bbox.bottomRight.y)
+                    relativeCoords = Vector2(x1 - image.bbox.topLeft.x, y1 - image.bbox.topLeft.y)
+                    region = image.copy(relativeCoords.x, relativeCoords.y, x2 - x1, y2 - y1)
+                    # self.bbox.topLeft.x - x1
+                    blankCanvasImage.paste(x1 - self.bbox.topLeft.x, y1 - self.bbox.topLeft.y, region)
+
+                    if DEBUG:
+                        self.__canvas.create_rectangle(x1, y1, x2, y2, outline="red", width=2)
+
+            self.__canvas.canvasViewModel.drawImage(blankCanvasImage, 0, 256, 256, 256)

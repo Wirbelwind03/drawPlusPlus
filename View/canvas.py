@@ -12,11 +12,15 @@ class Canvas(tk.Canvas):
         super().__init__(*args, **kwargs)
         self.canvasViewModel = CanvasViewModel(self)
         
+        # Mouse events
         self.bind("<ButtonPress-1>", self.on_button_press)
         self.bind("<B1-Motion>", self.on_mouse_drag)
         self.bind("<ButtonRelease-1>", self.on_button_release)
         self.bind("<Motion>", self.on_mouse_over)
+        
+        # Key events
         self.bind("<Delete>", self.on_delete)
+        self.bind("<Control-Key-c>", self.on_control_c)
 
     def _invoke_active_tool_method(self, method_name, event):
         tool = self.canvasViewModel.getActiveTool()
@@ -43,3 +47,6 @@ class Canvas(tk.Canvas):
 
     def on_delete(self, event):
         self._invoke_active_tool_method("on_delete", event)
+
+    def on_control_c(self, event):
+        self._invoke_active_tool_method("on_control_c", event)
