@@ -5,6 +5,8 @@ from DrawLibrary.Core.Collision.aabb import AABB
 
 from Model.canvasImage import CanvasImage
 
+from ViewModel.canvasVievModel import CanvasViewModel
+
 from config import DEBUG
 
 class Action(Enum):
@@ -13,13 +15,13 @@ class Action(Enum):
     RESIZE = 2
     ROTATE = 3
 
-class SelectionToolRectangle:
+class SelectionRectangleTool:
     """
     A class for the selection tool used in the canvas.
 
     Attributes:
     -----------
-    __canvas : tk.Canvas
+    _canvas : tk.Canvas
         The canvas widget where the selection tool is used
     bbox : Rectangle
         A rectangle called Bounding Box that define the minimum and maximum coordinates
@@ -29,25 +31,26 @@ class SelectionToolRectangle:
         What the user want to do with the selection tool, like deleting, moving, etc.
     """
 
-    def __init__(self, canvas):
-        self.bbox: AABB = None
+    def __init__(self, canvasViewModel):
+        self.canvasViewModel: CanvasViewModel = canvasViewModel
 
-        self.__canvas = canvas
+        self.__bbox: AABB = None
         
-        self._canvasSelectionRectangle = -1
-        self._debugBbox = -1
-        self._action = Action.CREATE
+        self.__canvasSelectionRectangle = -1
+        self.__debugBbox = -1
+        self.__action = Action.CREATE
 
-        self._startGapOffset = 0
-        self._endGapOffset = 0
+        self.__startGapOffset = 0
+        self.__endGapOffset = 0
 
-        self._tempStartCoordinates = None
+        self.__tempStartCoordinates = None
+        self.__copiedImage : CanvasImage = None
         
     def createDebugBbox(self):
-        if self._debugBbox:
-            self.__canvas.delete(self._debugBbox)
+        if self.__debugBbox:
+            self.canvasViewModel.canvas.delete(self.__debugBbox)
 
-        self._debugBbox = self.__canvas.create_rectangle(self.bbox.min.x, self.bbox.min.y, self.bbox.max.x, self.bbox.max.y, outline="black", width=2)
+        self.__debugBbox = self.canvasViewModel.canvas.create_rectangle(self.__bbox.min.x, self.__bbox.min.y, self.__bbox.max.x, self.__bbox.max.y, outline="black", width=2)
 
     def on_mouse_over(self, event):
         """
@@ -61,16 +64,16 @@ class SelectionToolRectangle:
         # Get the cursor position
         mouseCoords = Vector2(event.x, event.y)
 
-        if self.bbox:
+        if self.__bbox:
             # Check if the cursor is inside the selection rectangle
-            if self.bbox.isInside(mouseCoords):
+            if self.__bbox.isInside(mouseCoords):
                 # If it is, change that the action we want to do is moving the selection rectangle
-                self._action = Action.MOVE
-                self.__canvas.config(cursor="fleur")
+                self.__action = Action.MOVE
+                self.canvasViewModel.canvas.config(cursor="fleur")
             else:
                 # If it's not, change that the action we want to do is creating a selection rectangle
-                self._action = Action.CREATE
-                self.__canvas.config(cursor="arrow")
+                self.__action = Action.CREATE
+                self.canvasViewModel.canvas.config(cursor="arrow")
 
     def on_button_press(self, event):
         """
@@ -84,21 +87,21 @@ class SelectionToolRectangle:
         # Get the cursor position
         mouseCoords = Vector2(event.x, event.y)
 
-        if self._action == Action.MOVE:
+        if self.__action == Action.MOVE:
             # Calculate the offset between mouse click and rectangle's position
-            self._startGapOffset = self.bbox.min - mouseCoords
-            self._endGapOffset = self.bbox.max - mouseCoords
+            self.__startGapOffset = self.__bbox.min - mouseCoords
+            self.__endGapOffset = self.__bbox.max - mouseCoords
             return
         
         # if the selection rectangle already exist on the canvas, delete it
-        if self._canvasSelectionRectangle:
-            self.__canvas.delete(self._canvasSelectionRectangle)
+        if self.__canvasSelectionRectangle:
+            self.canvasViewModel.canvas.delete(self.__canvasSelectionRectangle)
 
         # Save the starting point for the rectangle
-        self._tempStartCoordinates = mouseCoords
+        self.__tempStartCoordinates = mouseCoords
 
         # Create a rectangle (but don't specify the end point yet)
-        self._canvasSelectionRectangle = self.__canvas.create_rectangle(self._tempStartCoordinates.x, self._tempStartCoordinates.y, self._tempStartCoordinates.x, self._tempStartCoordinates.y, outline="black", width=2, dash=(2, 2))
+        self.__canvasSelectionRectangle = self.canvasViewModel.canvas.create_rectangle(self.__tempStartCoordinates.x, self.__tempStartCoordinates.y, self.__tempStartCoordinates.x, self.__tempStartCoordinates.y, outline="black", width=2, dash=(2, 2))
 
     def on_mouse_drag(self, event):
         """
@@ -112,15 +115,15 @@ class SelectionToolRectangle:
         # Get the cursor position
         mouseCoords = Vector2(event.x, event.y)
 
-        if self._action == Action.MOVE:
+        if self.__action == Action.MOVE:
             # Update the coordinates and move the selection rectangle
-            self.bbox.min = mouseCoords + self._startGapOffset
-            self.bbox.max = mouseCoords + self._endGapOffset
-            self.__canvas.moveto(self._canvasSelectionRectangle, self.bbox.min.x, self.bbox.min.y)
+            self.__bbox.min = mouseCoords + self.__startGapOffset
+            self.__bbox.max = mouseCoords + self.__endGapOffset
+            self.canvasViewModel.canvas.moveto(self.__canvasSelectionRectangle, self.__bbox.min.x, self.__bbox.min.y)
             return
 
         # Update the rectangle as the mouse is dragged
-        self.__canvas.coords(self._canvasSelectionRectangle, self._tempStartCoordinates.x, self._tempStartCoordinates.y, mouseCoords.x, mouseCoords.y)
+        self.canvasViewModel.canvas.coords(self.__canvasSelectionRectangle, self.__tempStartCoordinates.x, self.__tempStartCoordinates.y, mouseCoords.x, mouseCoords.y)
 
     def on_button_release(self, event):
         """
@@ -134,21 +137,21 @@ class SelectionToolRectangle:
         # Get the cursor position
         mouseCoords = Vector2(event.x, event.y)
 
-        if self._action == Action.MOVE:
+        if self.__action == Action.MOVE:
             if DEBUG:
                 self.createDebugBbox()
             return
 
         # On release, finalize the rectangle selection by setting its end coordinates
-        self.bbox = AABB.fromCoordinates(self._tempStartCoordinates.x, self._tempStartCoordinates.y, mouseCoords.x, mouseCoords.y)
+        self.__bbox = AABB.fromCoordinates(self.__tempStartCoordinates.x, self.__tempStartCoordinates.y, mouseCoords.x, mouseCoords.y)
 
         if DEBUG:
             self.createDebugBbox()
 
     def on_delete(self, event):
-        if self.bbox:
-            selectionToolRectangleBbox = self.bbox
-            for imageId, image in self.__canvas.canvasViewModel.images.items():
+        if self.__bbox:
+            selectionToolRectangleBbox = self.__bbox
+            for imageId, image in self.canvasViewModel.images.items():
                 # check overlap with image and selection tool
                 if selectionToolRectangleBbox.isIntersecting(image.bbox):
                     x1 = max(selectionToolRectangleBbox.topLeft.x, image.bbox.topLeft.x)
@@ -161,28 +164,36 @@ class SelectionToolRectangle:
                     image.cut(relativeCoords.x, relativeCoords.y, x2 - x1, y2 - y1)
                     
                     if DEBUG:
-                        self.__canvas.create_rectangle(x1, y1, x2, y2, outline="red", width=2)
-                        #self.__canvas.create_rectangle(intersectRectangle.topLeft.x, intersectRectangle.topLeft.y, intersectRectangle.bottomRight.x, intersectRectangle.bottomRight.y, outline="red", width=2)
+                        self.canvasViewModel.canvas.create_rectangle(x1, y1, x2, y2, outline="red", width=2)
+                        #self._canvas.create_rectangle(intersectRectangle.topLeft.x, intersectRectangle.topLeft.y, intersectRectangle.bottomRight.x, intersectRectangle.bottomRight.y, outline="red", width=2)
                 
-            self.__canvas.canvasViewModel.update()
-            self.__canvas.delete(self._debugBbox)
+            self.canvasViewModel.update()
+            self.canvasViewModel.canvas.delete(self.__debugBbox)
 
     def on_control_c(self, event):
-        if self.bbox:
-            blankCanvasImage = CanvasImage.createBlank(self.bbox.width, self.bbox.height)
-            for imageId, image in self.__canvas.canvasViewModel.images.items():
+        if self.__bbox:
+            blankCanvasImage = CanvasImage.createBlank(self.__bbox.width, self.__bbox.height)
+            isBlank = True
+            for imageId, image in self.canvasViewModel.images.items():
                 # check overlap with image and selection tool
-                if self.bbox.isIntersecting(image.bbox):
-                    x1 = max(self.bbox.topLeft.x, image.bbox.topLeft.x)
-                    y1 = max(self.bbox.topRight.y, image.bbox.topRight.y)
-                    x2 = min(self.bbox.topRight.x, image.bbox.topRight.x)
-                    y2 = min(self.bbox.bottomRight.y, image.bbox.bottomRight.y)
+                if self.__bbox.isIntersecting(image.bbox):
+                    x1 = max(self.__bbox.topLeft.x, image.bbox.topLeft.x)
+                    y1 = max(self.__bbox.topRight.y, image.bbox.topRight.y)
+                    x2 = min(self.__bbox.topRight.x, image.bbox.topRight.x)
+                    y2 = min(self.__bbox.bottomRight.y, image.bbox.bottomRight.y)
                     relativeCoords = Vector2(x1 - image.bbox.topLeft.x, y1 - image.bbox.topLeft.y)
                     region = image.copy(relativeCoords.x, relativeCoords.y, x2 - x1, y2 - y1)
-                    # self.bbox.topLeft.x - x1
-                    blankCanvasImage.paste(x1 - self.bbox.topLeft.x, y1 - self.bbox.topLeft.y, region)
+                    blankCanvasImage.paste(x1 - self.__bbox.topLeft.x, y1 - self.__bbox.topLeft.y, region)
+                    isBlank = False
 
                     if DEBUG:
-                        self.__canvas.create_rectangle(x1, y1, x2, y2, outline="red", width=2)
+                        self.canvasViewModel.canvas.create_rectangle(x1, y1, x2, y2, outline="red", width=2)
 
-            self.__canvas.canvasViewModel.drawImage(blankCanvasImage, 0, 256, 256, 256)
+            if not isBlank:
+                self.__copiedImage = blankCanvasImage
+
+    def on_control_v(self, event):
+        mouseCoords = Vector2(event.x, event.y)
+        
+        if self.__copiedImage:
+            self.canvasViewModel.drawImage(self.__copiedImage, 0, 0)
