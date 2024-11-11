@@ -95,8 +95,7 @@ class SelectionRectangleTool:
 
         if self.selectionRectangle and self.selectionRectangle.action != SelectionRectangleAction.NONE:
             # Update the coordinates and move the selection rectangle
-            self.selectionRectangle.on_mouse_drag(event)
-            self.canvasViewModel.canvas.moveto(self.__tempCanvasSelectionRectangle, self.selectionRectangle.min.x, self.selectionRectangle.min.y)
+            self.selectionRectangle.on_mouse_drag(event, self.canvasViewModel.canvas)
             return
 
         # Update the rectangle as the mouse is dragged
