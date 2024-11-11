@@ -15,7 +15,7 @@ class CanvasViewModel:
 
     Attributes:
     -----------
-    __canvas : tk.Canvas
+    canvas : tk.Canvas
         The canvas where the ViewModel is tied to
     images : dict
         A dictonary to keep all the CanvasImage. The key are the Id of the canvas drawing, and the value is the CanvasImage itself.
@@ -41,6 +41,14 @@ class CanvasViewModel:
         -----------
         canvasImage : CanvasImage
             The image we want to draw to the Canvas
+        x : int
+            The x position where the image is going to be draw
+        y : int
+            The y position where the image is giong to be draw
+        width : int
+            The width the image is going to be resized to
+        height : int
+            The height the image is going to be resized to
         """
         width = width or canvasImage.width
         height = height or canvasImage.height
