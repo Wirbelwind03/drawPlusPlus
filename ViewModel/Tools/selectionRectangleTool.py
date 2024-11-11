@@ -1,20 +1,14 @@
 from enum import Enum
 
+from config import DEBUG
+
 from DrawLibrary.Core.Math.vector2 import Vector2
 from DrawLibrary.Core.Collision.aabb import AABB
 
-from Model.canvasImage import CanvasImage
-from Model.selectionRectangle import SelectionRectangle
-
 from ViewModel.canvasVievModel import CanvasViewModel
 
-from config import DEBUG
-
-class Action(Enum):
-    CREATE = 0
-    MOVE = 1
-    RESIZE = 2
-    ROTATE = 3
+from Model.canvasImage import CanvasImage
+from Model.selectionRectangle import SelectionRectangleAction, SelectionRectangle
 
 class SelectionRectangleTool:
     """
@@ -24,19 +18,14 @@ class SelectionRectangleTool:
     -----------
     _canvas : tk.Canvas
         The canvas widget where the selection tool is used
-    bbox : Rectangle
-        A rectangle called Bounding Box that define the minimum and maximum coordinates
     _canvasSelectionRectangle : int
         The ID of the rectangle drawn on the Canvas
-    _action : Action
-        What the user want to do with the selection tool, like deleting, moving, etc.
     """
 
     def __init__(self, canvasViewModel):
         self.canvasViewModel: CanvasViewModel = canvasViewModel
         
         self.__debugBbox = -1
-        self.__action = Action.CREATE
 
         self.selectionRectangle: SelectionRectangle = None
 
@@ -63,15 +52,7 @@ class SelectionRectangleTool:
         mouseCoords = Vector2(event.x, event.y)
 
         if self.selectionRectangle:
-            # Check if the cursor is inside the selection rectangle
-            if self.selectionRectangle.isInside(mouseCoords):
-                # If it is, change that the action we want to do is moving the selection rectangle
-                self.__action = Action.MOVE
-                self.canvasViewModel.canvas.config(cursor="fleur")
-            else:
-                # If it's not, change that the action we want to do is creating a selection rectangle
-                self.__action = Action.CREATE
-                self.canvasViewModel.canvas.config(cursor="arrow")
+            self.selectionRectangle.on_mouse_over(event, self.canvasViewModel.canvas)
 
     def on_button_press(self, event):
         """
@@ -85,14 +66,14 @@ class SelectionRectangleTool:
         # Get the cursor position
         mouseCoords = Vector2(event.x, event.y)
 
-        if self.__action == Action.MOVE:
+        if self.selectionRectangle and self.selectionRectangle.action != SelectionRectangleAction.NONE:
             # Calculate the offset between mouse click and rectangle's position
             self.selectionRectangle.on_button_press(event)
             return
         
         # if the selection rectangle already exist on the canvas, delete it
-        if self.__tempCanvasSelectionRectangle:
-            self.canvasViewModel.canvas.delete(self.__tempCanvasSelectionRectangle)
+        if self.selectionRectangle:
+            self.selectionRectangle.erase(self.canvasViewModel.canvas)
 
         # Save the starting point for the rectangle
         self.__tempStartCoordinates = mouseCoords
@@ -112,10 +93,9 @@ class SelectionRectangleTool:
         # Get the cursor position
         mouseCoords = Vector2(event.x, event.y)
 
-        if self.__action == Action.MOVE:
+        if self.selectionRectangle and self.selectionRectangle.action != SelectionRectangleAction.NONE:
             # Update the coordinates and move the selection rectangle
-            self.selectionRectangle.on_mouse_drag(event)
-            self.canvasViewModel.canvas.moveto(self.__tempCanvasSelectionRectangle, self.selectionRectangle.min.x, self.selectionRectangle.min.y)
+            self.selectionRectangle.on_mouse_drag(event, self.canvasViewModel.canvas)
             return
 
         # Update the rectangle as the mouse is dragged
@@ -133,13 +113,15 @@ class SelectionRectangleTool:
         # Get the cursor position
         mouseCoords = Vector2(event.x, event.y)
 
-        if self.__action == Action.MOVE:
+        if self.selectionRectangle and self.selectionRectangle.action != SelectionRectangleAction.NONE:
             if DEBUG:
                 self.createDebugBbox()
             return
 
         # On release, finalize the rectangle selection by setting its end coordinates
-        self.selectionRectangle = SelectionRectangle.fromCoordinates(self.__tempStartCoordinates.x, self.__tempStartCoordinates.y, mouseCoords.x, mouseCoords.y)
+        self.canvasViewModel.canvas.delete(self.__tempCanvasSelectionRectangle)
+        self.selectionRectangle = SelectionRectangle.fromCoordinates(self.__tempStartCoordinates.x, self.__tempStartCoordinates.y, mouseCoords.x, mouseCoords.y, 10)
+        self.selectionRectangle.draw(self.canvasViewModel.canvas)
 
         if DEBUG:
             self.createDebugBbox()
