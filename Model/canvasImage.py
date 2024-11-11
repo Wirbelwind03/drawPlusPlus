@@ -73,6 +73,16 @@ class CanvasImage:
             print(e)
 
     def cut(self, x, y, width, height) -> None:
+        """
+        Resize a CanvasImage
+
+        Parameters:
+        -----------
+        width : int
+            The width the image is going to be resized
+        height : int
+            The height the image is going to be resized
+        """
         new_img = self.image.convert("RGBA")
         mask = Image.new("RGBA", (width, height), (255, 255, 255, 0))
         new_img.paste(mask, (x, y))
@@ -82,6 +92,16 @@ class CanvasImage:
         self.photoImage = ImageTk.PhotoImage(new_img)
     
     def resize(self, width, height):
+        """
+        Resize a CanvasImage
+
+        Parameters:
+        -----------
+        width : int
+            The width the image is going to be resized
+        height : int
+            The height the image is going to be resized
+        """
         self.width = width
         self.height = height
         resizedImage = self.image.resize((self.width, self.height))
@@ -94,10 +114,34 @@ class CanvasImage:
         self.image = self.image.crop((x, y, x + width, y + height))
 
     def copy(self, x, y, width, height):
+        """
+        Copy a CanvasImage
+
+        Parameters:
+        -----------
+        x : int
+            The x position of the image that is going to be copied
+        y : int
+            The y position of the image that is going to be copied
+        width : int
+            The width of the image that is going to be copied
+        height : int
+            The height of the image that is going to be copied
+        """
         newCanvasImage = self.clone()
         newCanvasImage.crop(x, y, width, height)
         return newCanvasImage
 
     def paste(self, x, y, canvasImage: 'CanvasImage'):
+        """
+        Paste a CanvasImage
+
+        Parameters:
+        -----------
+        x : int
+            The x position where the image is going to be pasted
+        y : int
+            The y position where the image is going to be pasted
+        """
         self.image.paste(canvasImage.image, (x, y))
 
