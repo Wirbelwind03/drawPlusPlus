@@ -43,12 +43,20 @@ class Vector2:
             return Vector2(self.x + other.x, self.y + other.y)
         elif isinstance(other, tuple):
             return Vector2(self.x + other[0], self.y + other[1])
+        elif isinstance(other, int):
+            return Vector2(self.x + other, self.y + other)
+        else:
+            raise TypeError()
 
     def __sub__(self, other) -> 'Vector2':
         if isinstance(other, Vector2):
             return Vector2(self.x - other.x, self.y - other.y)
         elif isinstance(other, tuple):
             return Vector2(self.x - other[0], self.y - other[1])
+        elif isinstance(other, int):
+            return Vector2(self.x - other, self.y - other)
+        else:
+            raise TypeError()
         
     def __mul__(self, scalar) -> 'Vector2':
         """
