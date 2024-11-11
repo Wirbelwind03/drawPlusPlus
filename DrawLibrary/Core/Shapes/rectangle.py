@@ -44,19 +44,19 @@ class Rectangle:
 
     @property
     def topLeft(self)  -> Vector2:
-        return Vector2(self.x, self.y)
-    
+        return Vector2(min(self.x, self.x + self.width), min(self.y, self.y + self.height))
+        
     @property
     def topRight(self)  -> Vector2:
-        return Vector2(self.x + self.width, self.y)
+        return Vector2(max(self.x, self.x + self.width), min(self.y, self.y + self.height))
     
     @property
     def bottomLeft(self)  -> Vector2:
-        return Vector2(self.x, self.y + self.height)
+        return Vector2(min(self.x, self.x + self.width), max(self.y, self.y + self.height))
     
     @property
     def bottomRight(self)  -> Vector2:
-        return Vector2(self.x + self.width, self.y + self.height)
+        return Vector2(max(self.x, self.x + self.width), max(self.y, self.y + self.height))
 
     def getArea(self):
         """
