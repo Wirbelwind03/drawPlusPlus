@@ -95,7 +95,8 @@ class SelectionRectangleTool:
 
         if self.selectionRectangle and self.selectionRectangle.action != SelectionRectangleAction.NONE:
             # Update the coordinates and move the selection rectangle
-            self.selectionRectangle.on_mouse_drag(event, self.canvasViewModel.canvas)
+            self.selectionRectangle.on_mouse_drag(event)
+            self.canvasViewModel.canvas.moveto(self.__tempCanvasSelectionRectangle, self.selectionRectangle.min.x, self.selectionRectangle.min.y)
             return
 
         # Update the rectangle as the mouse is dragged
@@ -129,6 +130,8 @@ class SelectionRectangleTool:
     def on_delete(self, event):
         if self.selectionRectangle:
             for imageId, image in self.canvasViewModel.images.items():
+                if self.selectionRectangle.attachedImage and self.selectionRectangle.attachedImage.id == imageId:
+                    break
                 # check overlap with image and selection tool
                 if self.selectionRectangle.isIntersecting(image.bbox):
                     x1 = max(self.selectionRectangle.topLeft.x, image.bbox.topLeft.x)
@@ -167,10 +170,11 @@ class SelectionRectangleTool:
                         self.canvasViewModel.canvas.create_rectangle(x1, y1, x2, y2, outline="red", width=2)
 
             if not isBlank:
-                self.__copiedImage = blankCanvasImage
+                blankCanvasImage = self.canvasViewModel.drawImage(blankCanvasImage, self.selectionRectangle.min.x, self.selectionRectangle.min.y)
+                self.selectionRectangle.attachedImage = blankCanvasImage
 
     def on_control_v(self, event):
         mouseCoords = Vector2(event.x, event.y)
         
-        if self.__copiedImage:
-            self.canvasViewModel.drawImage(self.__copiedImage, 0, 0)
+        if self.selectionRectangle.attachedImage:
+            self.canvasViewModel.drawImage(self.selectionRectangle.attachedImage, self.selectionRectangle.min.x, self.selectionRectangle.min.y)
