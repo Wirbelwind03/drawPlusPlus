@@ -4,7 +4,7 @@ class Vector2:
     """
     A class to represent a 2D vector.
 
-    Attributes:
+    Attributes
     -----------
     x : float
         The x-coordinate of the vector.
@@ -16,7 +16,7 @@ class Vector2:
         """
         Construct a Vector2 instance.
 
-        Parameters:
+        Parameters
         -----------
         x : float
             The x-coordinate of the vector.
@@ -29,12 +29,12 @@ class Vector2:
         """
         Adds another vector or a tuple to this vector.
 
-        Parameters:
+        Parameters
         -----------
         other : Vector2 or tuple
             The vector or tuple to add.
 
-        Returns:
+        Returns
         --------
         Vector2
             A new Vector2 instance representing the sum.
@@ -62,17 +62,17 @@ class Vector2:
         """
         Multiplies the vector by a scalar.
 
-        Parameters:
+        Parameters
         -----------
         scalar : float
             The scalar to multiply by.
 
-        Returns:
+        Returns
         --------
         Vector2
             A new Vector2 instance representing the scaled vector.
 
-        Raises:
+        Raises
         -------
         TypeError
             If the scalar is not a number.

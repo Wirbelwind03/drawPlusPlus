@@ -37,7 +37,26 @@ class Rectangle:
         self.height = height
 
     @classmethod
-    def fromCoordinates(cls, x1, y1, x2, y2) -> 'Rectangle':
+    def fromCoordinates(cls, x1: int, y1: int, x2: int, y2: int) -> 'Rectangle':
+        """
+        Create a Rectagle from start and end coordinates
+
+        Parameters
+        --------
+        x1 : int
+            The x start coordinate of the rectangle
+        y1 : int
+            The y start coordinate of the rectangle
+        x2 : int
+            The x end coordinate of the rectangle
+        y2 : int
+            The y end coordinate of the rectangle
+
+        Returns
+        --------
+        Rectangle
+            The new Rectangle created from the arguments coordinates
+        """
         width = x2 - x1
         height = y2 - y1
         return cls(x1, y1, width, height)
@@ -57,12 +76,16 @@ class Rectangle:
     @property
     def bottomRight(self)  -> Vector2:
         return Vector2(max(self.x, self.x + self.width), max(self.y, self.y + self.height))
+    
+    @property
+    def corners(self) -> list:
+        return [self.topLeft, self.topRight, self.bottomLeft, self.bottomRight]
 
     def getArea(self):
         """
         Calculates the area of the rectangle.
 
-        Returns:
+        Returns
         --------
         float
             The area of the rectangle.
@@ -73,7 +96,7 @@ class Rectangle:
         """
         Calculates the perimeter of the rectangle.
 
-        Returns:
+        Returns
         --------
         float
             The perimeter of the rectangle.

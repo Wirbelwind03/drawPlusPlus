@@ -18,20 +18,24 @@ class AABB(Rectangle):
         return super().fromCoordinates(xMin, yMin, xMax, yMax)
     
     @property
-    def topLeft(self)  -> Vector2:
+    def topLeft(self) -> Vector2:
         return Vector2(self.min.x, self.min.y)
     
     @property
-    def topRight(self)  -> Vector2:
+    def topRight(self) -> Vector2:
         return Vector2(self.max.x, self.min.y)
     
     @property
-    def bottomLeft(self)  -> Vector2:
+    def bottomLeft(self) -> Vector2:
         return Vector2(self.min.x, self.max.y)
     
     @property
-    def bottomRight(self)  -> Vector2:
+    def bottomRight(self) -> Vector2:
         return Vector2(self.max.x, self.max.y)
+    
+    @property
+    def corners(self) -> list:
+        return [self.topLeft, self.topRight, self.bottomLeft, self.bottomRight]
 
     def isInside(self, other) -> bool:
         if isinstance(other, Vector2):

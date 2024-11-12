@@ -47,8 +47,6 @@ class SelectionTool:
 
         if self.selectionRectangle and self.selectionRectangle.action == SelectionRectangleAction.MOVE:
             self.selectionRectangle.on_mouse_drag(event, self.canvasViewModel.canvas)
-            if DEBUG:
-                self.canvasViewModel.canvas.moveto(self.selectionRectangle.attachedImage._debugBbox, self.selectionRectangle.min.x, self.selectionRectangle.min.y)
             return
         
     def on_button_release(self, event):

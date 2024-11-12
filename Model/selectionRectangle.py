@@ -68,7 +68,7 @@ class SelectionRectangle(AABB):
         """
         Erase all the drawn shapes tied to the selection rectangle on the canvas
 
-        Parameters:
+        Parameters
         -----------
         event : 
         """
@@ -80,7 +80,7 @@ class SelectionRectangle(AABB):
         """
         A event for when the mouse is hovering on the selection rectangle
 
-        Parameters:
+        Parameters
         -----------
         event : 
         """
@@ -109,7 +109,7 @@ class SelectionRectangle(AABB):
         """
         A event for when a left click occur on the selection rectangle
 
-        Parameters:
+        Parameters
         -----------
         event : 
         """
@@ -125,7 +125,7 @@ class SelectionRectangle(AABB):
         """
         A event for when the user drag the selection rectangle
 
-        Parameters:
+        Parameters
         -----------
         event : 
         """

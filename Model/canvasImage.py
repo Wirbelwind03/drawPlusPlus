@@ -14,10 +14,10 @@ class CanvasImage:
         self.photoImage: ImageTk.PhotoImage = None
         self.bbox = None
 
-        self._debugBbox = -1
+        self.debugBbox = -1
 
     @staticmethod
-    def createBlank(width, height):
+    def createBlank(width: int, height: int) -> 'CanvasImage':
         blankCanvasImage = CanvasImage()
         blankCanvasImage.width = width
         blankCanvasImage.height = height
@@ -33,8 +33,9 @@ class CanvasImage:
         return self._width
     
     @width.setter
-    def width(self, width):
+    def width(self, width: int):
         self._width = width
+        # Update the width of the AABB
         if self.bbox:
             self.bbox.width = self.width
 
@@ -43,12 +44,21 @@ class CanvasImage:
         return self._height
     
     @height.setter
-    def height(self, height):
+    def height(self, height: int):
         self._height = height
+        # Update the height of the AABB
         if self.bbox:
             self.bbox.height = self.height
 
     def clone(self) -> 'CanvasImage':
+        """
+        Clone a existing CanvasImage
+
+        Returns
+        -----------
+        CanvasImage
+            The CanvasImage that was cloned
+        """
         canvasImage = CanvasImage()
         canvasImage.id = -1
         canvasImage.image = self.image.copy()
@@ -61,37 +71,54 @@ class CanvasImage:
         return canvasImage
 
     def load(self, filePath: str) -> None:
+        """
+        Load a image from a filepath
+
+        Parameters
+        -----------
+        filePath : str
+            The file path where the image is going to be loaded
+        """
+
         try:
             # Check if the file exists
             if not os.path.exists(filePath):
                 raise FileNotFoundError(f"The file '{filePath}' does not exist.")
 
+            # Load the image inside the CanvasImage
             self.image = Image.open(filePath)
             self.photoImage = ImageTk.PhotoImage(self.image)
             self.width, self.height = self.image.size
         except FileNotFoundError as e:
             print(e)
 
-    def cut(self, x, y, width, height) -> None:
+    def cut(self, x: int, y: int, width: int, height: int) -> None:
         """
-        Resize a CanvasImage
+        Cut a CanvasImage, aka erasing a part of it
 
-        Parameters:
+        Parameters
         -----------
+        x : int
+            The x position where the image is going to be cut from
+        y : int
+            The y position where the image is going to be cut from
         width : int
-            The width the image is going to be resized
+            The width the image is going to be cut from
         height : int
-            The height the image is going to be resized
+            The height the image is going to be cut from
         """
+
+        # Create a blank image
         new_img = self.image.convert("RGBA")
         mask = Image.new("RGBA", (width, height), (255, 255, 255, 0))
+        # Paste it so the image feel it's cut
         new_img.paste(mask, (x, y))
 
         # Update the image
         self.image = new_img
         self.photoImage = ImageTk.PhotoImage(new_img)
     
-    def resize(self, width, height):
+    def resize(self, width: int, height: int) -> None: 
         """
         Resize a CanvasImage
 
@@ -110,14 +137,14 @@ class CanvasImage:
         self.image = resizedImage
         self.photoImage = ImageTk.PhotoImage(resizedImage)
 
-    def crop(self, x, y, width, height):
+    def crop(self, x: int, y: int, width: int, height: int) -> None:
         self.image = self.image.crop((x, y, x + width, y + height))
 
-    def copy(self, x, y, width, height):
+    def copy(self, x: int, y: int, width: int, height: int) -> 'CanvasImage':
         """
         Copy a CanvasImage
 
-        Parameters:
+        Parameters
         -----------
         x : int
             The x position of the image that is going to be copied
@@ -127,12 +154,18 @@ class CanvasImage:
             The width of the image that is going to be copied
         height : int
             The height of the image that is going to be copied
+
+        Returns
+        -----------
+        CanvasImage
+            A new CanvasImage that has been copied from another
         """
         newCanvasImage = self.clone()
         newCanvasImage.crop(x, y, width, height)
+
         return newCanvasImage
 
-    def paste(self, x, y, canvasImage: 'CanvasImage'):
+    def paste(self, x: int, y: int, canvasImage: 'CanvasImage') -> None:
         """
         Paste a CanvasImage
 
@@ -142,6 +175,9 @@ class CanvasImage:
             The x position where the image is going to be pasted
         y : int
             The y position where the image is going to be pasted
+        canvasImage : CanvasImage
+            The CanvasImage that is going to be pasted
         """
+
         self.image.paste(canvasImage.image, (x, y))
 

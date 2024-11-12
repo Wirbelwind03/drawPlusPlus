@@ -13,13 +13,18 @@ from Model.selectionRectangle import SelectionRectangleAction, SelectionRectangl
 class SelectionRectangleTool:
     """
     A class for the selection tool used in the canvas.
+    The class handle the events and the functions tied to the selection tool
 
     Attributes:
     -----------
-    _canvas : tk.Canvas
+    canvasViewModel : CanvasViewModel
         The canvas widget where the selection tool is used
-    _canvasSelectionRectangle : int
-        The ID of the rectangle drawn on the Canvas
+    selectionRectangle : SelectionRectangle
+        The selection rectangle that is present on the Canvas
+    __tempStartCoordinates : Vector2
+        Temporary variable to stock when the selection rectangle is going to be created
+    __tempCanvasSelectionRectangle : int
+        The ID of the selection rectangle drawn on the canvas, when the user is still resizing it
     """
 
     def __init__(self, canvasViewModel):
@@ -31,7 +36,6 @@ class SelectionRectangleTool:
 
         self.__tempStartCoordinates = None
         self.__tempCanvasSelectionRectangle = -1
-        self.__copiedImage : CanvasImage = None
         
     def createDebugBbox(self):
         if self.__debugBbox:
@@ -43,7 +47,7 @@ class SelectionRectangleTool:
         """
         A event for when the mouse is hovering on the canvas
 
-        Attributes:
+        Parameters
         -----------
         event : 
         """
@@ -58,7 +62,7 @@ class SelectionRectangleTool:
         """
         A event for when the user left click on the canvas
 
-        Attributes:
+        Parameters
         -----------
         event : 
         """
@@ -85,7 +89,7 @@ class SelectionRectangleTool:
         """
         A event for when the mouse is dragged over on the canvas
 
-        Attributes:
+        Parameters
         -----------
         event : 
         """
@@ -105,7 +109,7 @@ class SelectionRectangleTool:
         """
         A event for when the left click is released on the canvas
 
-        Attributes:
+        Parameters
         -----------
         event : 
         """
@@ -114,17 +118,13 @@ class SelectionRectangleTool:
         mouseCoords = Vector2(event.x, event.y)
 
         if self.selectionRectangle and self.selectionRectangle.action != SelectionRectangleAction.NONE:
-            if DEBUG:
-                self.createDebugBbox()
             return
 
         # On release, finalize the rectangle selection by setting its end coordinates
+        # and draw the actual selection rectangle
         self.canvasViewModel.canvas.delete(self.__tempCanvasSelectionRectangle)
         self.selectionRectangle = SelectionRectangle.fromCoordinates(self.__tempStartCoordinates.x, self.__tempStartCoordinates.y, mouseCoords.x, mouseCoords.y, 10)
         self.selectionRectangle.draw(self.canvasViewModel.canvas)
-
-        if DEBUG:
-            self.createDebugBbox()
 
     def on_delete(self, event):
         if self.selectionRectangle:
@@ -144,7 +144,6 @@ class SelectionRectangleTool:
                     
                     if DEBUG:
                         self.canvasViewModel.canvas.create_rectangle(x1, y1, x2, y2, outline="red", width=2)
-                        #self._canvas.create_rectangle(intersectRectangle.topLeft.x, intersectRectangle.topLeft.y, intersectRectangle.bottomRight.x, intersectRectangle.bottomRight.y, outline="red", width=2)
                 
             self.canvasViewModel.update()
             self.canvasViewModel.canvas.delete(self.__debugBbox)

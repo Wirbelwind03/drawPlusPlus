@@ -14,7 +14,7 @@ class MainFrame(tk.Frame):
     """
     A class to represent the Main Frame widget, the frame that contains all the widget
 
-    Attributes:
+    Attributes
     -----------
     menuBar : MenuBar
         Widget at the top of this one that contains operations tied to the file
@@ -63,13 +63,6 @@ class MainFrame(tk.Frame):
         
         circleImage = CanvasImage()
         circleImage.load("Data/Assets/circle.jpg")
-
-        # pasteCircleImage = CanvasImage.createBlank(circleImage.width, circleImage.height)
-        # test = circleImage.copy(circleImage.width // 2, 0, circleImage.width // 2, circleImage.height // 2)
-        # pasteCircleImage.paste(0, 0, test)
-        # test = circleImage.copy(0, 0, circleImage.width // 2, circleImage.height // 2)
-        # pasteCircleImage.paste(circleImage.width // 2, 0, test)
-        # self.canvas.canvasViewModel.drawImage(pasteCircleImage, 0, 256, 256, 256)
 
         self.canvas.canvasViewModel.drawImage(circleImage, 0, 0, 256, 256)
         self.canvas.canvasViewModel.drawImage(circleImage, 256, 0, 256, 256)
