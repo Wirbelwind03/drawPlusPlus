@@ -40,8 +40,7 @@ class SelectionTool:
             # Calculate the offset between mouse click and rectangle's position
             self.selectionRectangle.on_button_press(event)
             return
-
-                
+           
     def on_mouse_drag(self, event):
         mouseCoords = Vector2(event.x, event.y)
 
@@ -53,6 +52,12 @@ class SelectionTool:
         mouseCoords = Vector2(event.x, event.y)
         
         self.selectionRectangle.action = SelectionRectangleAction.NONE
+
+    def on_delete(self, event):
+        if self.selectionRectangle:
+            if self.selectionRectangle.attachedImage:
+                self.canvasViewModel.deleteImage(self.selectionRectangle.attachedImage)
+            self.selectionRectangle.erase(self.canvasViewModel.canvas)
 
     def getClickedImage(self, mouseCoords):
         # Loop all the images present on the canvas

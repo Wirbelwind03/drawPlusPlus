@@ -13,25 +13,40 @@ class SelectionRectangleAction(Enum):
     RESIZE = 2
 
 class SelectionRectangle(AABB):
-    def __init__(self, *args, cornerSize=10, cornerCanvasSize=5, **kwargs) -> None:
+    """
+    A class representing a selection rectangle (like Paint) for a tk.Canvas
+
+    Attributes
+    -----------
+    canvasIdRectangle : int
+        The ID of the rectangle rendered on a tk.Canvas, and is used to render the selection rectangle
+    canvasIdCorners : list
+        The IDs of the rectangles rendered on a tk.Canvas, and is used to render the corners of the selection rectangle
+    attachedImage : CanvasImage
+        The image attached to the selection rectangle
+    action : SelectionRectangleAction
+        The action the user is going to do with the selection rectangle
+    """
+
+    def __init__(self, *args, cornerSize: int=10, cornerCanvasSize:int =5, **kwargs) -> None:
         super().__init__(*args, **kwargs)
 
-        self.startGapOffset = 0
-        self.endGapOffset = 0
+        self.startGapOffset: int = 0
+        self.endGapOffset: int = 0
         
-        self.cornerSize = cornerSize
-        self.cornerCanvasSize = cornerCanvasSize
+        self.cornerSize: int = cornerSize
+        self.cornerCanvasSize: int = cornerCanvasSize
 
         self.cornersBbox = []
         
-        self.canvasIdRectangle = -1
-        self.canvasIdCorners = []
+        self.canvasIdRectangle: int = -1
+        self.canvasIdCorners: list = []
         self.attachedImage: CanvasImage = None
 
-        self.action = SelectionRectangleAction.NONE
+        self.action: SelectionRectangleAction = SelectionRectangleAction.NONE
 
     @classmethod
-    def fromCoordinates(cls, x1, y1, x2, y2, cornerSize=10, cornerCanvasSize=5) -> 'SelectionRectangle':
+    def fromCoordinates(cls, x1: int, y1: int, x2: int, y2: int, cornerSize: int=10, cornerCanvasSize: int=5) -> 'SelectionRectangle':
         instance: 'SelectionRectangle' =  super().fromCoordinates(x1, y1, x2, y2)
         instance.cornerSize = cornerSize
         instance.cornerCanvasSize = cornerCanvasSize
@@ -44,6 +59,19 @@ class SelectionRectangle(AABB):
             self.cornersBbox.append(AABB.fromCoordinates(corners[i].x - self.cornerSize, corners[i].y - self.cornerSize, corners[i].x + self.cornerSize, corners[i].y + self.cornerSize)) 
     
     def isInsideCorners(self, coords: Vector2) -> bool:
+        """
+        Check if a coordinates is inside the corners of the selection rectangle
+
+        Parameters
+        -----------
+        coords : Vector2
+            The coords that is going to be checked for every corner
+
+        Return
+        -----------
+        bool
+            Boolean if the coords are inside the corners
+        """
         for corner in self.cornersBbox:
             if corner.isInside(coords):
                 return True
@@ -53,7 +81,7 @@ class SelectionRectangle(AABB):
         """
         Draw a selection rectangle on a canvas
 
-        Parameters:
+        Parameters
         -----------
         canvas : tk.Canvas
         """
@@ -148,16 +176,16 @@ class SelectionRectangle(AABB):
                 self.attachedImage.bbox.min = self.min
                 self.attachedImage.bbox.max = self.max
 
-            # Move the shapes drawn on the canvas
+            ## Render the shapes drawn on the canvas
             
-            # Draw the selection rectangle to the new position
+            # Render the selection rectangle to the new position
             canvas.moveto(self.canvasIdRectangle, self.min.x, self.min.y)
             
-            # Draw the corners to the new position
+            # Render the corners to the new position
             for i in range(len(self.canvasIdCorners)):
                 canvas.moveto(self.canvasIdCorners[i], self.cornersBbox[i].min.x, self.cornersBbox[i].min.y)
             
-            # Draw the image to the new position
+            # Render the image to the new position
             if self.attachedImage:
                 canvas.moveto(self.attachedImage.id, self.min.x, self.min.y)
     

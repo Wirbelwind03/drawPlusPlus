@@ -15,7 +15,7 @@ class SelectionRectangleTool:
     A class for the selection tool used in the canvas.
     The class handle the events and the functions tied to the selection tool
 
-    Attributes:
+    Attributes
     -----------
     canvasViewModel : CanvasViewModel
         The canvas widget where the selection tool is used
@@ -119,10 +119,16 @@ class SelectionRectangleTool:
 
         if self.selectionRectangle and self.selectionRectangle.action != SelectionRectangleAction.NONE:
             return
-
+        
         # On release, finalize the rectangle selection by setting its end coordinates
         # and draw the actual selection rectangle
         self.canvasViewModel.canvas.delete(self.__tempCanvasSelectionRectangle)
+
+        # If the user has only clicked on the canvas and didn't resize the selection rectangle, 
+        # don't create it
+        if self.__tempStartCoordinates == mouseCoords:
+            return
+
         self.selectionRectangle = SelectionRectangle.fromCoordinates(self.__tempStartCoordinates.x, self.__tempStartCoordinates.y, mouseCoords.x, mouseCoords.y, 10)
         self.selectionRectangle.draw(self.canvasViewModel.canvas)
 

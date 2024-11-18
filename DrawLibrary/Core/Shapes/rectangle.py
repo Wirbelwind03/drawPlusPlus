@@ -4,7 +4,7 @@ class Rectangle:
     """
     A class to represent a rectangle in a 2D space.
 
-    Attributes:
+    Attributes
     -----------
     x : float
         The x coordinate of the top-left corner of the rectangle.
@@ -20,7 +20,7 @@ class Rectangle:
         """
         Constructs a new rectangle instance with the specified position and dimensions.
 
-        Parameters:
+        Parameters
         -----------
         x : float
             The x coordinate of the top-left corner of the rectangle (default is 0).

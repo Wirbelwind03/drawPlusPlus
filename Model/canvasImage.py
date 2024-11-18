@@ -5,16 +5,38 @@ from DrawLibrary.Core.Math.vector2 import Vector2
 from DrawLibrary.Core.Collision.aabb import AABB
 
 class CanvasImage:
+    """
+    A class representing a image on a tk.Canvas
+    The class handle operation tied to the images
+
+    Attributes
+    -----------
+    id : int
+        The id of the CanvasImage drawn on a tk.Canvas
+    filePath : str
+        The file path of the image
+    _width : int
+        The width of the image
+    _height : int
+        The height of the image
+    image : Image
+    photoImage : ImageTK.PhotoImage
+    bbox : AABB
+        The bounding box tied to the image
+    debugBbox : int
+        The ID of the rectangle rendered on a tk.Canvas
+    """
+
     def __init__(self) -> None:
-        self.id = -1
-        self.filePath = ""
-        self._width = 0
-        self._height = 0
+        self.id: int = -1
+        self.filePath: str = ""
+        self._width: int = 0
+        self._height: int = 0
         self.image: Image = None
         self.photoImage: ImageTk.PhotoImage = None
-        self.bbox = None
+        self.bbox: AABB = None
 
-        self.debugBbox = -1
+        self.debugBbox: int = -1
 
     @staticmethod
     def createBlank(width: int, height: int) -> 'CanvasImage':
@@ -122,7 +144,7 @@ class CanvasImage:
         """
         Resize a CanvasImage
 
-        Parameters:
+        Parameters
         -----------
         width : int
             The width the image is going to be resized
@@ -169,7 +191,7 @@ class CanvasImage:
         """
         Paste a CanvasImage
 
-        Parameters:
+        Parameters
         -----------
         x : int
             The x position where the image is going to be pasted

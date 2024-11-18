@@ -1,5 +1,4 @@
 import tkinter as tk
-import copy
 from PIL import Image, ImageTk
 from enum import Enum
 
@@ -13,31 +12,32 @@ class CanvasViewModel:
     """
     A class to manage the CanvasImage in a canvas.
 
-    Attributes:
+    Attributes
     -----------
     canvas : tk.Canvas
         The canvas where the ViewModel is tied to
-    images : dict
-        A dictonary to keep all the CanvasImage. The key are the Id of the canvas drawing, and the value is the CanvasImage itself.
+    images : dict[int, CanvasImage]
+        A dictonary to keep all the CanvasImage. 
+        The key are the ID given through the draw functions of tk.Canvas, and the value is the CanvasImage itself.
     """
 
     def __init__(self, canvas: tk.Canvas):
         """
         Constructs a new CanvasImagesManager to the canvas.
 
-        Parameters:
+        Parameters
         -----------
         canvas : tk.Canvas
             The canvas where the ViewModel is going to be tied to
         """
         self.canvas: tk.Canvas = canvas
-        self.images = {}
+        self.images: dict[int, CanvasImage] = {}
 
     def drawImage(self, canvasImage: CanvasImage, x, y, width=None, height=None):
         """
         Draw a image to the canvas
 
-        Parameters:
+        Parameters
         -----------
         canvasImage : CanvasImage
             The image we want to draw to the Canvas
@@ -67,6 +67,10 @@ class CanvasViewModel:
         self.images[imageId] = newCanvasImage
 
         return newCanvasImage 
+
+    def deleteImage(self, canvasImage: CanvasImage):
+        self.canvas.delete(canvasImage.id)
+        del self.images[canvasImage.id]
 
     def update(self):
         """
