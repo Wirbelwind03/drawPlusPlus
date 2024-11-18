@@ -9,6 +9,25 @@ class AABB(Rectangle):
 
     @classmethod
     def fromCoordinates(cls, x1, y1, x2, y2) -> 'AABB':
+        """
+        Create a AABB from start and end coordinates
+
+        Parameters
+        --------
+        x1 : int
+            The x start coordinate of the rectangle
+        y1 : int
+            The y start coordinate of the rectangle
+        x2 : int
+            The x end coordinate of the rectangle
+        y2 : int
+            The y end coordinate of the rectangle
+
+        Returns
+        --------
+        AABB
+            The new AABB created from the arguments
+        """
         # Top left coordinates
         xMin = min(x1, x2)
         yMin = min(y1, y2)
@@ -38,6 +57,19 @@ class AABB(Rectangle):
         return [self.topLeft, self.topRight, self.bottomLeft, self.bottomRight]
 
     def isInside(self, other) -> bool:
+        """
+        Check if the object entered as argument is inside the AABB
+
+        Parameters
+        -----------
+        other: Vector2
+            The object checked with the AABB
+
+        Returns
+        -----------
+        bool
+            Boolean if the objest as argument is inside or not the ABB
+        """
         if isinstance(other, Vector2):
             return (other.x > self.min.x and other.x < self.max.x and 
                     other.y > self.min.y and other.y < self.max.y)
@@ -45,6 +77,19 @@ class AABB(Rectangle):
         return False
     
     def isOutside(self, other) -> bool:
+        """
+        Check if the object entered as argument is outside the AABB
+
+        Parameters
+        -----------
+        other: Vector2
+            The object checked with the AABB
+
+        Returns
+        -----------
+        bool
+            Boolean if the objest as argument is outside or not the ABB
+        """
         if isinstance(other, Vector2):
             return (other.x < self.min.x or other.x > self.max.x or
                     other.y < self.min.y or other.y > self.max.y)
@@ -52,6 +97,19 @@ class AABB(Rectangle):
         return False
 
     def isIntersecting(self, other) -> bool:
+        """
+        Check if the object entered as argument is intersecting with the AABB
+
+        Parameters
+        -----------
+        other: Rectangle
+            The object checked with the AABB
+
+        Returns
+        -----------
+        bool
+            Boolean if the objest as argument is intersecting or not with the ABB
+        """
         if isinstance(other, Rectangle):
             if self.topRight.x < other.topLeft.x or other.topRight.x < self.topLeft.x:
                 return False
@@ -65,8 +123,10 @@ class AABB(Rectangle):
     
     def getIntersectRectangle(self, other) -> 'AABB':
         if isinstance(other, Rectangle):
+            # Top-left corner of the intersecting rectangle
             x1 = max(self.topLeft.x, other.topLeft.x)
             y1 = max(self.topRight.y, other.topRight.y)
+            # Bottom-right cornoer of the intersecting rectangle
             x2 = min(self.topRight.x, other.topRight.x)
             y2 = min(self.bottomRight.y, other.bottomRight.y)
             return AABB(x1 - other.topLeft.x, y1 - other.topLeft.y, x2 - x1, y2 - y1)

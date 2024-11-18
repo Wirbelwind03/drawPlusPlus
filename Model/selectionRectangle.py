@@ -14,7 +14,7 @@ class SelectionRectangleAction(Enum):
 
 class SelectionRectangle(AABB):
     """
-    A class representing a selection rectangle (like Paint) for a tk.Canvas
+    A class representing a selection rectangle (like the tool used in Paint)
 
     Attributes
     -----------
@@ -47,6 +47,30 @@ class SelectionRectangle(AABB):
 
     @classmethod
     def fromCoordinates(cls, x1: int, y1: int, x2: int, y2: int, cornerSize: int=10, cornerCanvasSize: int=5) -> 'SelectionRectangle':
+        """
+        Create a SelectionRectangle from start and end coordinates
+        The function also take the corner size as argument
+
+        Parameters
+        --------
+        x1 : int
+            The x start coordinate of the rectangle
+        y1 : int
+            The y start coordinate of the rectangle
+        x2 : int
+            The x end coordinate of the rectangle
+        y2 : int
+            The y end coordinate of the rectangle
+        cornerSize : int
+            The size of the corner, where the program is going to detect collision
+        cornerCanvasSize : int
+            The size of the corner rendered on the canvas
+
+        Returns
+        --------
+        SelectionRectangle
+            The new SelectionRectangle created from the arguments
+        """
         instance: 'SelectionRectangle' =  super().fromCoordinates(x1, y1, x2, y2)
         instance.cornerSize = cornerSize
         instance.cornerCanvasSize = cornerCanvasSize
@@ -54,6 +78,9 @@ class SelectionRectangle(AABB):
         return instance
     
     def initializeCorners(self) -> None:
+        """
+        Construct the corners rectangle of the selection rectangle
+        """
         corners = [self.topLeft, self.topRight, self.bottomLeft, self.bottomRight]
         for i in range(len(corners)):
             self.cornersBbox.append(AABB.fromCoordinates(corners[i].x - self.cornerSize, corners[i].y - self.cornerSize, corners[i].x + self.cornerSize, corners[i].y + self.cornerSize)) 
@@ -84,6 +111,7 @@ class SelectionRectangle(AABB):
         Parameters
         -----------
         canvas : tk.Canvas
+            The canvas where the selection is going to be drawn
         """
         # Draw the main frame of the selection rectangle
         self.canvasIdRectangle = canvas.create_rectangle(self.x, self.y, self.x + self.width, self.y + self.height, outline="black", width=2, dash=(2, 2))
@@ -98,7 +126,8 @@ class SelectionRectangle(AABB):
 
         Parameters
         -----------
-        event : 
+        canvas : tk.Canvas
+            The canvas where the selection rectangle is drawn
         """
         canvas.delete(self.canvasIdRectangle)
         for canvasCorner in self.canvasIdCorners:
@@ -111,6 +140,8 @@ class SelectionRectangle(AABB):
         Parameters
         -----------
         event : 
+        canvas : tk.Canvas
+            The canvas where the selection rectangle is drawn
         """
         mouseCoords = Vector2(event.x, event.y)
 
@@ -156,6 +187,8 @@ class SelectionRectangle(AABB):
         Parameters
         -----------
         event : 
+        canvas : tk.Canvas
+            The canvas where the selection rectangle is drawn
         """
         mouseCoords = Vector2(event.x, event.y)
 
