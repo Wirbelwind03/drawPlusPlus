@@ -22,4 +22,4 @@ class ToolBar(tk.Frame):
         # Tool 2 - Eraser
         HighButton = tk.Button(self, text="Highlighter", height=1, width=12)
         HighButton.grid(row=2, column=0)
-        #ceci est le desespoir encore
+        #ceci est le desespoir encore et toujours
