@@ -55,4 +55,4 @@ class DrawScriptParser:
                     self.canvas.create_oval(x - radius, y - radius, x + radius, y + radius, outline='black')  # Draw a circle
 
         else:
-            raise ValueError(f"La commande {command} n'existe pas")
+            raise ValueError(f"Ligne {line_number}\n La commande {command} n'existe pas")

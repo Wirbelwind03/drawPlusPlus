@@ -34,9 +34,8 @@ class TextEditor(tk.Frame):
         self.linenumbers.redraw()
 
     # Fonction pour souligner la ligne contenant une erreur
-    def highlight_error(self, error):
+    def highlight_error(self, error, line_number):
         error_message = str(error)
         # On extrait le numéro de ligne de l'erreur
-        line_number = int(error_message.split(" ")[-1])  # On suppose que le numéro de ligne est à la fin
-        self.tag_add("error", f"{line_number}.0", f"{line_number}.end")
-        self.tag_config("error", background="yellow")  # Configurer le surlignement
+        self.text.tag_add("error", f"{line_number}.0", f"{line_number}.end")
+        self.text.tag_config("error", background="red")  # Configurer le surlignement

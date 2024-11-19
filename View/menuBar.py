@@ -43,8 +43,9 @@ class MenuBar(tk.Menu):
             self.parentFrame.terminal.insert(tk.END, "Exécution réussie !\n")
         except Exception as e:
             # Afficher l'erreur dans le terminal et souligner la ligne
+            print(line_number)
             self.parentFrame.terminal.insert(tk.END, str(e) + "\n")
-            self.parentFrame.textEditor.highlight_error(e)
+            self.parentFrame.textEditor.highlight_error(e, line_number)
 
     # Fonction pour charger un fichier
     def load_file(self):
