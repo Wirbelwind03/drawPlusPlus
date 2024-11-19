@@ -12,12 +12,17 @@ class SelectionRectangleCanvasViewModel:
         self.CVM: CanvasViewModel = canvasViewModel
         self.selectionRectangle = None
 
-    def setSelectionRectangle(self, selectionRectangle: SelectionRectangle) -> None:
+    def setSelectionRectangle(self, selectionRectangle: SelectionRectangle, attachedImage = None) -> None:
         self.selectionRectangle = selectionRectangle
+        if attachedImage:
+            self.selectionRectangle.attachedImage = attachedImage
 
     def hasSelectionRectangle(self) -> bool:
         return self.selectionRectangle is not None
     
+    def setAction(self, action: SelectionRectangleAction) -> None:
+        self.selectionRectangle.action = action
+
     def getAction(self) -> SelectionRectangleAction:
         return self.selectionRectangle.action
     
@@ -50,13 +55,13 @@ class SelectionRectangleCanvasViewModel:
         for canvasCorner in self.selectionRectangle.canvasIdCorners:
             self.CVM.canvas.delete(canvasCorner)
 
-    def delete(self) -> None:
+    def deleteSelectionRectangle(self) -> None:
         if self.selectionRectangle.attachedImage:
             self.CVM.deleteImage(self.selectionRectangle.attachedImage)
         self.deSelect()
 
     def deSelect(self) -> None:
-        self.selectionRectangle.erase(self.CVM.canvas)
+        self.erase()
         self.selectionRectangle = None
         self.CVM.canvas.config(cursor="arrow")
 
@@ -71,6 +76,7 @@ class SelectionRectangleCanvasViewModel:
             The canvas where the selection rectangle is drawn
         """
         mouseCoords = Vector2(event.x, event.y)
+        print(mouseCoords)
 
         if self.selectionRectangle.isInside(mouseCoords):
             if (self.selectionRectangle.isInsideCorners(mouseCoords)):
@@ -128,8 +134,8 @@ class SelectionRectangleCanvasViewModel:
             corners = [self.selectionRectangle.topLeft, self.selectionRectangle.topRight, self.selectionRectangle.bottomLeft, self.selectionRectangle.bottomRight]
             for i in range(len(self.selectionRectangle.cornersBbox)):
                 cornerBbox = self.selectionRectangle.cornersBbox[i]
-                cornerBbox.min = corners[i] - self.cornerSize
-                cornerBbox.max = corners[i] + self.cornerSize
+                cornerBbox.min = corners[i] - self.selectionRectangle.cornerSize
+                cornerBbox.max = corners[i] + self.selectionRectangle.cornerSize
             
             # Update the image coordinates
             if self.selectionRectangle.attachedImage:

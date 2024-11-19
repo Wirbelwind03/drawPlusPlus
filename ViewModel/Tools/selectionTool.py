@@ -16,62 +16,57 @@ class SelectionTool:
         self.CVM: CanvasViewModel = canvasViewModel
         self.SRCVM: SelectionRectangleCanvasViewModel = SelectionRectangleCanvasViewModel(self.CVM)
 
-        self.selectionRectangle : SelectionRectangle = None
-
     def on_mouse_over(self, event):
         mouseCoords = Vector2(event.x, event.y)
 
-        if self.selectionRectangle:
-            self.selectionRectangle.on_mouse_over(event, self.CVM.canvas)
+        if self.SRCVM.hasSelectionRectangle():
+            self.SRCVM.on_mouse_over(event)
 
     def on_button_press(self, event):
         mouseCoords = Vector2(event.x, event.y)
 
         # If there isn't any select image, check if the user has clicked on one
-        if not self.selectionRectangle:
+        if not self.SRCVM.hasSelectionRectangle():
             self.getClickedImage(mouseCoords)
         
         # If the cursor is outside the selected image, deselect it
-        if self.selectionRectangle and self.selectionRectangle.isOutside(mouseCoords):
-            self.selectionRectangle.erase(self.CVM.canvas)
-            self.selectionRectangle = None
+        if self.SRCVM.hasSelectionRectangle() and self.SRCVM.selectionRectangle.isOutside(mouseCoords):
+            self.SRCVM.deSelect()
             # Check if the user has clicked on another image
             self.getClickedImage(mouseCoords)
 
-        if self.selectionRectangle and self.selectionRectangle.action == SelectionRectangleAction.MOVE:
+        if self.SRCVM.hasSelectionRectangle() and self.SRCVM.getAction() == SelectionRectangleAction.MOVE:
             # Calculate the offset between mouse click and rectangle's position
-            self.selectionRectangle.on_button_press(event)
+            self.SRCVM.on_button_press(event)
             return
            
     def on_mouse_drag(self, event):
         mouseCoords = Vector2(event.x, event.y)
 
-        if self.selectionRectangle and self.selectionRectangle.action == SelectionRectangleAction.MOVE:
-            self.selectionRectangle.on_mouse_drag(event, self.CVM.canvas)
+        if self.SRCVM.hasSelectionRectangle() and self.SRCVM.getAction() == SelectionRectangleAction.MOVE:
+            self.SRCVM.on_mouse_drag(event)
             return
         
     def on_button_release(self, event):
         mouseCoords = Vector2(event.x, event.y)
         
-        self.selectionRectangle.action = SelectionRectangleAction.NONE
+        if self.SRCVM.hasSelectionRectangle():
+            self.SRCVM.setAction(SelectionRectangleAction.NONE)
 
     def on_delete(self, event):
-        if self.selectionRectangle:
-            if self.selectionRectangle.attachedImage:
-                self.CVM.deleteImage(self.selectionRectangle.attachedImage)
-            self.selectionRectangle.erase(self.CVM.canvas)
+        if self.SRCVM.hasSelectionRectangle():
+            self.SRCVM.deleteSelectionRectangle()
 
     def getClickedImage(self, mouseCoords):
         # Loop all the images present on the canvas
         for imageId, image in self.CVM.images.items():
             # Check if the mouse is inside the bounding box of the image
             if image.bbox.isInside(mouseCoords):
-                self.selectionRectangle = SelectionRectangle.fromCoordinates(image.bbox.min.x, image.bbox.min.y, image.bbox.max.x, image.bbox.max.y)
-                self.selectionRectangle.draw(self.CVM.canvas)
-                self.selectionRectangle.attachedImage = image
+                self.SRCVM.setSelectionRectangle(SelectionRectangle.fromCoordinates(image.bbox.min.x, image.bbox.min.y, image.bbox.max.x, image.bbox.max.y), image)
+                self.SRCVM.draw()
 
                 # Check the action to move since the cursor is inside the image
-                self.selectionRectangle.action = SelectionRectangleAction.NONE
+                self.SRCVM.setAction(SelectionRectangleAction.MOVE)
                 self.CVM.canvas.config(cursor="fleur")
                 return
 

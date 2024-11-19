@@ -118,8 +118,9 @@ class AABB(Rectangle):
                 return False
             
             return True
-
-        return False
+        
+        else:
+            raise TypeError()
     
     def getIntersectRectangle(self, other) -> 'AABB':
         if isinstance(other, Rectangle):
@@ -130,5 +131,5 @@ class AABB(Rectangle):
             x2 = min(self.topRight.x, other.topRight.x)
             y2 = min(self.bottomRight.y, other.bottomRight.y)
             return AABB(x1 - other.topLeft.x, y1 - other.topLeft.y, x2 - x1, y2 - y1)
-
-        return None
+        else:
+            raise TypeError()
