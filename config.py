@@ -1,3 +1,2 @@
-DEBUG = False
-
+DEBUG = True
 dzdazda
