@@ -28,7 +28,7 @@ class MenuBar(tk.Menu):
         menuExecute = tk.Menu(self, tearoff=0)
         self.add_cascade(label="Execution", menu=menuExecute)
         menuExecute.add_command(label="Execute")
-        menuExecute.add_command(label="Compile C")  # Ajout de la compilation C
+        menuExecute.add_command(label="Compile C", command=self.execute_code)  # Ajout de la compilation C
 
     # Fonction pour compiler et exécuter les instructions
     def execute_code(self):
