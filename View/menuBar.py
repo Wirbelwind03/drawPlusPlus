@@ -32,9 +32,9 @@ class MenuBar(tk.Menu):
 
     # Fonction pour compiler et exécuter les instructions
     def execute_code(self):
-        code = self.parentFrame.textEditor.get("1.0", tk.END)
+        code = self.parentFrame.textEditor.text.get("1.0", tk.END)
         self.parentFrame.terminal.delete("1.0", tk.END)  # Effacer le terminal avant d'exécuter
-        self.parentFrame.textEditor.tag_remove("error", "1.0", tk.END)  # Effacer les surlignements d'erreur
+        self.parentFrame.textEditor.text.tag_remove("error", "1.0", tk.END)  # Effacer les surlignements d'erreur
         try:
             # Effacer le dessin précédent
             self.parentFrame.canvas.delete("all")  # Utilisez canvas pour effacer tout
