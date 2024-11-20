@@ -1,18 +1,20 @@
+from typing import Type
+
 class ToolManager:
     def __init__(self) -> None:
-        self.tools: dict = {
+        self.tools: dict[str, Type] = {
         }
-        self.activeTool = None
+        self.activeTool: str = ""
 
-    def addTool(self, toolName: str, cls) -> None:
+    def addTool(self, toolName: str, cls: Type) -> None:
         self.tools[toolName] = cls
 
     def setActiveTool(self, toolName: str) -> None:
         if toolName in self.tools:
-            self.active_tool = toolName
+            self.activeTool = toolName
 
-    def getActiveTool(self):
-        return self.tools.get(self.active_tool)
+    def getActiveTool(self) -> Type:
+        return self.tools.get(self.activeTool)
 
     def invoke_tool_method(self, method_name: str, event) -> None:
         tool = self.getActiveTool()

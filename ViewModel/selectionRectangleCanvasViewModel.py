@@ -2,17 +2,21 @@ import tkinter as tk
 
 from DrawLibrary.Core.Math.vector2 import Vector2
 
+from Model.canvasImage import CanvasImage
+
 from ViewModel.canvasVievModel import CanvasViewModel
 
 from Model.selectionRectangle import SelectionRectangle
 from Model.selectionRectangle import SelectionRectangleAction
 
 class SelectionRectangleCanvasViewModel:
-    def __init__(self, canvasViewModel):
+    def __init__(self, canvasViewModel: CanvasViewModel):
         self.CVM: CanvasViewModel = canvasViewModel
-        self.selectionRectangle = None
+        self.selectionRectangle: SelectionRectangle = None
+        self.startGapOffset: int = 0
+        self.endGapOffset: int = 0
 
-    def setSelectionRectangle(self, selectionRectangle: SelectionRectangle, attachedImage = None) -> None:
+    def setSelectionRectangle(self, selectionRectangle: SelectionRectangle, attachedImage: CanvasImage = None) -> None:
         self.selectionRectangle = selectionRectangle
         if attachedImage:
             self.selectionRectangle.attachedImage = attachedImage
@@ -76,23 +80,15 @@ class SelectionRectangleCanvasViewModel:
             The canvas where the selection rectangle is drawn
         """
         mouseCoords = Vector2(event.x, event.y)
-        print(mouseCoords)
-
-        if self.selectionRectangle.isInside(mouseCoords):
-            if (self.selectionRectangle.isInsideCorners(mouseCoords)):
-                self.selectionRectangle.action = SelectionRectangleAction.RESIZE
-                self.CVM.canvas.config(cursor="arrow")
-                return
-
+        
+        if self.selectionRectangle.isInsideCorners(mouseCoords):
+            self.selectionRectangle.action = SelectionRectangleAction.RESIZE
+            self.CVM.canvas.config(cursor="umbrella")
+        elif self.selectionRectangle.isInside(mouseCoords):
             # If it is, change that the action we want to do is moving the selection rectangle
             self.selectionRectangle.action = SelectionRectangleAction.MOVE
             self.CVM.canvas.config(cursor="fleur")
         else:
-            if (self.selectionRectangle.isInsideCorners(mouseCoords)):
-                self.selectionRectangle.action = SelectionRectangleAction.RESIZE
-                self.CVM.canvas.config(cursor="arrow")
-                return
-
             # If it's not, change that the action we want to do is creating a selection rectangle
             self.selectionRectangle.action = SelectionRectangleAction.NONE
             self.CVM.canvas.config(cursor="arrow")
@@ -112,6 +108,10 @@ class SelectionRectangleCanvasViewModel:
             # So the user can move the rectangle by clicking anywhere inside
             self.startGapOffset = self.selectionRectangle.min - mouseCoords
             self.endGapOffset = self.selectionRectangle.max - mouseCoords
+
+        elif self.selectionRectangle.action == SelectionRectangleAction.RESIZE:
+            self.startGapOffset = self.selectionRectangle.selectedCorner.min - mouseCoords
+            self.endGapOffset = self.selectionRectangle.selectedCorner.max - mouseCoords
 
     def on_mouse_drag(self, event):
         """
@@ -141,17 +141,22 @@ class SelectionRectangleCanvasViewModel:
             if self.selectionRectangle.attachedImage:
                 self.selectionRectangle.attachedImage.bbox.min = self.selectionRectangle.min
                 self.selectionRectangle.attachedImage.bbox.max = self.selectionRectangle.max
-
-            ## Render the shapes drawn on the canvas
-            
-            # Render the selection rectangle to the new position
-            self.CVM.canvas.moveto(self.selectionRectangle.canvasIdRectangle, self.selectionRectangle.min.x, self.selectionRectangle.min.y)
-            
-            # Render the corners to the new position
-            for i in range(len(self.selectionRectangle.canvasIdCorners)):
-                self.CVM.canvas.moveto(self.selectionRectangle.canvasIdCorners[i], self.selectionRectangle.cornersBbox[i].min.x, self.selectionRectangle.cornersBbox[i].min.y)
-            
-            # Render the image to the new position
-            if self.selectionRectangle.attachedImage:
-                self.CVM.canvas.moveto(self.selectionRectangle.attachedImage.id, self.selectionRectangle.min.x, self.selectionRectangle.min.y)
     
+        elif self.selectionRectangle.action == SelectionRectangleAction.RESIZE:
+            #self.selectionRectangle.min = mouseCoords + self.startGapOffset + self.selectionRectangle.cornerSize
+            #self.selectionRectangle.max = mouseCoords + self.endGapOffset + self.selectionRectangle.cornerSize
+            #self.selectionRectangle.topLeft = mouseCoords + self.startGapOffset + self.selectionRectangle.cornerSize 
+            pass
+
+        ## Render the shapes drawn on the canvas
+        
+        # Render the selection rectangle to the new position
+        self.CVM.canvas.moveto(self.selectionRectangle.canvasIdRectangle, self.selectionRectangle.min.x, self.selectionRectangle.min.y)
+        
+        # Render the corners to the new position
+        for i in range(len(self.selectionRectangle.canvasIdCorners)):
+            self.CVM.canvas.moveto(self.selectionRectangle.canvasIdCorners[i], self.selectionRectangle.cornersBbox[i].min.x, self.selectionRectangle.cornersBbox[i].min.y)
+        
+        # Render the image to the new position
+        if self.selectionRectangle.attachedImage:
+            self.CVM.canvas.moveto(self.selectionRectangle.attachedImage.id, self.selectionRectangle.min.x, self.selectionRectangle.min.y)

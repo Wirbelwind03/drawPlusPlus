@@ -35,7 +35,7 @@ class SelectionTool:
             # Check if the user has clicked on another image
             self.getClickedImage(mouseCoords)
 
-        if self.SRCVM.hasSelectionRectangle() and self.SRCVM.getAction() == SelectionRectangleAction.MOVE:
+        if self.SRCVM.hasSelectionRectangle() and self.SRCVM.getAction() != SelectionRectangleAction.NONE:
             # Calculate the offset between mouse click and rectangle's position
             self.SRCVM.on_button_press(event)
             return
@@ -43,7 +43,7 @@ class SelectionTool:
     def on_mouse_drag(self, event):
         mouseCoords = Vector2(event.x, event.y)
 
-        if self.SRCVM.hasSelectionRectangle() and self.SRCVM.getAction() == SelectionRectangleAction.MOVE:
+        if self.SRCVM.hasSelectionRectangle() and self.SRCVM.getAction() != SelectionRectangleAction.NONE:
             self.SRCVM.on_mouse_drag(event)
             return
         
