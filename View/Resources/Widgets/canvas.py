@@ -11,8 +11,8 @@ class Canvas(tk.Canvas):
     def __init__(self, *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)
         self.canvasViewModel = CanvasViewModel(self)
+        
         self.toolManager = ToolManager()
-
         self.toolManager.addTool("SELECTION_TOOL", SelectionTool(self.canvasViewModel))
         self.toolManager.addTool("SELECTION_TOOL_RECTANGLE", SelectionRectangleTool(self.canvasViewModel))
         self.toolManager.setActiveTool("SELECTION_TOOL")

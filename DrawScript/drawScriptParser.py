@@ -1,7 +1,6 @@
 # Compiler Class
 class DrawScriptParser:
-    def __init__(self, canvas):
-        self.canvas = canvas
+    def __init__(self):
         self.cursors = {}  # Dictionary for storing cursors
 
     def parse_instruction(self, instruction, line_number):
@@ -20,10 +19,6 @@ class DrawScriptParser:
             # Store the cursor
             self.cursors[cursor_name] = (x, y, visible)
 
-            # Displaying the cursor on the canvas
-            if visible:
-                self.canvas.create_oval(x - 5, y - 5, x + 5, y + 5, outline='black', fill='black')  # Example of a cursor
-
         elif command == "MOVE":
             if len(tokens) != 4:
                 raise ValueError("Instruction MOVE mauvais format à la ligne {}".format(line_number))
@@ -38,8 +33,6 @@ class DrawScriptParser:
 
                 # Draw cursor after movement
                 visible = cursor_data[2]
-                if visible:
-                    self.canvas.create_oval(new_x - 5, current_y - 5, new_x + 5, current_y + 5, outline='black', fill='black')
 
         elif command == "DRAW":
             if len(tokens) != 5:
@@ -52,7 +45,6 @@ class DrawScriptParser:
                 x, y = cursor_data[0], cursor_data[1]
                 if shape == "CIRCLE":
                     radius = int(tokens[4])
-                    self.canvas.create_oval(x - radius, y - radius, x + radius, y + radius, outline='black')  # Draw a circle
 
         else:
             raise ValueError(f"Ligne {line_number}\n La commande {command} n'existe pas")

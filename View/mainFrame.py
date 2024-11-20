@@ -1,14 +1,12 @@
 import tkinter as tk
 
 from Model.canvasImage import CanvasImage
-from DrawScript.drawScriptParser import DrawScriptParser
 
-from .menuBar import *
-from .textEditor import *
-from .terminal import *
-from .canvas import *
-from .toolBar import *
-
+from .Resources.Widgets.menuBar import *
+from .Resources.Widgets.textEditor import *
+from .Resources.Widgets.terminal import *
+from .Resources.Widgets.canvas import *
+from .Resources.Widgets.toolBar import *
 
 class MainFrame(tk.Frame):
     """
@@ -70,6 +68,3 @@ class MainFrame(tk.Frame):
         # Terminal at the bottom
         self.terminal = Terminal(self, height=10, wrap="word", bg="lightgrey", fg="black")
         self.terminal.grid(row=2, column=0, sticky="sew")
-
-        # Assume you have some parser class initialized here
-        self.compiler = DrawScriptParser(self.canvas)
