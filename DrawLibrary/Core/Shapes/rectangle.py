@@ -6,35 +6,35 @@ class Rectangle:
 
     Attributes
     -----------
-    x : float
+    x : int
         The x coordinate of the top-left corner of the rectangle.
-    y : float
+    y : int
         The y coordinate of the top-left corner of the rectangle.
-    width : float
+    width : int
         The width of the rectangle.
-    height : float
+    height : int
         The height of the rectangle.
     """
 
-    def __init__(self, x=0, y=0, width=0, height=0):
+    def __init__(self, x:int = 0, y:int = 0, width:int = 0, height:int = 0):
         """
         Constructs a new rectangle instance with the specified position and dimensions.
 
         Parameters
         -----------
-        x : float
+        x : int
             The x coordinate of the top-left corner of the rectangle (default is 0).
-        y : float
+        y : int
             The y coordinate of the top-left corner of the rectangle (default is 0).
-        width : float
+        width : int
             The width of the rectangle (default is 0).
-        height : float
+        height : int
             The height of the rectangle (default is 0).
         """
-        self.x = x
-        self.y = y
-        self.width = width
-        self.height = height
+        self.x: int = x
+        self.y: int = y
+        self.width: int = width
+        self.height: int = height
 
     @classmethod
     def fromCoordinates(cls, x1: int, y1: int, x2: int, y2: int) -> 'Rectangle':
@@ -62,19 +62,19 @@ class Rectangle:
         return cls(x1, y1, width, height)
 
     @property
-    def topLeft(self)  -> Vector2:
+    def topLeft(self) -> Vector2:
         return Vector2(min(self.x, self.x + self.width), min(self.y, self.y + self.height))
         
     @property
-    def topRight(self)  -> Vector2:
+    def topRight(self) -> Vector2:
         return Vector2(max(self.x, self.x + self.width), min(self.y, self.y + self.height))
     
     @property
-    def bottomLeft(self)  -> Vector2:
+    def bottomLeft(self) -> Vector2:
         return Vector2(min(self.x, self.x + self.width), max(self.y, self.y + self.height))
     
     @property
-    def bottomRight(self)  -> Vector2:
+    def bottomRight(self) -> Vector2:
         return Vector2(max(self.x, self.x + self.width), max(self.y, self.y + self.height))
     
     @property

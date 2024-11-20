@@ -30,17 +30,15 @@ class SelectionRectangle(AABB):
 
     def __init__(self, *args, cornerSize: int=10, cornerCanvasSize:int =5, **kwargs) -> None:
         super().__init__(*args, **kwargs)
-
-        self.startGapOffset: int = 0
-        self.endGapOffset: int = 0
         
         self.cornerSize: int = cornerSize
         self.cornerCanvasSize: int = cornerCanvasSize
 
-        self.cornersBbox = []
+        self.cornersBbox: list[AABB]  = []
+        self.selectedCorner: AABB = None
         
         self.canvasIdRectangle: int = -1
-        self.canvasIdCorners: list = []
+        self.canvasIdCorners: list[int] = []
         self.attachedImage: CanvasImage = None
 
         self.action: SelectionRectangleAction = SelectionRectangleAction.NONE
@@ -101,5 +99,18 @@ class SelectionRectangle(AABB):
         """
         for corner in self.cornersBbox:
             if corner.isInside(coords):
+                self.selectedCorner = corner
                 return True
+        self.selectedCorner = None
+        return False
+    
+    def isOutsideCorners(self, coords: Vector2) -> bool:
+        for corner in self.cornersBbox:
+            if corner.isInside(coords):
+                return False
+        return True
+
+    def isOutside(self, other) -> bool:
+        if super().isOutside(other) and self.isOutsideCorners(other):
+            return True
         return False
