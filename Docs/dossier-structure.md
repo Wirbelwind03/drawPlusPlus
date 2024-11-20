@@ -88,10 +88,11 @@ drawPlusPlus/
   - **window.py** : Gestion de la fenêtre de l'application.
 
 ## `ViewModel/`
-- Connecte le modèle et la vue.
+- Le répertoire `ViewModel` agit comme un pont entre les données du modèle et la présentation visuelle dans la vue. Il gère la logique permettant d’assurer que les modifications apportées aux données sont reflétées dans l’interface utilisateur, et inversement.
 
   - **Tools/**
-    - **selectionRectangleTool.py** : Outil pour le rectangle de sélection.
-    - **selectionTool.py** : Outil de sélection.
-  - **canvasViewModel.py** : Gestion du canevas.
-  - **toolManager.py** : Gestionnaire des outils de l’application.
+    - **selectionRectangleTool.py** : Implémente un outil dédié à la création et la gestion d’un rectangle de sélection. Permet à l’utilisateur de délimiter une zone spécifique à l’aide d’un clic-glissé.
+    - **selectionTool.py** : Un outil générique de sélection permettant de sélectionner des éléments individuels dans une interface.
+  - **canvasViewModel.py** : Responsable de la gestion du canevas. Ce fichier gère les interactions entre la vue du canevas (ex : zoom, translation, redimensionnement) et les données sous-jacentes.
+  - **selectionRectangleCanvasViewModel** : Gère spécifiquement les interactions avec l’outil rectangle de sélection sur le canevas. Cela inclut la création, la mise à jour et la suppression des rectangles visibles dans l’interface utilisateur.
+  - **toolManager.py** : Fonctionne comme un gestionnaire centralisé pour les outils de l’application. Il est chargé d’activer, de désactiver et de gérer les interactions entre les différents outils définis, tels que ceux présents dans le répertoire `Tools/`.
