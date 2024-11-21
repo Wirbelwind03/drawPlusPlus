@@ -10,7 +10,7 @@ from View.Resources.Widgets.terminal import Terminal
 from View.Resources.Widgets.canvas import Canvas
 from View.Resources.Widgets.toolBar import ToolBar
 
-class MainViewModel:
+class MainController:
     def __init__(self, mainFrame, menuBar, textEditor, terminal, canvas, toolBar):
         self.mainFrame = mainFrame
         self.menuBar: MenuBar = menuBar

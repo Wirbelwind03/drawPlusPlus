@@ -8,7 +8,7 @@ from DrawLibrary.Core.Collision.aabb import AABB
 
 from config import DEBUG
 
-class CanvasViewModel:
+class CanvasController:
     """
     A class to manage the CanvasImage in a canvas.
 

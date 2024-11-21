@@ -5,9 +5,8 @@ class MenuBar(tk.Menu):
     A class to represent the Menu Bar
     """
 
-    def __init__(self, menuBarViewModel, *args, **kwargs) -> None:
+    def __init__(self, *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)
-        self.menuBarViewModel = menuBarViewModel
 
         self.parentFrame = self.master
 
@@ -15,9 +14,9 @@ class MenuBar(tk.Menu):
         # Add button "File" in the menu bar
         self.add_cascade(label="File", menu=menuFile)
         # Ajoute les button dans le menu déroulant
-        menuFile.add_command(label="New", command=menuBarViewModel.create_new_file)
-        menuFile.add_command(label="Open", command=menuBarViewModel.load_file)
-        menuFile.add_command(label="Save", command=menuBarViewModel.save_file)
+        menuFile.add_command(label="New")
+        menuFile.add_command(label="Open")
+        menuFile.add_command(label="Save")
         # Add a separator
         menuFile.add_separator()
         menuFile.add_command(label="Exit", command=self.parentFrame.quit)  # Option Quitter
@@ -33,6 +32,6 @@ class MenuBar(tk.Menu):
         # Add button "Execution" in the mnu bar
         self.add_cascade(label="Execution", menu=menuExecute)
         menuExecute.add_command(label="Execute")
-        menuExecute.add_command(label="Compile C", command=menuBarViewModel.execute_code)
+        menuExecute.add_command(label="Compile C")
         
                 
