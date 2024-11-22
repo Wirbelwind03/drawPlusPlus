@@ -8,8 +8,6 @@ class MenuBar(tk.Menu):
     def __init__(self, *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)
 
-        self.parentFrame = self.master
-
         menuFile = tk.Menu(self, tearoff=0)
         # Add button "File" in the menu bar
         self.add_cascade(label="File", menu=menuFile)
@@ -19,7 +17,7 @@ class MenuBar(tk.Menu):
         menuFile.add_command(label="Save")
         # Add a separator
         menuFile.add_separator()
-        menuFile.add_command(label="Exit", command=self.parentFrame.quit)  # Option Quitter
+        menuFile.add_command(label="Exit", command=self.master.quit)  # Option Quitter
 
         menuEdit = tk.Menu(self, tearoff=0)
         # Add button "Edit" in the menu bar

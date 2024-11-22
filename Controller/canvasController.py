@@ -6,6 +6,11 @@ from Model.canvasImage import CanvasImage
 
 from DrawLibrary.Core.Collision.aabb import AABB
 
+from Model.toolManager import ToolManager
+
+from Controller.Tools.selectionTool import SelectionTool
+from Controller.Tools.selectionRectangleTool import SelectionRectangleTool
+
 from config import DEBUG
 
 class CanvasController:
@@ -32,6 +37,22 @@ class CanvasController:
         """
         self.canvas: tk.Canvas = canvas
         self.images: dict[int, CanvasImage] = {}
+
+        self.toolManager = ToolManager()
+        self.toolManager.addTool("SELECTION_TOOL", SelectionTool(self.CC))
+        self.toolManager.addTool("SELECTION_TOOL_RECTANGLE", SelectionRectangleTool(self.CC))
+        self.toolManager.setActiveTool("SELECTION_TOOL")
+
+        # Mouse events
+        self.canvas.bind("<ButtonPress-1>", self.on_button_press)
+        self.canvas.bind("<B1-Motion>", self.on_mouse_drag)
+        self.canvas.bind("<ButtonRelease-1>", self.on_button_release)
+        self.canvas.bind("<Motion>", self.on_mouse_over)
+        
+        # Key events
+        self.canvas.bind("<Delete>", self.on_delete)
+        self.canvas.bind("<Control-Key-c>", self.on_control_c)
+        self.canvas.bind("<Control-Key-v>", self.on_control_v)
 
     def drawImage(self, canvasImage: CanvasImage, x, y, width=None, height=None):
         """
@@ -80,3 +101,29 @@ class CanvasController:
         for imageId, canvasImage in self.images.items():
             # Update the image
             self.canvas.itemconfig(imageId, image=canvasImage.photoImage)
+
+    def _invoke_active_tool_method(self, method_name, event):
+        self.toolManager.invoke_tool_method(method_name, event)
+
+    def on_mouse_over(self, event):
+        self._invoke_active_tool_method("on_mouse_over", event)
+
+    def on_button_press(self, event):
+        self.canvas.focus_set()
+        
+        self._invoke_active_tool_method("on_button_press", event)
+
+    def on_mouse_drag(self, event):
+        self._invoke_active_tool_method("on_mouse_drag", event)
+
+    def on_button_release(self, event):
+        self._invoke_active_tool_method("on_button_release", event)
+
+    def on_delete(self, event):
+        self._invoke_active_tool_method("on_delete", event)
+
+    def on_control_c(self, event):
+        self._invoke_active_tool_method("on_control_c", event)
+
+    def on_control_v(self, event):
+        self._invoke_active_tool_method("on_control_v", event)
