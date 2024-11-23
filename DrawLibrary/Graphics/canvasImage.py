@@ -203,3 +203,5 @@ class CanvasImage:
 
         self.image.paste(canvasImage.image, (x, y))
 
+    def createAABB(self, x, y, width=0, height=0):
+        self.bbox = AABB(x, y, width, height)

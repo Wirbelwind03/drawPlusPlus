@@ -2,12 +2,11 @@ import tkinter as tk
 
 from tkinter import filedialog
 
-from DrawScript.drawScriptParser import DrawScriptParser
+from DrawScript.Core.drawScriptParser import DrawScriptParser
 
 from View.Resources.Widgets.menuBar import MenuBar
 from View.Resources.Widgets.textEditor import TextEditor
 from View.Resources.Widgets.terminal import Terminal
-from View.Resources.Widgets.canvas import Canvas
 from View.Resources.Widgets.toolBar import ToolBar
 
 class MainController:
@@ -17,7 +16,7 @@ class MainController:
         self.textEditor: TextEditor = textEditor
         self.terminal: Terminal = terminal
         self.toolBar: ToolBar = toolBar
-        self.canvas: Canvas = canvas
+        self.canvas = canvas
         self.compiler = DrawScriptParser()
 
     # Fonction pour compiler et exécuter les instructions

@@ -2,16 +2,17 @@ import tkinter as tk
 
 from DrawLibrary.Core.Math.vector2 import Vector2
 
-from Model.canvasImage import CanvasImage
+from DrawLibrary.Graphics.canvasImage import CanvasImage
 
-from Controller.canvasController import CanvasController
-
+from Model.canvasImages import CanvasImages
 from Model.selectionRectangle import SelectionRectangle
 from Model.selectionRectangle import SelectionRectangleAction
 
 class SelectionRectangleCanvasController:
-    def __init__(self, canvasViewModel: CanvasController):
-        self.CC: CanvasController = canvasViewModel
+    def __init__(self, view: tk.Canvas, model: CanvasImages):
+        # Connect the controller to the canvas
+        self.view = view
+        self.model = model
         self.selectionRectangle: SelectionRectangle = None
         self.startGapOffset: int = 0
         self.endGapOffset: int = 0
@@ -40,11 +41,11 @@ class SelectionRectangleCanvasController:
             The canvas where the selection is going to be drawn
         """
         # Draw the main frame of the selection rectangle
-        self.selectionRectangle.canvasIdRectangle = self.CC.canvas.create_rectangle(self.selectionRectangle.x, self.selectionRectangle.y, self.selectionRectangle.x + self.selectionRectangle.width, self.selectionRectangle.y + self.selectionRectangle.height, outline="black", width=2, dash=(2, 2))
+        self.selectionRectangle.canvasIdRectangle = self.view.create_rectangle(self.selectionRectangle.x, self.selectionRectangle.y, self.selectionRectangle.x + self.selectionRectangle.width, self.selectionRectangle.y + self.selectionRectangle.height, outline="black", width=2, dash=(2, 2))
         
         # Draw the selection corners of the selection rectangle
         for corner in self.selectionRectangle.cornersBbox:
-            self.selectionRectangle.canvasIdCorners.append(self.CC.canvas.create_rectangle(corner.x, corner.y, corner.x + corner.width, corner.y + corner.height, outline="black", width=2))
+            self.selectionRectangle.canvasIdCorners.append(self.view.create_rectangle(corner.x, corner.y, corner.x + corner.width, corner.y + corner.height, outline="black", width=2))
 
     def erase(self) -> None:
         """
@@ -55,19 +56,19 @@ class SelectionRectangleCanvasController:
         canvas : tk.Canvas
             The canvas where the selection rectangle is drawn
         """
-        self.CC.canvas.delete(self.selectionRectangle.canvasIdRectangle)
+        self.view.delete(self.selectionRectangle.canvasIdRectangle)
         for canvasCorner in self.selectionRectangle.canvasIdCorners:
-            self.CC.canvas.delete(canvasCorner)
+            self.view.delete(canvasCorner)
 
     def deleteSelectionRectangle(self) -> None:
         if self.selectionRectangle.attachedImage:
-            self.CC.deleteImage(self.selectionRectangle.attachedImage)
+            self.model.deleteImage(self.selectionRectangle.attachedImage)
         self.deSelect()
 
     def deSelect(self) -> None:
         self.erase()
         self.selectionRectangle = None
-        self.CC.canvas.config(cursor="arrow")
+        self.view.config(cursor="arrow")
 
     def on_mouse_over(self, event) -> None:
         """
@@ -83,15 +84,15 @@ class SelectionRectangleCanvasController:
         
         if self.selectionRectangle.isInsideCorners(mouseCoords):
             self.selectionRectangle.action = SelectionRectangleAction.RESIZE
-            self.CC.canvas.config(cursor="umbrella")
+            self.view.config(cursor="umbrella")
         elif self.selectionRectangle.isInside(mouseCoords):
             # If it is, change that the action we want to do is moving the selection rectangle
             self.selectionRectangle.action = SelectionRectangleAction.MOVE
-            self.CC.canvas.config(cursor="fleur")
+            self.view.config(cursor="fleur")
         else:
             # If it's not, change that the action we want to do is creating a selection rectangle
             self.selectionRectangle.action = SelectionRectangleAction.NONE
-            self.CC.canvas.config(cursor="arrow")
+            self.view.config(cursor="arrow")
 
     def on_button_press(self, event):
         """
@@ -151,12 +152,12 @@ class SelectionRectangleCanvasController:
         ## Render the shapes drawn on the canvas
         
         # Render the selection rectangle to the new position
-        self.CC.canvas.moveto(self.selectionRectangle.canvasIdRectangle, self.selectionRectangle.min.x, self.selectionRectangle.min.y)
+        self.view.moveto(self.selectionRectangle.canvasIdRectangle, self.selectionRectangle.min.x, self.selectionRectangle.min.y)
         
         # Render the corners to the new position
         for i in range(len(self.selectionRectangle.canvasIdCorners)):
-            self.CC.canvas.moveto(self.selectionRectangle.canvasIdCorners[i], self.selectionRectangle.cornersBbox[i].min.x, self.selectionRectangle.cornersBbox[i].min.y)
+            self.view.moveto(self.selectionRectangle.canvasIdCorners[i], self.selectionRectangle.cornersBbox[i].min.x, self.selectionRectangle.cornersBbox[i].min.y)
         
         # Render the image to the new position
         if self.selectionRectangle.attachedImage:
-            self.CC.canvas.moveto(self.selectionRectangle.attachedImage.id, self.selectionRectangle.min.x, self.selectionRectangle.min.y)
+            self.view.moveto(self.selectionRectangle.attachedImage.id, self.selectionRectangle.min.x, self.selectionRectangle.min.y)
