@@ -9,8 +9,6 @@ from Model.canvasEntities import CanvasEntities
 from Model.selectionRectangle import SelectionRectangle
 from Model.selectionRectangle import SelectionRectangleAction
 
-
-
 class SelectionRectangleCanvasController:
     def __init__(self, CC: CanvasController):
         # Connect the controller to the canvas
