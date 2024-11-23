@@ -5,7 +5,7 @@ from enum import Enum
 from DrawLibrary.Core.Collision.aabb import AABB
 from DrawLibrary.Core.Math.vector2 import Vector2
 
-from Model.canvasImage import CanvasImage
+from DrawLibrary.Graphics.canvasImage import CanvasImage
 
 class SelectionRectangleAction(Enum):
     NONE = 0

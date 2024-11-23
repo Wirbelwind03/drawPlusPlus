@@ -1,11 +1,10 @@
 import tkinter as tk
 
-from Model.canvasImage import CanvasImage
+from DrawLibrary.Graphics.canvasImage import CanvasImage
 
 from .Resources.Widgets.menuBar import *
 from .Resources.Widgets.textEditor import *
 from .Resources.Widgets.terminal import *
-from .Resources.Widgets.canvas import *
 from .Resources.Widgets.toolBar import *
 
 class MainFrame(tk.Frame):
@@ -59,12 +58,6 @@ class MainFrame(tk.Frame):
         self.canvas = tk.Canvas(self, width=800, height=600, bg="white")
         self.canvas.grid(row=1, column=1, rowspan=2, sticky="nsew")  # Right side, expands in all directions
         
-        circleImage = CanvasImage()
-        circleImage.load("Data/Assets/circle.jpg")
-
-        self.canvas.CC.drawImage(circleImage, 0, 0, 256, 256)
-        self.canvas.CC.drawImage(circleImage, 256, 0, 256, 256)
-
         # Terminal at the bottom
         self.terminal = Terminal(self, height=10, wrap="word", bg="lightgrey", fg="black")
         self.terminal.grid(row=2, column=0, sticky="sew")

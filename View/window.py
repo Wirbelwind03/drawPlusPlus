@@ -3,6 +3,8 @@ import tkinter as tk
 
 from .mainFrame import *
 
+from Controller.mainController import MainController
+
 class Window(tk.Tk):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -16,3 +18,4 @@ class Window(tk.Tk):
         self.title("draw++ IDE")
 
         self.mainFrame = MainFrame(self, bg="#636363")
+        controller = MainController(self.mainFrame)

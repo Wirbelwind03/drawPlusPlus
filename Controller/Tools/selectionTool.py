@@ -6,7 +6,6 @@ from DrawLibrary.Core.Math.vector2 import Vector2
 from DrawLibrary.Core.Collision.aabb import AABB
 from DrawLibrary.Graphics.canvasImage import CanvasImage
 
-from Controller.canvasController import CanvasController
 from Controller.selectionRectangleCanvasController import SelectionRectangleCanvasController
 
 from Model.canvasImages import CanvasImages

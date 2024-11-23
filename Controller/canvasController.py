@@ -106,7 +106,6 @@ class CanvasController:
 
     def _invoke_active_tool_method(self, method_name, event):
         self.toolManager.invoke_tool_method(method_name, event)
-        self.update()
 
     ## Events ##
 
@@ -126,6 +125,7 @@ class CanvasController:
 
     def on_delete(self, event):
         self._invoke_active_tool_method("on_delete", event)
+        self.update()
 
     def on_control_c(self, event):
         self._invoke_active_tool_method("on_control_c", event)
