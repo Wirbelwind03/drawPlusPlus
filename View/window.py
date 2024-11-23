@@ -17,5 +17,7 @@ class Window(tk.Tk):
 
         self.title("draw++ IDE")
 
+        # Create the UI
         self.mainFrame = MainFrame(self, bg="#636363")
+        # Attach the fonctions of the UI
         controller = MainController(self.mainFrame)

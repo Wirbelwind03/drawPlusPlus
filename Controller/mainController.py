@@ -19,12 +19,18 @@ class MainController:
     def __init__(self, view: MainFrame):
         self.view = view
 
-        self.toolManager = ToolManager()
-        self.CC = CanvasController(self.view.canvas, self.toolManager)
+        # Create a tool manager for the canvas controller
+        self.canvasToolManager = ToolManager()
+        # Attach the canvas controller to the main controller
+        self.CC = CanvasController(self.view.canvas, self.canvasToolManager)
+        # Attach the selection rectangle canvas controller to the canvas
         self.SRCC: SelectionRectangleCanvasController = SelectionRectangleCanvasController(self.CC.view, self.CC.model)
-        self.toolManager.addTool("SELECTION_TOOL", SelectionTool(self.CC.view, self.CC.model, self.CC, self.SRCC))
-        self.toolManager.addTool("SELECTION_TOOL_RECTANGLE", SelectionRectangleTool(self.CC.view, self.CC.model, self.CC, self.SRCC))
-        self.toolManager.setActiveTool("SELECTION_TOOL")
+        # Attach the tools of the canvas to it and the selection rectangle
+        self.canvasToolManager.addTool("SELECTION_TOOL", SelectionTool(self.CC.view, self.CC.model, self.CC, self.SRCC))
+        self.canvasToolManager.addTool("SELECTION_TOOL_RECTANGLE", SelectionRectangleTool(self.CC.view, self.CC.model, self.CC, self.SRCC))
+        self.canvasToolManager.setActiveTool("SELECTION_TOOL")
+
+        self.compiler = DrawScriptParser()
 
         circleImage = CanvasImage()
         circleImage.load("Data/Assets/circle.jpg")
