@@ -6,14 +6,11 @@ from DrawLibrary.Graphics.canvasImage import CanvasImage
 
 from DrawLibrary.Core.Collision.aabb import AABB
 
-from Model.toolManager import ToolManager
 from Model.canvasImages import CanvasImages
 
-from Controller.Tools.selectionTool import SelectionTool
-from Controller.Tools.selectionRectangleTool import SelectionRectangleTool
-from Controller.selectionRectangleCanvasController import SelectionRectangleCanvasController
-
 from config import DEBUG
+
+from Model.toolManager import ToolManager
 
 class CanvasController:
     """
@@ -28,7 +25,7 @@ class CanvasController:
         The key are the ID given through the draw functions of tk.Canvas, and the value is the CanvasImage itself.
     """
 
-    def __init__(self, canvas: tk.Canvas):
+    def __init__(self, canvas: tk.Canvas, toolManager: ToolManager):
         """
         Constructs a new CanvasImagesManager to the canvas.
 
@@ -39,12 +36,7 @@ class CanvasController:
         """
         self.view: tk.Canvas = canvas
         self.model: CanvasImages = CanvasImages()
-        self.SRCC: SelectionRectangleCanvasController = SelectionRectangleCanvasController(self.view, self.model)
-
-        self.toolManager = ToolManager()
-        self.toolManager.addTool("SELECTION_TOOL", SelectionTool(self.view, self.model, self.SRCC))
-        self.toolManager.addTool("SELECTION_TOOL_RECTANGLE", SelectionRectangleTool(self.view, self.model, self.SRCC))
-        self.toolManager.setActiveTool("SELECTION_TOOL")
+        self.toolManager = toolManager
 
         # Mouse events
         self.view.bind("<ButtonPress-1>", self.on_button_press)

@@ -6,17 +6,19 @@ from DrawLibrary.Core.Math.vector2 import Vector2
 from DrawLibrary.Core.Collision.aabb import AABB
 from DrawLibrary.Graphics.canvasImage import CanvasImage
 
+from Controller.canvasController import CanvasController
 from Controller.selectionRectangleCanvasController import SelectionRectangleCanvasController
 
 from Model.canvasImages import CanvasImages
 from Model.selectionRectangle import SelectionRectangleAction, SelectionRectangle
 
 class SelectionTool:
-    def __init__(self, view: tk.Canvas, model: CanvasImages, srcc: SelectionRectangleCanvasController):
+    def __init__(self, view: tk.Canvas, model: CanvasImages, cc: CanvasController, srcc: SelectionRectangleCanvasController):
         # Connect the tool to the canvas
         self.view = view
         self.model = model
         # Connect the selection rectangle controller to the canvas
+        self.CC = cc
         self.SRCC = srcc
 
     def on_mouse_over(self, event):

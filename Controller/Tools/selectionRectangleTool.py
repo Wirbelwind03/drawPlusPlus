@@ -6,6 +6,7 @@ from DrawLibrary.Core.Math.vector2 import Vector2
 from DrawLibrary.Core.Collision.aabb import AABB
 from DrawLibrary.Graphics.canvasImage import CanvasImage
 
+from Controller.canvasController import CanvasController
 from Controller.selectionRectangleCanvasController import SelectionRectangleCanvasController
 
 from Model.canvasImages import CanvasImages
@@ -28,11 +29,12 @@ class SelectionRectangleTool:
         The ID of the selection rectangle drawn on the canvas, when the user is still resizing it
     """
 
-    def __init__(self, view: tk.Canvas, model: CanvasImages, srcc: SelectionRectangleCanvasController):
+    def __init__(self, view: tk.Canvas, model: CanvasImages, cc: CanvasController, srcc: SelectionRectangleCanvasController):
         # Connect the tool to the canvas
         self.view = view
         self.model = model
         # Connect the selection rectangle controller to the canvas
+        self.CC = cc
         self.SRCC = srcc
         
         self.__debugBbox = -1
@@ -155,6 +157,7 @@ class SelectionRectangleTool:
                     if DEBUG:
                         self.view.create_rectangle(x1, y1, x2, y2, outline="red", width=2)
             
+            self.CC.update()
             self.view.delete(self.__debugBbox)
 
     def on_control_c(self, event):
@@ -178,14 +181,12 @@ class SelectionRectangleTool:
                         self.view.create_rectangle(x1, y1, x2, y2, outline="red", width=2)
 
             if not isBlank:
-                #blankCanvasImage = self.CC.drawImage(blankCanvasImage, self.SRCC.selectionRectangle.min.x, self.SRCC.selectionRectangle.min.y)
+                blankCanvasImage = self.CC.drawImage(blankCanvasImage, self.SRCC.selectionRectangle.min.x, self.SRCC.selectionRectangle.min.y)
                 self.SRCC.selectionRectangle.attachedImage = blankCanvasImage
-                pass
 
     def on_control_v(self, event):
         mouseCoords = Vector2(event.x, event.y)
         
         if self.SRCC.selectionRectangle.attachedImage:
             self.model.addImage(self.SRCC.selectionRectangle.attachedImage)
-            #self.CC.drawImage(self.SRCC.selectionRectangle.attachedImage, self.SRCC.selectionRectangle.min.x, self.SRCC.selectionRectangle.min.y)
-            pass
+            self.CC.drawImage(self.SRCC.selectionRectangle.attachedImage, self.SRCC.selectionRectangle.min.x, self.SRCC.selectionRectangle.min.y)
