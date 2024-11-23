@@ -7,7 +7,9 @@ from DrawScript.Core.drawScriptParser import DrawScriptParser
 from Controller.Tools.selectionTool import SelectionTool
 from Controller.Tools.selectionRectangleTool import SelectionRectangleTool
 from Controller.canvasController import CanvasController
+from Controller.menuBarController import MenuBarController
 from Controller.selectionRectangleCanvasController import SelectionRectangleCanvasController
+
 
 from DrawLibrary.Graphics.canvasImage import CanvasImage
 
@@ -29,6 +31,8 @@ class MainController:
         self.canvasToolManager.addTool("SELECTION_TOOL", SelectionTool(self.CC.view, self.CC.model, self.CC, self.SRCC))
         self.canvasToolManager.addTool("SELECTION_TOOL_RECTANGLE", SelectionRectangleTool(self.CC.view, self.CC.model, self.CC, self.SRCC))
         self.canvasToolManager.setActiveTool("SELECTION_TOOL")
+
+        self.MC = MenuBarController(self.view, self)
 
         self.compiler = DrawScriptParser()
 

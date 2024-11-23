@@ -1,8 +1,9 @@
 import tkinter as tk
 
 class MenuBarController:
-    def __init__(self, view, model) -> None:
+    def __init__(self, view, MC) -> None:
         self.view = view
+        self.MC = MC
 
         menuFile = tk.Menu(self, tearoff=0)
         # Add button "File" in the menu bar
