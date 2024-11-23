@@ -8,7 +8,6 @@ from DrawLibrary.Graphics.canvasImage import CanvasImage
 from Controller.canvasController import CanvasController
 from Controller.selectionRectangleCanvasController import SelectionRectangleCanvasController
 
-from Model.canvasImages import CanvasImages
 from Model.selectionRectangle import SelectionRectangleAction, SelectionRectangle
 
 class SelectionRectangleTool:
@@ -28,10 +27,7 @@ class SelectionRectangleTool:
         The ID of the selection rectangle drawn on the canvas, when the user is still resizing it
     """
 
-    def __init__(self, view: tk.Canvas, model: CanvasImages, cc: CanvasController, srcc: SelectionRectangleCanvasController):
-        # Connect the tool to the canvas
-        self.view = view
-        self.model = model
+    def __init__(self, cc: CanvasController, srcc: SelectionRectangleCanvasController):
         # Connect the selection rectangle controller to the canvas
         self.CC = cc
         self.SRCC = srcc
@@ -43,9 +39,9 @@ class SelectionRectangleTool:
         
     def createDebugBbox(self):
         if self.__debugBbox:
-            self.view.delete(self.__debugBbox)
+            self.CC.view.delete(self.__debugBbox)
 
-        self.__debugBbox = self.view.create_rectangle(self.SRCC.selectionRectangle.min.x, self.SRCC.selectionRectangle.min.y, self.SRCC.selectionRectangle.max.x, self.SRCC.selectionRectangle.max.y, outline="black", width=2)
+        self.__debugBbox = self.CC.view.create_rectangle(self.SRCC.selectionRectangle.min.x, self.SRCC.selectionRectangle.min.y, self.SRCC.selectionRectangle.max.x, self.SRCC.selectionRectangle.max.y, outline="black", width=2)
 
     def on_mouse_over(self, event):
         """
@@ -74,7 +70,7 @@ class SelectionRectangleTool:
         # Get the cursor position
         mouseCoords = Vector2(event.x, event.y)
 
-        if self.SRCC.hasSelectionRectangle() and self.SRCC.setAction(SelectionRectangleAction.NONE):
+        if self.SRCC.hasSelectionRectangle() and self.SRCC.getAction() != SelectionRectangleAction.NONE:
             # Calculate the offset between mouse click and rectangle's position
             self.SRCC.on_button_press(event)
             return
@@ -87,7 +83,7 @@ class SelectionRectangleTool:
         self.__tempStartCoordinates = mouseCoords
 
         # Create a rectangle (but don't specify the end point yet)
-        self.__tempCanvasSelectionRectangle = self.view.create_rectangle(self.__tempStartCoordinates.x, self.__tempStartCoordinates.y, self.__tempStartCoordinates.x, self.__tempStartCoordinates.y, outline="black", width=2, dash=(2, 2))
+        self.__tempCanvasSelectionRectangle = self.CC.view.create_rectangle(self.__tempStartCoordinates.x, self.__tempStartCoordinates.y, self.__tempStartCoordinates.x, self.__tempStartCoordinates.y, outline="black", width=2, dash=(2, 2))
 
     def on_mouse_drag(self, event):
         """
@@ -107,7 +103,7 @@ class SelectionRectangleTool:
             return
 
         # Update the rectangle as the mouse is dragged
-        self.view.coords(self.__tempCanvasSelectionRectangle, self.__tempStartCoordinates.x, self.__tempStartCoordinates.y, mouseCoords.x, mouseCoords.y)
+        self.CC.view.coords(self.__tempCanvasSelectionRectangle, self.__tempStartCoordinates.x, self.__tempStartCoordinates.y, mouseCoords.x, mouseCoords.y)
 
     def on_button_release(self, event):
         """
@@ -121,12 +117,12 @@ class SelectionRectangleTool:
         # Get the cursor position
         mouseCoords = Vector2(event.x, event.y)
 
-        if self.SRCC.hasSelectionRectangle() and self.SRCC.setAction(SelectionRectangleAction.NONE):
+        if self.SRCC.hasSelectionRectangle() and self.SRCC.getAction() != SelectionRectangleAction.NONE:
             return
         
         # On release, finalize the rectangle selection by setting its end coordinates
         # and draw the actual selection rectangle
-        self.view.delete(self.__tempCanvasSelectionRectangle)
+        self.CC.view.delete(self.__tempCanvasSelectionRectangle)
 
         # If the user has only clicked on the canvas and didn't resize the selection rectangle, 
         # don't create it
@@ -138,7 +134,7 @@ class SelectionRectangleTool:
 
     def on_delete(self, event):
         if self.SRCC.hasSelectionRectangle():
-            for imageId, image in self.model.images.items():
+            for imageId, image in self.CC.model.images.items():
                 if self.SRCC.selectionRectangle.attachedImage and self.SRCC.selectionRectangle.attachedImage.id == imageId:
                     break
                 # check overlap with image and selection tool
@@ -154,16 +150,16 @@ class SelectionRectangleTool:
                     image.cut(relativeCoords.x, relativeCoords.y, x2 - x1, y2 - y1)
                     
                     if DEBUG:
-                        self.view.create_rectangle(x1, y1, x2, y2, outline="red", width=2)
+                        self.CC.view.create_rectangle(x1, y1, x2, y2, outline="red", width=2)
             
             self.CC.update()
-            self.view.delete(self.__debugBbox)
+            self.CC.view.delete(self.__debugBbox)
 
     def on_control_c(self, event):
         if self.SRCC.hasSelectionRectangle():
             blankCanvasImage = CanvasImage.createBlank(self.SRCC.selectionRectangle.width, self.SRCC.selectionRectangle.height)
             isBlank = True
-            for imageId, image in self.model.images.items():
+            for imageId, image in self.CC.model.images.items():
                 # check overlap with image and selection tool
                 if self.SRCC.selectionRectangle.isIntersecting(image.bbox):
                     x1 = max(self.SRCC.selectionRectangle.topLeft.x, image.bbox.topLeft.x)
@@ -177,7 +173,7 @@ class SelectionRectangleTool:
                     isBlank = False
 
                     if DEBUG:
-                        self.view.create_rectangle(x1, y1, x2, y2, outline="red", width=2)
+                        self.CC.view.create_rectangle(x1, y1, x2, y2, outline="red", width=2)
 
             if not isBlank:
                 blankCanvasImage = self.CC.drawImage(blankCanvasImage, self.SRCC.selectionRectangle.min.x, self.SRCC.selectionRectangle.min.y)
@@ -187,5 +183,4 @@ class SelectionRectangleTool:
         mouseCoords = Vector2(event.x, event.y)
         
         if self.SRCC.selectionRectangle.attachedImage:
-            self.model.addImage(self.SRCC.selectionRectangle.attachedImage)
             self.CC.drawImage(self.SRCC.selectionRectangle.attachedImage, self.SRCC.selectionRectangle.min.x, self.SRCC.selectionRectangle.min.y)

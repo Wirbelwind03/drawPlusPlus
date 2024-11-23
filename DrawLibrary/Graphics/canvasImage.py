@@ -22,7 +22,7 @@ class CanvasImage:
     image : Image
     photoImage : ImageTK.PhotoImage
     bbox : AABB
-        The bounding box tied to the image
+        The bounding box tied to the image. It's used to know the position of the canvasEntity is etc.
     debugBbox : int
         The ID of the rectangle rendered on a tk.Canvas
     """

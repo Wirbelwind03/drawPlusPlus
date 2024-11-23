@@ -3,23 +3,17 @@ import tkinter as tk
 from config import DEBUG
 
 from DrawLibrary.Core.Math.vector2 import Vector2
-from DrawLibrary.Core.Collision.aabb import AABB
-from DrawLibrary.Graphics.canvasImage import CanvasImage
 
 from Controller.canvasController import CanvasController
 from Controller.selectionRectangleCanvasController import SelectionRectangleCanvasController
 
-from Model.canvasImages import CanvasImages
 from Model.selectionRectangle import SelectionRectangleAction, SelectionRectangle
 
 class SelectionTool:
-    def __init__(self, view: tk.Canvas, model: CanvasImages, cc: CanvasController, srcc: SelectionRectangleCanvasController):
-        # Connect the tool to the canvas
-        self.view = view
-        self.model = model
+    def __init__(self, CC: CanvasController, SRCC: SelectionRectangleCanvasController):
         # Connect the selection rectangle controller to the canvas
-        self.CC = cc
-        self.SRCC = srcc
+        self.CC = CC
+        self.SRCC = SRCC
 
     def on_mouse_over(self, event):
         mouseCoords = Vector2(event.x, event.y)
@@ -64,7 +58,7 @@ class SelectionTool:
 
     def getClickedImage(self, mouseCoords):
         # Loop all the images present on the canvas
-        for imageId, image in self.model.images.items():
+        for imageId, image in self.CC.model.images.items():
             # Check if the mouse is inside the bounding box of the image
             if image.bbox.isInside(mouseCoords):
                 self.SRCC.setSelectionRectangle(SelectionRectangle.fromCoordinates(image.bbox.min.x, image.bbox.min.y, image.bbox.max.x, image.bbox.max.y), image)
@@ -72,7 +66,7 @@ class SelectionTool:
 
                 # Check the action to move since the cursor is inside the image
                 self.SRCC.setAction(SelectionRectangleAction.MOVE)
-                self.view.config(cursor="fleur")
+                self.CC.view.config(cursor="fleur")
                 return
 
 

@@ -1,30 +1,31 @@
 import tkinter as tk
 
-class MenuBarController:
-    def __init__(self, view, MC) -> None:
-        self.view = view
-        self.MC = MC
+from Controller.scriptEditorController import ScriptEditorController
 
-        menuFile = tk.Menu(self, tearoff=0)
+class MenuBarController:
+    def __init__(self, view: tk.Menu, SEC: ScriptEditorController) -> None:
+        self.view = view
+        self.SEC = SEC
+
+        menuFile = tk.Menu(self.view, tearoff=0)
         # Add button "File" in the menu bar
         self.view.add_cascade(label="File", menu=menuFile)
         # Ajoute les button dans le menu déroulant
-        menuFile.add_command(label="New")
-        menuFile.add_command(label="Open")
-        menuFile.add_command(label="Save")
+        menuFile.add_command(label="New", command=self.SEC.create_new_file)
+        menuFile.add_command(label="Open", command=self.SEC.load_file)
+        menuFile.add_command(label="Save", command=self.SEC.save_file)
         # Add a separator
         menuFile.add_separator()
         menuFile.add_command(label="Exit", command=self.view.master.quit)  # Option Quitter
 
-        menuEdit = tk.Menu(self, tearoff=0)
+        menuEdit = tk.Menu(self.view, tearoff=0)
         # Add button "Edit" in the menu bar
         self.view.add_cascade(label="Edit", menu=menuEdit)
         menuEdit.add_command(label="Cut")
         menuEdit.add_command(label="Copy")
         menuEdit.add_command(label="Paste")
 
-        menuExecute = tk.Menu(self, tearoff=0)
+        menuExecute = tk.Menu(self.view, tearoff=0)
         # Add button "Execution" in the mnu bar
         self.view.add_cascade(label="Execution", menu=menuExecute)
-        menuExecute.add_command(label="Execute")
-        menuExecute.add_command(label="Compile C")
+        menuExecute.add_command(label="Execute", command=self.SEC.executeCode)

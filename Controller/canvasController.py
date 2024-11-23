@@ -6,7 +6,7 @@ from DrawLibrary.Graphics.canvasImage import CanvasImage
 
 from DrawLibrary.Core.Collision.aabb import AABB
 
-from Model.canvasImages import CanvasImages
+from Model.canvasEntities import CanvasEntities
 
 from config import DEBUG
 
@@ -35,7 +35,7 @@ class CanvasController:
             The canvas where the ViewModel is going to be tied to
         """
         self.view: tk.Canvas = canvas
-        self.model: CanvasImages = CanvasImages()
+        self.model: CanvasEntities = CanvasEntities()
         self.toolManager = toolManager
 
         # Mouse events
@@ -81,11 +81,13 @@ class CanvasController:
             newCanvasImage.debugBbox = self.view.create_rectangle(newCanvasImage.bbox.min.x, newCanvasImage.bbox.min.y, newCanvasImage.bbox.max.x, newCanvasImage.bbox.max.y, outline="black", width=2)
 
         # Put the image to dictionary with the id as the key
-        self.model.addImage(imageId, newCanvasImage)
+        self.model.addEntity(imageId, newCanvasImage)
+
+        return newCanvasImage
 
     def deleteImage(self, canvasImage: CanvasImage):
         self.view.delete(canvasImage.id)
-        self.model.deleteImage(canvasImage.id)
+        self.model.deleteEntity(canvasImage.id)
 
     def update(self):
         """
@@ -95,6 +97,11 @@ class CanvasController:
         for imageId, canvasImage in self.model.images.items():
             # Update the image
             self.view.itemconfig(imageId, image=canvasImage.photoImage)
+
+    def deleteAll(self):
+        # Remove every drawn entities on the canvas (aka both images and shapes)
+        self.view.delete("all")
+        self.model.deleteAll()
 
     def _invoke_active_tool_method(self, method_name, event):
         self.toolManager.invoke_tool_method(method_name, event)
