@@ -38,13 +38,13 @@ class CanvasController:
         self.model: CanvasEntities = CanvasEntities()
         self.toolManager = toolManager
 
-        # Mouse events
+        # Bind mouse events to the canvas
         self.view.bind("<ButtonPress-1>", self.on_button_press)
         self.view.bind("<B1-Motion>", self.on_mouse_drag)
         self.view.bind("<ButtonRelease-1>", self.on_button_release)
         self.view.bind("<Motion>", self.on_mouse_over)
         
-        # Key events
+        # Bind key events to the canvas
         self.view.bind("<Delete>", self.on_delete)
         self.view.bind("<Control-Key-c>", self.on_control_c)
         self.view.bind("<Control-Key-v>", self.on_control_v)
