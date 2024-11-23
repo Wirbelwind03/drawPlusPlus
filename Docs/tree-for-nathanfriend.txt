@@ -1,10 +1,16 @@
+# Le site hein, pas le joueur
+# Utilisé pour dossier structure.md
+# https://tree.nathanfriend.com/
+
 drawPlusPlus/
   Controller/
     Tools/
       selectionRectangleTool.py
       selectionTool.py
     canvasController.py
-    mainController
+    mainController.py
+    menuBarController.py
+    scriptEditorController.py
     selectionRectangleCanvasController.py
   Data/
     Assets/
@@ -20,6 +26,7 @@ drawPlusPlus/
       Shapes/
         rectangle.py
     Graphics/
+      canvasEntity.py
       canvasImage.py
   DrawScript/
     Commands/
@@ -29,14 +36,15 @@ drawPlusPlus/
       moveCommand.py
     Core/
       drawScriptParser.py
+      drawScriptTokenizer.py
   Model/
-    canvasImages.py
+    canvasEntities.py
     cursor.py
     selectionRectangle.py
+    toolManager.py
   View/
     Resources/
       Widgets/
-        menuBar.py
         terminal.py
         textEditor.py
         toolBar.py

@@ -7,7 +7,9 @@ drawPlusPlus/
 │   │   ├── selectionRectangleTool.py
 │   │   └── selectionTool.py
 │   ├── canvasController.py
-│   ├── mainController
+│   ├── mainController.py
+│   ├── menuBarController.py
+│   ├── scriptEditorController.py
 │   └── selectionRectangleCanvasController.py
 ├── Data/
 │   └── Assets/
@@ -23,19 +25,25 @@ drawPlusPlus/
 │   │   └── Shapes/
 │   │       └── rectangle.py
 │   └── Graphics/
+│       ├── canvasEntity.py
 │       └── canvasImage.py
 ├── DrawScript/
 │   ├── Commands/
+│   │   ├── baseCommand.py
+│   │   ├── cursorCommand.py
+│   │   ├── drawCommand.py
+│   │   └── moveCommand.py
 │   └── Core/
-│       └── drawScriptParser.py
+│       ├── drawScriptParser.py
+│       └── drawScriptTokenizer.py
 ├── Model/
-│   ├── canvasImages.py
+│   ├── canvasEntities.py
 │   ├── cursor.py
-│   └── selectionRectangle.py
+│   ├── selectionRectangle.py
+│   └── toolManager.py
 ├── View/
 │   ├── Resources/
-│   │   └── Widgets /
-│   │       ├── menuBar.py
+│   │   └── Widgets/
 │   │       ├── terminal.py
 │   │       ├── textEditor.py
 │   │       └── toolBar.py
