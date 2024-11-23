@@ -2,97 +2,89 @@
 
 ```
 drawPlusPlus/
+├── Controller/
+│   ├── Tools/
+│   │   ├── selectionRectangleTool.py
+│   │   └── selectionTool.py
+│   ├── canvasController.py
+│   ├── mainController
+│   └── selectionRectangleCanvasController.py
 ├── Data/
 │   └── Assets/
 ├── Docs/
+│   ├── dossier-structure.md
+│   └── SujetPython_GI_2024.pdf
 ├── DrawLibrary/
-│   └── Core/
-│       ├── Collision/
-│       │   └── aabb.py
-│       ├── Math/
-│       │   └── vector2.py
-│       └── Shapes/
-│           └── rectangle.py
+│   ├── Core/
+│   │   ├── Collision/
+│   │   │   └── aabb.py
+│   │   ├── Math/
+│   │   │   └── vector2.py
+│   │   └── Shapes/
+│   │       └── rectangle.py
+│   └── Graphics/
+│       └── canvasImage.py
 ├── DrawScript/
-|       ├── Commands/
-|       └── drawScriptParser.py
+│   ├── Commands/
+│   └── Core/
+│       └── drawScriptParser.py
 ├── Model/
-|       ├── canvasImage.py
-|       ├── cursor.py
-│       └── selectionRectangle.py
+│   ├── canvasImages.py
+│   ├── cursor.py
+│   └── selectionRectangle.py
 ├── View/
-|       ├── Resources/
-│       │   ├── customText.py
-│       │   └── textLineNumbers.py
-|       ├── canvas.py
-|       ├── mainFrame.py
-|       ├── menuBar.py
-|       ├── terminal.py
-|       ├── textEditor.py
-|       ├── toolBar.py
-│       └── window.py
-├── ViewModel/
-|       ├── Tools/
-│       │   ├── selectionRectangleTool.py
-│       │   └── selectionTool.py
-|       ├── canvasViewModel.py
-│       └── toolManager.py
+│   ├── Resources/
+│   │   └── Widgets /
+│   │       ├── menuBar.py
+│   │       ├── terminal.py
+│   │       ├── textEditor.py
+│   │       └── toolBar.py
+│   ├── mainFrame.py
+│   └── window.py
 ├── .gitignore
 ├── config.py
 └── main.py
 ```
-## Racine du Projet
-- **main.py** : Point d'entrée principal de l'application.
-- **config.py** : Contient les paramètres globaux de configuration.
-- **.gitignore** : Fichier listant les éléments à exclure du contrôle de version.
+## Racine du projet
+- `main.py` : Point d'entrée principal de l'application.
+- `config.py` : Configuration globale du projet.
+- `.gitignore` : Fichiers ignorés par Git.
+
+## `Controller/`
+Ce module gère les interactions utilisateur et la logique principale de l'application.
+- **Tools/** : Contient les outils de sélection (ex. : `selectionRectangleTool.py`, `selectionTool.py`).
+- `canvasController.py` : Contrôle principal du canevas.
+- `mainController` : Gère les fonctionnalités générales.
+- `selectionRectangleCanvasController.py` : Contrôle de la sélection rectangulaire.
 
 ## `Data/`
-- **Assets/** : Contient les ressources nécessaires, telles que les images.
+- **Assets/** : Stocke les ressources nécessaires au projet.
 
 ## `Docs/`
-- Documentation liée au projet (README, manuel utilisateur, tutoriels).
+- `dossier-structure.md` : Documentation sur la structure du projet.
+- `SujetPython_GI_2024.pdf` : Document décrivant le sujet ou le contexte du projet.
 
 ## `DrawLibrary/`
-- Librairie principale de dessin.
-
-  - **Core/**
-    - **Collision/aabb.py** : Module pour la détection de collisions AABB.
-    - **Math/vector2.py** : Module pour les opérations vectorielles en 2D.
-    - **Shapes/rectangle.py** : Module pour gérer et dessiner des rectangles.
+Bibliothèque principale pour les opérations graphiques et mathématiques :
+- **Core/** :
+  - **Collision/aabb.py** : Gestion des collisions à l'aide des boîtes englobantes alignées sur les axes (AABB).
+  - **Math/vector2.py** : Gestion des opérations mathématiques sur les vecteurs 2D.
+  - **Shapes/rectangle.py** : Modélisation des rectangles.
+- **Graphics/canvasImage.py** : Gestion des images sur le canevas.
 
 ## `DrawScript/`
-- Contient les fichiers pour le langage de script de dessin.
-
-  - **Commands/** : Gestion des commandes *DrawScript*.
-  - **drawScriptParser.py** : Analyseur syntaxique pour *DrawScript*.
+Module pour la gestion et le parsing de scripts de dessin.
+- **Commands/** : Contient les commandes de dessin (à compléter).
+- **Core/drawScriptParser.py** : Analyse et interprétation des scripts de dessin.
 
 ## `Model/`
-- Modules gérant les données et la logique de l’application.
-
-  - **canvasImage.py** : Gestion des images sur le canevas.
-  - **cursor.py** : Gestion des positions et mouvements du curseur.
-  - **selectionRectangle.py** : Module pour le rectangle de sélection.
+Représentation des données du projet :
+- `canvasImages.py` : Gestion des images sur le canevas.
+- `cursor.py` : Modélisation du curseur.
+- `selectionRectangle.py` : Gestion des rectangles de sélection.
 
 ## `View/`
-- Modules pour l'interface graphique.
-
-  - **Resources/**
-    - **customText.py** : Classe de texte personnalisé.
-    - **textLineNumbers.py** : Affichage des numéros de ligne dans l'éditeur.
-  - **canvas.py** : Interface du canevas de dessin.
-  - **mainFrame.py** : Fenêtre principale de l'application.
-  - **menuBar.py** : Barre de menu.
-  - **terminal.py** : Terminal intégré pour afficher les logs.
-  - **textEditor.py** : Éditeur de texte pour *DrawScript*.
-  - **toolBar.py** : Barre d'outils.
-  - **window.py** : Gestion de la fenêtre de l'application.
-
-## `ViewModel/`
-- Le répertoire `ViewModel` agit comme un pont entre les données du modèle et la présentation visuelle dans la vue. Il gère la logique permettant d’assurer que les modifications apportées aux données sont reflétées dans l’interface utilisateur, et inversement.
-
-  - **Tools/**
-    - **selectionRectangleTool.py** : Implémente un outil dédié à la création et la gestion d’un rectangle de sélection. Permet à l’utilisateur de délimiter une zone spécifique à l’aide d’un clic-glissé.
-    - **selectionTool.py** : Un outil générique de sélection permettant de sélectionner des éléments individuels dans une interface.
-  - **canvasViewModel.py** : Responsable de la gestion du canevas. Ce fichier gère les interactions entre la vue du canevas (ex : zoom, translation, redimensionnement) et les données sous-jacentes.
-  - **selectionRectangleCanvasViewModel** : Gère spécifiquement les interactions avec l’outil rectangle de sélection sur le canevas. Cela inclut la création, la mise à jour et la suppression des rectangles visibles dans l’interface utilisateur.
-  - **toolManager.py** : Fonctionne comme un gestionnaire centralisé pour les outils de l’application. Il est chargé d’activer, de désactiver et de gérer les interactions entre les différents outils définis, tels que ceux présents dans le répertoire `Tools/`.
+Interface utilisateur et composants graphiques.
+- **Resources/Widgets/** : Composants d'interface tels que la barre de menu (`menuBar.py`), le terminal (`terminal.py`), l'éditeur de texte (`textEditor.py`), et la barre d'outils (`toolBar.py`).
+- `mainFrame.py` : Gestion du cadre principal de l'application.
+- `window.py` : Fenêtre principale de l'application.
