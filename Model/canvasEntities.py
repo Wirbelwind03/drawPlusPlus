@@ -11,5 +11,4 @@ class CanvasEntities:
         del self.images[id]
 
     def deleteAll(self):
-        for id in self.images.keys():
-            self.deleteEntity(id)
+        self.images.clear()

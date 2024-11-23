@@ -1,11 +1,10 @@
 import re
 
-class tokenize_drawpp:  # Nom de la classe corrigé pour respecter les conventions
-    def __init__(self, canvas):
-        self.canvas = canvas
+class DrawScriptTokenizer:  # Nom de la classe corrigé pour respecter les conventions
+    def __init__(self):
         self.cursors = {}  # Dictionary for storing cursors
 
-    def tokenize_drawpp(self, code, line_number):
+    def tokenize(self, code):
         # Définir les expressions régulières pour chaque type de jeton
         token_specification = [
             ('COMMENT',       r'//.*'),  # Commentaires
@@ -34,7 +33,7 @@ class tokenize_drawpp:  # Nom de la classe corrigé pour respecter les conventio
         errors = []
 
         # Tokenisation de tout le code
-        line = line_number
+        line_number = 0
         mo = get_token(code, pos)
         while mo is not None:
             kind = mo.lastgroup
@@ -46,26 +45,26 @@ class tokenize_drawpp:  # Nom de la classe corrigé pour respecter les conventio
             elif kind == 'IDENTIFIER':
                 if value in keywords:
                     kind = 'KEYWORD'
-                tokens.append({'type': kind, 'value': value, 'line': line})
+                tokens.append({'type': kind, 'value': value, 'line': line_number})
                 errors.append(0)
             elif kind == 'NUMBER':
-                tokens.append({'type': kind, 'value': float(value), 'line': line})
+                tokens.append({'type': kind, 'value': float(value), 'line': line_number})
                 errors.append(0)
             elif kind == 'STRING':
-                tokens.append({'type': kind, 'value': value[1:-1], 'line': line})
+                tokens.append({'type': kind, 'value': value[1:-1], 'line': line_number})
                 errors.append(0)
             elif kind in {'OPERATOR', 'DELIMITER'}:
-                tokens.append({'type': kind, 'value': value, 'line': line})
+                tokens.append({'type': kind, 'value': value, 'line': line_number})
                 errors.append(0)
             elif kind == 'MISMATCH':
-                tokens.append({'type': 'UNKNOWN', 'value': value, 'line': line})
+                tokens.append({'type': 'UNKNOWN', 'value': value, 'line': line_number})
                 errors.append(1)  # Indiquer une erreur pour ce jeton
             pos = mo.end()
             mo = get_token(code, pos)
 
         if pos != len(code):
             # Gérer le cas où la tokenisation s'arrête avant la fin du code
-            tokens.append({'type': 'UNKNOWN', 'value': code[pos:], 'line': line})
+            tokens.append({'type': 'UNKNOWN', 'value': code[pos:], 'line': pos})
             errors.append(1)
 
         return tokens, errors

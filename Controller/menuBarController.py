@@ -29,3 +29,10 @@ class MenuBarController:
         # Add button "Execution" in the mnu bar
         self.view.add_cascade(label="Execution", menu=menuExecute)
         menuExecute.add_command(label="Execute", command=self.SEC.executeCode)
+
+""" 
+    Mettre ici les buttons si vous avez besoin d'en ajoutez pour la barre de menu
+    La barre de menu repose sur les autres controllers, par exemple,
+    SEC controlle tout ce qui est par rapport à l'éditeur de texte, d'où il est nécessaire comme attribut
+    Si par exemple, il y a button qui efface tout du canvas, la logique sera de mettre le controller du canvas
+"""

@@ -2,7 +2,6 @@ import tkinter as tk
 
 from DrawLibrary.Graphics.canvasImage import CanvasImage
 
-from .Resources.Widgets.menuBar import *
 from .Resources.Widgets.textEditor import *
 from .Resources.Widgets.terminal import *
 from .Resources.Widgets.toolBar import *
@@ -35,7 +34,7 @@ class MainFrame(tk.Frame):
         self.master.grid_columnconfigure(0, weight=1)
 
         # Add menu bar (this doesn't use grid or pack, it's set on master)
-        self.menuBar = MenuBar(self)
+        self.menuBar = tk.Menu()
         self.master.config(menu=self.menuBar)
 
         # Configure rows and columns for grid layout in MainFrame

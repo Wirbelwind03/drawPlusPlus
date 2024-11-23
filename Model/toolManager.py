@@ -10,8 +10,11 @@ class ToolManager:
         self.tools[toolName] = cls
 
     def setActiveTool(self, toolName: str) -> None:
-        if toolName in self.tools:
-            self.activeTool = toolName
+        try:
+            if toolName in self.tools:
+                self.activeTool = toolName
+        except Exception as e:
+            raise TypeError()
 
     def getActiveTool(self) -> Type:
         return self.tools.get(self.activeTool)
