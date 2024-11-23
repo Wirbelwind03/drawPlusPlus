@@ -2,41 +2,45 @@
 
 ```
 drawPlusPlus/
+├── Controller/
+│   ├── Tools/
+│   │   ├── selectionRectangleTool.py
+│   │   └── selectionTool.py
+│   ├── canvasController.py
+│   ├── mainController
+│   └── selectionRectangleCanvasController.py
 ├── Data/
 │   └── Assets/
 ├── Docs/
+│   ├── dossier-structure.md
+│   └── SujetPython_GI_2024.pdf
 ├── DrawLibrary/
-│   └── Core/
-│       ├── Collision/
-│       │   └── aabb.py
-│       ├── Math/
-│       │   └── vector2.py
-│       └── Shapes/
-│           └── rectangle.py
+│   ├── Core/
+│   │   ├── Collision/
+│   │   │   └── aabb.py
+│   │   ├── Math/
+│   │   │   └── vector2.py
+│   │   └── Shapes/
+│   │       └── rectangle.py
+│   └── Graphics/
+│       └── canvasImage.py
 ├── DrawScript/
-|       ├── Commands/
-|       └── drawScriptParser.py
+│   ├── Commands/
+│   └── Core/
+│       └── drawScriptParser.py
 ├── Model/
-|       ├── canvasImage.py
-|       ├── cursor.py
-│       └── selectionRectangle.py
+│   ├── canvasImages.py
+│   ├── cursor.py
+│   └── selectionRectangle.py
 ├── View/
-|       ├── Resources/
-│       │   ├── customText.py
-│       │   └── textLineNumbers.py
-|       ├── canvas.py
-|       ├── mainFrame.py
-|       ├── menuBar.py
-|       ├── terminal.py
-|       ├── textEditor.py
-|       ├── toolBar.py
-│       └── window.py
-├── ViewModel/
-|       ├── Tools/
-│       │   ├── selectionRectangleTool.py
-│       │   └── selectionTool.py
-|       ├── canvasViewModel.py
-│       └── toolManager.py
+│   ├── Resources/
+│   │   └── Widgets /
+│   │       ├── menuBar.py
+│   │       ├── terminal.py
+│   │       ├── textEditor.py
+│   │       └── toolBar.py
+│   ├── mainFrame.py
+│   └── window.py
 ├── .gitignore
 ├── config.py
 └── main.py
@@ -69,9 +73,10 @@ drawPlusPlus/
 ## `Model/`
 - Modules gérant les données et la logique de l’application.
 
-  - **canvasImage.py** : Gestion des images sur le canevas.
+  - **canvasImages.py** : Modèle qui stocke les images de type CanvasImage. Les CanvasImage sont stockées dans un dictionnaire, selon leur ID.
   - **cursor.py** : Gestion des positions et mouvements du curseur.
-  - **selectionRectangle.py** : Module pour le rectangle de sélection.
+  - **selectionRectangle.py** : Modèle qui stocke les données du rectangle de selection.
+  - **toolManager.py** : Modèle qui fonctionne comme un gestionnaire centralisé pour les outils de l’application. Il est chargé d’activer, de désactiver et de gérer les interactions entre les différents outils définis, tels que ceux présents dans le répertoire `Tools/`.
 
 ## `View/`
 - Modules pour l'interface graphique.
@@ -87,12 +92,12 @@ drawPlusPlus/
   - **toolBar.py** : Barre d'outils.
   - **window.py** : Gestion de la fenêtre de l'application.
 
-## `ViewModel/`
-- Le répertoire `ViewModel` agit comme un pont entre les données du modèle et la présentation visuelle dans la vue. Il gère la logique permettant d’assurer que les modifications apportées aux données sont reflétées dans l’interface utilisateur, et inversement.
+## `Controller/`
+- Le répertoire `Controller` agit comme un manager entre les données du modèle et la vue. Il gère la logique permettant d’assurer que les modifications apportées aux données sont reflétées dans l’interface utilisateur, et inversement, c'est à dire que les modifications fait par interface se met a jour dans le modèle.
 
   - **Tools/**
     - **selectionRectangleTool.py** : Implémente un outil dédié à la création et la gestion d’un rectangle de sélection. Permet à l’utilisateur de délimiter une zone spécifique à l’aide d’un clic-glissé.
     - **selectionTool.py** : Un outil générique de sélection permettant de sélectionner des éléments individuels dans une interface.
   - **canvasViewModel.py** : Responsable de la gestion du canevas. Ce fichier gère les interactions entre la vue du canevas (ex : zoom, translation, redimensionnement) et les données sous-jacentes.
   - **selectionRectangleCanvasViewModel** : Gère spécifiquement les interactions avec l’outil rectangle de sélection sur le canevas. Cela inclut la création, la mise à jour et la suppression des rectangles visibles dans l’interface utilisateur.
-  - **toolManager.py** : Fonctionne comme un gestionnaire centralisé pour les outils de l’application. Il est chargé d’activer, de désactiver et de gérer les interactions entre les différents outils définis, tels que ceux présents dans le répertoire `Tools/`.
+
