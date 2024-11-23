@@ -13,8 +13,10 @@ from DrawLibrary.Graphics.canvasImage import CanvasImage
 
 from Model.toolManager import ToolManager
 
+from View.mainFrame import MainFrame
+
 class MainController:
-    def __init__(self, view):
+    def __init__(self, view: MainFrame):
         self.view = view
 
         self.toolManager = ToolManager()

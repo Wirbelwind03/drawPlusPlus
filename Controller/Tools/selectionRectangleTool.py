@@ -3,7 +3,6 @@ import tkinter as tk
 from config import DEBUG
 
 from DrawLibrary.Core.Math.vector2 import Vector2
-from DrawLibrary.Core.Collision.aabb import AABB
 from DrawLibrary.Graphics.canvasImage import CanvasImage
 
 from Controller.canvasController import CanvasController
@@ -46,7 +45,7 @@ class SelectionRectangleTool:
         if self.__debugBbox:
             self.view.delete(self.__debugBbox)
 
-        self.__debugBbox = self.view.create_rectangle(self.selectionRectangle.min.x, self.selectionRectangle.min.y, self.selectionRectangle.max.x, self.selectionRectangle.max.y, outline="black", width=2)
+        self.__debugBbox = self.view.create_rectangle(self.SRCC.selectionRectangle.min.x, self.SRCC.selectionRectangle.min.y, self.SRCC.selectionRectangle.max.x, self.SRCC.selectionRectangle.max.y, outline="black", width=2)
 
     def on_mouse_over(self, event):
         """
