@@ -1,86 +1,134 @@
-<program>          ::= { <statement> }
+program :
+    { statement }
 
-<statement>        ::= <variable_declaration>
-                     | <assignment>
-                     | <function_definition>
-                     | <function_call>
-                     | <if_statement>
-                     | <while_loop>
-                     | <for_loop>
-                     | <copy_paste_statement>
-                     | <animation_block>
-                     | <cursor_statement>
-                     | <comment>
+statement :
+      variableDeclaration
+    | functionDefinition
+    | assignmentOrFunctionCall
+    | ifStatement
+    | whileLoop
+    | forLoop
+    | copyPasteStatement
+    | animationBlock
+    | cursorStatement
+    | returnStatement
+    | ';'  // Pour permettre des points-virgules isolés
 
-<variable_declaration> ::= "var" <identifier> [ "=" <expression> ] ";"
+variableDeclaration :
+    'var' IDENTIFIER [ ':' type ] [ '=' expression ] ';'
 
-<assignment>       ::= <identifier> "=" <expression> ";"
+type :
+    'cursor'
+  | // Autres types si nécessaires
 
-<function_definition> ::= "function" <identifier> "(" [ <parameter_list> ] ")" "{" { <statement> } "}"
+assignmentOrFunctionCall :
+      assignment
+    | functionCall
+    | cursorMethodCallStatement
 
-<function_call>    ::= <identifier> "(" [ <argument_list> ] ")" ";"
+assignment :
+    IDENTIFIER '=' expression ';'
 
-<if_statement>     ::= "if" "(" <expression> ")" "{" { <statement> } "}"
-                     [ "else" "{" { <statement> } "}" ]
+functionDefinition :
+    'function' IDENTIFIER '(' [ parameterList ] ')' block
 
-<while_loop>       ::= "while" "(" <expression> ")" "{" { <statement> } "}"
+parameterList :
+    IDENTIFIER { ',' IDENTIFIER }
 
-<for_loop>         ::= "for" "(" [ <initialization> ] ";" <expression> ";" [ <iteration> ] ")" "{" { <statement> } "}"
+functionCall :
+    IDENTIFIER '(' [ argumentList ] ')' ';'
 
-<copy_paste_statement> ::= "copy" "(" <coordinate_pair> "," <coordinate_pair> ")" 
-                           "to" "(" <coordinate_pair> ")" ";"
+argumentList :
+    expression { ',' expression }
 
-<animation_block>  ::= "animate" "(" <identifier> "," <duration> ")" "{" { <statement> } "}"
+cursorMethodCallStatement :
+    IDENTIFIER '.' cursorMethodCall ';'
 
-<cursor_statement> ::= "cursor" "(" <coordinate_pair> ")" ";"
+cursorMethodCall :
+      'moveTo' '(' expression ',' expression ')'
+    | 'rotate' '(' expression ')'
+    | 'drawLine' '(' expression ',' expression ')'
+    | 'drawCircle' '(' expression ')'
+    | 'drawRectangle' '(' expression ',' expression ')'
+    | // Autres méthodes du curseur
 
-<comment>          ::= "//" <comment_text>
+ifStatement :
+    'if' '(' expression ')' block [ 'else' block ]
 
-<expression>       ::= <logical_or_expression>
+whileLoop :
+    'while' '(' expression ')' block
 
-<logical_or_expression> ::= <logical_and_expression> { "||" <logical_and_expression> }
+forLoop :
+    'for' '(' [ initialization ] ';' [ expression ] ';' [ iteration ] ')' block
 
-<logical_and_expression> ::= <equality_expression> { "&&" <equality_expression> }
+initialization :
+      variableDeclaration
+    | assignment
 
-<equality_expression> ::= <relational_expression> [ ( "==" | "!=" ) <relational_expression> ]
+iteration :
+    assignment
 
-<relational_expression> ::= <additive_expression> [ ( "<" | ">" | "<=" | ">=" ) <additive_expression> ]
+copyPasteStatement :
+    'copy' '(' coordinatePair ',' coordinatePair ')' 'to' '(' coordinatePair ')' ';'
 
-<additive_expression> ::= <multiplicative_expression> { ( "+" | "-" ) <multiplicative_expression> }
+animationBlock :
+    'animate' '(' IDENTIFIER ',' expression ')' block
 
-<multiplicative_expression> ::= <unary_expression> { ( "*" | "/" | "%" ) <unary_expression> }
+cursorStatement :
+    'cursor' '(' expression ',' expression ')' ';'  // Instruction de base du curseur
+  | cursorMethodCallStatement
 
-<unary_expression> ::= [ ( "+" | "-" | "!" ) ] <primary_expression>
+returnStatement :
+    'return' expression ';'
 
-<primary_expression> ::= <number>
-                       | <string>
-                       | <identifier>
-                       | "(" <expression> ")"
+block :
+    '{' { statement } '}'
 
-<initialization>   ::= <variable_declaration> | <assignment>
+coordinatePair :
+    expression ',' expression
 
-<iteration>        ::= <assignment>
+expression :
+    logicalOrExpression
 
-<parameter_list>   ::= <identifier> { "," <identifier> }
+logicalOrExpression :
+    logicalAndExpression { '||' logicalAndExpression }
 
-<argument_list>    ::= <expression> { "," <expression> }
+logicalAndExpression :
+    equalityExpression { '&&' equalityExpression }
 
-<coordinate_pair>  ::= <expression> "," <expression>
+equalityExpression :
+    relationalExpression { ( '==' | '!=' ) relationalExpression }
 
-<duration>         ::= <expression>
+relationalExpression :
+    additiveExpression { ( '<' | '>' | '<=' | '>=' ) additiveExpression }
 
-<identifier>       ::= <letter> { <letter_or_digit> }
+additiveExpression :
+    multiplicativeExpression { ( '+' | '-' ) multiplicativeExpression }
 
-<number>           ::= <digit> { <digit> } [ "." <digit> { <digit> } ]
+multiplicativeExpression :
+    unaryExpression { ( '*' | '/' | '%' ) unaryExpression }
 
-<string>           ::= '"' { <any_character_except_quote> } '"'
+unaryExpression :
+    [ '+' | '-' | '!' ] primaryExpression
 
-<letter>           ::= "a" | "b" | ... | "z" | "A" | "B" | ... | "Z" | "_"
+primaryExpression :
+      NUMBER
+    | STRING
+    | BOOLEAN
+    | IDENTIFIER [ functionCallExpression ]
+    | '(' expression ')'
 
-<letter_or_digit>  ::= <letter> | <digit>
+functionCallExpression :
+    '(' [ argumentList ] ')'
 
-<digit>            ::= "0" | "1" | ... | "9"
+BOOLEAN :
+    'true' | 'false'
 
-<comment_text>     ::= { <any_character_except_newline> }
+NUMBER :
+    // Nombres entiers ou à virgule flottante
 
-A
+STRING :
+    // Chaînes de caractères entre guillemets
+
+IDENTIFIER :
+    // Noms de variables, fonctions, etc.
