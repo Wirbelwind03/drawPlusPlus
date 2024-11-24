@@ -4,15 +4,13 @@ from config import DEBUG
 
 from DrawLibrary.Core.Math.vector2 import Vector2
 
-from Controller.canvasController import CanvasController
 from Controller.selectionRectangleCanvasController import SelectionRectangleCanvasController
 
 from Model.selectionRectangle import SelectionRectangleAction, SelectionRectangle
 
 class SelectionTool:
-    def __init__(self, CC: CanvasController, SRCC: SelectionRectangleCanvasController):
-        # Connect the selection rectangle controller to the canvas
-        self.CC = CC
+    def __init__(self, SRCC: SelectionRectangleCanvasController):
+        # Connect the selection rectangle controller to the tool
         self.SRCC = SRCC
 
     def on_mouse_over(self, event):
@@ -58,7 +56,7 @@ class SelectionTool:
 
     def getClickedImage(self, mouseCoords):
         # Loop all the images present on the canvas
-        for imageId, image in self.CC.model.images.items():
+        for imageId, image in self.SRCC.CC.model.images.items():
             # Check if the mouse is inside the bounding box of the image
             if image.bbox.isInside(mouseCoords):
                 self.SRCC.setSelectionRectangle(SelectionRectangle.fromCoordinates(image.bbox.min.x, image.bbox.min.y, image.bbox.max.x, image.bbox.max.y), image)
@@ -66,7 +64,7 @@ class SelectionTool:
 
                 # Check the action to move since the cursor is inside the image
                 self.SRCC.setAction(SelectionRectangleAction.MOVE)
-                self.CC.view.config(cursor="fleur")
+                self.SRCC.CC.view.config(cursor="fleur")
                 return
 
 
