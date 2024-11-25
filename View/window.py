@@ -22,4 +22,4 @@ class Window(tk.Tk):
         # Attach the controller to the UI
         # The controller is used to communicate the data to the UI
         controller = MainController(mainFrame)
-        controller.start
+        controller.start()
