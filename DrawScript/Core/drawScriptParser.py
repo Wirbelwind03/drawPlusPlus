@@ -9,7 +9,7 @@ class DrawScriptParser:
             while self.current < len(self.tokens):
                 self.statement()
                 print(self.current)
-                if (self.current == 103):
+                if (self.current == 102):
                     print("test")
         except Exception as e:
             pass  # Ignorer les exceptions pour continuer l'analyse
