@@ -20,6 +20,7 @@ class DrawScriptTokenizer:  # Nom de la classe corrigé pour respecter les conve
         # Compilation des expressions régulières
         tok_regex = '|'.join('(?P<%s>%s)' % pair for pair in token_specification)
         get_token = re.compile(tok_regex).match
+        
 
         # Mots-clés du langage
         keywords = {
@@ -56,9 +57,12 @@ class DrawScriptTokenizer:  # Nom de la classe corrigé pour respecter les conve
             elif kind in {'OPERATOR', 'DELIMITER'}:
                 tokens.append({'type': kind, 'value': value, 'line': line_number})
                 errors.append(0)
-            elif kind == 'MISMATCH':
+            elif kind == 'MISMATCH': #Le Code se stop si le tokenize specification n'est pas reconnu 
                 tokens.append({'type': 'UNKNOWN', 'value': value, 'line': line_number})
                 errors.append(1)  # Indiquer une erreur pour ce jeton
+                print("Errors drawScriptTokenizer.py type Unknow:") 
+                print(errors)
+                exit()
             pos = mo.end()
             mo = get_token(code, pos)
 
@@ -67,4 +71,21 @@ class DrawScriptTokenizer:  # Nom de la classe corrigé pour respecter les conve
             tokens.append({'type': 'UNKNOWN', 'value': code[pos:], 'line': pos})
             errors.append(1)
 
-        return tokens, errors
+
+        return tokens, errors 
+
+
+""" Exemple utilisation Tokenizer.py
+tokenizer = DrawScriptTokenizer()
+
+# Analyse de la chaîne et récupération des résultats
+tokens, errors = tokenizer.tokenize("#a")
+
+# Affichage des résultats
+print("Tokens:")
+for token in tokens:
+    print(token)
+
+print("\nErrors:")
+print(errors)
+"""
