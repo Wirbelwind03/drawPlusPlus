@@ -157,51 +157,28 @@ class SelectionRectangleTool:
 
     def on_control_c(self, event):
         if self.SRCC.hasSelectionRectangle():
-            pass
-            image = ImageGrab.grab(bbox=(self.SRCC.selectionRectangle.min.x, self.SRCC.selectionRectangle.min.y, self.SRCC.selectionRectangle.max.x, self.SRCC.selectionRectangle.max.y))
-            byte_io = io.BytesIO()
-            image.save(byte_io, format='PNG')
-            byte_io.seek(0)
-            self.SRCC.CC.view.clipboard_clear()
-            self.SRCC.CC.view.clipboard_append(byte_io.getvalue())
-            self.SRCC.CC.view.update()
-            if DEBUG:
-                self.SRCC.CC.view.create_rectangle(self.SRCC.selectionRectangle.min.x, self.SRCC.selectionRectangle.min.y, self.SRCC.selectionRectangle.max.x, self.SRCC.selectionRectangle.max.y, outline="red", width=2)
-
-            # blankCanvasImage = CanvasImage.createBlank(self.SRCC.selectionRectangle.width, self.SRCC.selectionRectangle.height)
-            # isBlank = True
-            # for imageId, image in self.SRCC.CC.model.images.items():
-            #     # check overlap with image and selection tool
-            #     if self.SRCC.selectionRectangle.isIntersecting(image.bbox):
-            #         x1 = max(self.SRCC.selectionRectangle.topLeft.x, image.bbox.topLeft.x)
-            #         y1 = max(self.SRCC.selectionRectangle.topRight.y, image.bbox.topRight.y)
-            #         x2 = min(self.SRCC.selectionRectangle.topRight.x, image.bbox.topRight.x)
-            #         y2 = min(self.SRCC.selectionRectangle.bottomRight.y, image.bbox.bottomRight.y)
-            #         relativeCoords = Vector2(x1 - image.bbox.topLeft.x, y1 - image.bbox.topLeft.y)
+            blankCanvasImage = CanvasImage.createBlank(self.SRCC.selectionRectangle.width, self.SRCC.selectionRectangle.height)
+            isBlank = True
+            for imageId, image in self.SRCC.CC.model.images.items():
+                # check overlap with image and selection tool
+                if self.SRCC.selectionRectangle.isIntersecting(image.bbox):
+                    x1 = max(self.SRCC.selectionRectangle.topLeft.x, image.bbox.topLeft.x)
+                    y1 = max(self.SRCC.selectionRectangle.topRight.y, image.bbox.topRight.y)
+                    x2 = min(self.SRCC.selectionRectangle.topRight.x, image.bbox.topRight.x)
+                    y2 = min(self.SRCC.selectionRectangle.bottomRight.y, image.bbox.bottomRight.y)
+                    relativeCoords = Vector2(x1 - image.bbox.topLeft.x, y1 - image.bbox.topLeft.y)
                     
-            #         region = image.copy(relativeCoords.x, relativeCoords.y, x2 - x1, y2 - y1)
-            #         blankCanvasImage.paste(x1 - self.SRCC.selectionRectangle.topLeft.x, y1 - self.SRCC.selectionRectangle.topLeft.y, region)
-            #         isBlank = False
+                    region = image.copy(relativeCoords.x, relativeCoords.y, x2 - x1, y2 - y1)
+                    blankCanvasImage.paste(x1 - self.SRCC.selectionRectangle.topLeft.x, y1 - self.SRCC.selectionRectangle.topLeft.y, region)
+                    isBlank = False
 
-            #         if DEBUG:
-            #             self.SRCC.CC.view.create_rectangle(x1, y1, x2, y2, outline="red", width=2)
+                    if DEBUG:
+                        self.SRCC.CC.view.create_rectangle(x1, y1, x2, y2, outline="red", width=2)
 
-            # if not isBlank:
-            #     blankCanvasImage = self.SRCC.CC.drawImage(blankCanvasImage, self.SRCC.selectionRectangle.min.x, self.SRCC.selectionRectangle.min.y)
-            #     self.SRCC.selectionRectangle.attachedImage = blankCanvasImage
+            if not isBlank:
+                blankCanvasImage = self.SRCC.CC.drawImage(blankCanvasImage, self.SRCC.selectionRectangle.min.x, self.SRCC.selectionRectangle.min.y)
+                self.SRCC.selectionRectangle.attachedImage = blankCanvasImage
 
     def on_control_v(self, event):
-        mouseCoords = Vector2(event.x, event.y)
-
-        data = self.SRCC.CC.view.clipboard_get()
-
-        # Convert clipboard data back to an image
-        image = Image.open(io.BytesIO(data.encode('latin1')))
-
-        # Display the pasted image on the canvas
-        canvas_image = ImageTk.PhotoImage(image)
-        self.SRCC.CC.view.create_image(200, 200, image=canvas_image)
-        print("Image pasted from clipboard!")
-        
-        # if self.SRCC.selectionRectangle.attachedImage:
-        #     self.SRCC.CC.drawImage(self.SRCC.selectionRectangle.attachedImage, self.SRCC.selectionRectangle.min.x, self.SRCC.selectionRectangle.min.y)
+        if self.SRCC.selectionRectangle.attachedImage:
+            self.SRCC.CC.drawImage(self.SRCC.selectionRectangle.attachedImage, self.SRCC.selectionRectangle.min.x, self.SRCC.selectionRectangle.min.y)

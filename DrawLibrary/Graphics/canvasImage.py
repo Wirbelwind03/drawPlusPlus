@@ -49,6 +49,29 @@ class CanvasImage:
         blankCanvasImage.photoImage = ImageTk.PhotoImage(blankImage)
 
         return blankCanvasImage
+    
+    @classmethod
+    def fromPath(cls, filePath: str) -> 'CanvasImage':
+        """
+        Load a image from a filepath
+
+        Parameters
+        -----------
+        filePath : str
+            The file path where the image is going to be loaded
+        """
+
+        try:
+            # Check if the file exists
+            if not os.path.exists(filePath):
+                raise FileNotFoundError(f"The file '{filePath}' does not exist.")
+            canvasImage = CanvasImage()
+            canvasImage.image = Image.open(filePath)
+            canvasImage.photoImage = ImageTk.PhotoImage(canvasImage.image)
+            canvasImage.width, canvasImage.height = canvasImage.image.size
+            return canvasImage
+        except FileNotFoundError as e:
+            print(e)
 
     @property
     def width(self):
@@ -91,28 +114,6 @@ class CanvasImage:
         canvasImage.bbox = self.bbox
 
         return canvasImage
-
-    def load(self, filePath: str) -> None:
-        """
-        Load a image from a filepath
-
-        Parameters
-        -----------
-        filePath : str
-            The file path where the image is going to be loaded
-        """
-
-        try:
-            # Check if the file exists
-            if not os.path.exists(filePath):
-                raise FileNotFoundError(f"The file '{filePath}' does not exist.")
-
-            # Load the image inside the CanvasImage
-            self.image = Image.open(filePath)
-            self.photoImage = ImageTk.PhotoImage(self.image)
-            self.width, self.height = self.image.size
-        except FileNotFoundError as e:
-            print(e)
 
     def cut(self, x: int, y: int, width: int, height: int) -> None:
         """

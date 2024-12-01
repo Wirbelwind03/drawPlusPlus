@@ -64,10 +64,7 @@ class MainController:
         self.MBC = MenuBarController(self.view.menuBar, self.SEC)
     
     def start(self):
-        circleImage = CanvasImage()
-        circleImage.load("Data/Assets/circle.jpg")
+        circleImage = CanvasImage.fromPath("Data/Assets/circle.jpg")
 
-        #self.CC.drawImage(circleImage, 0, 0, 256, 256)
-        #self.CC.drawImage(circleImage, 256, 0, 256, 256)
-
-        self.CC.view.create_oval((50, 50, 100, 100), fill="green")
+        self.CC.drawImage(circleImage, 0, 0, 256, 256)
+        self.CC.drawImage(circleImage, 256, 0, 256, 256)
