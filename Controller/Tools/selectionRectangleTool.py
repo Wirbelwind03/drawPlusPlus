@@ -50,10 +50,10 @@ class SelectionRectangleTool:
                 # check overlap with image and selection tool
                 if selectionRectangle.isIntersecting(image.bbox):
                     intersectRectangle = selectionRectangle.getIntersectRectangle(image.bbox)
-                    relativeCoords = Vector2(x1 - image.bbox.topLeft.x, y1 - image.bbox.topLeft.y)
+                    relativeCoords = Vector2(selectionRectangle.min.x - image.bbox.topLeft.x, selectionRectangle.min.y - image.bbox.topLeft.y)
                     
                     if DEBUG:
-                        self.SRCC.CC.view.create_rectangle(x1, y1, x2, y2, outline="red", width=2)
+                        self.SRCC.CC.view.create_rectangle(selectionRectangle.min.x, selectionRectangle.min.y, selectionRectangle.max.x, selectionRectangle.max.y, outline="red", width=2)
 
 
 
