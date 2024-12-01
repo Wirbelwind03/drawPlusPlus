@@ -18,5 +18,7 @@ class CanvasEntity:
         self.id: int = -1
         self.bbox: AABB = None
 
+        self.debugBbox: int = -1
+
     def createAABB(self, x, y, width=0, height=0):
         self.bbox = AABB(x, y, width, height)

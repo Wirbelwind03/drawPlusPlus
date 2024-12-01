@@ -28,15 +28,11 @@ class CanvasImage:
     """
 
     def __init__(self) -> None:
-        self.id: int = -1
         self.filePath: str = ""
         self._width: int = 0
         self._height: int = 0
         self.image: Image = None
         self.photoImage: ImageTk.PhotoImage = None
-        self.bbox: AABB = None
-
-        self.debugBbox: int = -1
 
     @staticmethod
     def createBlank(width: int, height: int) -> 'CanvasImage':
@@ -66,6 +62,7 @@ class CanvasImage:
             if not os.path.exists(filePath):
                 raise FileNotFoundError(f"The file '{filePath}' does not exist.")
             canvasImage = CanvasImage()
+            canvasImage.filePath = filePath
             canvasImage.image = Image.open(filePath)
             canvasImage.photoImage = ImageTk.PhotoImage(canvasImage.image)
             canvasImage.width, canvasImage.height = canvasImage.image.size
