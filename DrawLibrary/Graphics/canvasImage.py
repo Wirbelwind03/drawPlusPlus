@@ -4,7 +4,9 @@ import os
 from DrawLibrary.Core.Math.vector2 import Vector2
 from DrawLibrary.Core.Collision.aabb import AABB
 
-class CanvasImage:
+from DrawLibrary.Graphics.canvasEntity import CanvasEntity
+
+class CanvasImage(CanvasEntity):
     """
     A class representing a image on a tk.Canvas
     The class handle operation tied to the images
@@ -28,6 +30,7 @@ class CanvasImage:
     """
 
     def __init__(self) -> None:
+        super().__init__()
         self.filePath: str = ""
         self._width: int = 0
         self._height: int = 0

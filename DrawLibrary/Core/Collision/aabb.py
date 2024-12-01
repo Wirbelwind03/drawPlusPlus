@@ -130,6 +130,6 @@ class AABB(Rectangle):
             # Bottom-right cornoer of the intersecting rectangle
             x2 = min(self.topRight.x, other.topRight.x)
             y2 = min(self.bottomRight.y, other.bottomRight.y)
-            return AABB(x1 - other.topLeft.x, y1 - other.topLeft.y, x2 - x1, y2 - y1)
+            return AABB(x1, y1, x2 - x1, y2 - y1)
         else:
             raise TypeError()

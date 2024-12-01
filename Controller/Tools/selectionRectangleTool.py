@@ -43,6 +43,20 @@ class SelectionRectangleTool:
 
         self.__debugBbox = self.SRCC.CC.view.create_rectangle(self.SRCC.selectionRectangle.min.x, self.SRCC.selectionRectangle.min.y, self.SRCC.selectionRectangle.max.x, self.SRCC.selectionRectangle.max.y, outline="black", width=2)
 
+    def findOverlaps(self):
+        if self.SRCC.hasSelectionRectangle():
+            selectionRectangle = self.SRCC.selectionRectangle
+            for imageId, image in self.SRCC.CC.model.images.items():
+                # check overlap with image and selection tool
+                if selectionRectangle.isIntersecting(image.bbox):
+                    intersectRectangle = selectionRectangle.getIntersectRectangle(image.bbox)
+                    relativeCoords = Vector2(x1 - image.bbox.topLeft.x, y1 - image.bbox.topLeft.y)
+                    
+                    if DEBUG:
+                        self.SRCC.CC.view.create_rectangle(x1, y1, x2, y2, outline="red", width=2)
+
+
+
     def on_mouse_over(self, event):
         """
         A event for when the mouse is hovering on the canvas
@@ -134,23 +148,24 @@ class SelectionRectangleTool:
 
     def on_delete(self, event):
         if self.SRCC.hasSelectionRectangle():
+            selectionRectangle = self.SRCC.selectionRectangle
             for imageId, image in self.SRCC.CC.model.images.items():
-                if self.SRCC.selectionRectangle.attachedImage and self.SRCC.selectionRectangle.attachedImage.id == imageId:
+                if selectionRectangle.attachedImage and selectionRectangle.attachedImage.id == imageId:
                     break
                 # check overlap with image and selection tool
-                if self.SRCC.selectionRectangle.isIntersecting(image.bbox):
-                    x1 = max(self.SRCC.selectionRectangle.topLeft.x, image.bbox.topLeft.x)
-                    y1 = max(self.SRCC.selectionRectangle.topRight.y, image.bbox.topRight.y)
-                    x2 = min(self.SRCC.selectionRectangle.topRight.x, image.bbox.topRight.x)
-                    y2 = min(self.SRCC.selectionRectangle.bottomRight.y, image.bbox.bottomRight.y)
-                    #intersectRectangle = selectionToolRectangleBbox.getIntersectRectangle(image.bbox)
+                if selectionRectangle.isIntersecting(image.bbox):
+                    x1 = max(selectionRectangle.topLeft.x, image.bbox.topLeft.x)
+                    y1 = max(selectionRectangle.topRight.y, image.bbox.topRight.y)
+                    x2 = min(selectionRectangle.topRight.x, image.bbox.topRight.x)
+                    y2 = min(selectionRectangle.bottomRight.y, image.bbox.bottomRight.y)
+                    intersectRectangle = selectionRectangle.getIntersectRectangle(image.bbox)
                     # Get the relative (to the image) position of the selection tool rectangle
-                    relativeCoords = Vector2(x1 - image.bbox.topLeft.x, y1 - image.bbox.topLeft.y)
-                    
-                    image.cut(relativeCoords.x, relativeCoords.y, x2 - x1, y2 - y1)
+                    relativeCoords = Vector2(intersectRectangle.min.x - image.bbox.topLeft.x, intersectRectangle.min.y - image.bbox.topLeft.y)
                     
                     if DEBUG:
-                        self.SRCC.CC.view.create_rectangle(x1, y1, x2, y2, outline="red", width=2)
+                        self.SRCC.CC.view.create_rectangle(intersectRectangle.min.x, intersectRectangle.min.y, intersectRectangle.max.x, intersectRectangle.max.y, outline="red", width=2)
+
+                    image.cut(relativeCoords.x, relativeCoords.y, x2 - x1, y2 - y1)
             
             self.SRCC.CC.update()
             self.SRCC.CC.view.delete(self.__debugBbox)
@@ -168,12 +183,12 @@ class SelectionRectangleTool:
                     y2 = min(self.SRCC.selectionRectangle.bottomRight.y, image.bbox.bottomRight.y)
                     relativeCoords = Vector2(x1 - image.bbox.topLeft.x, y1 - image.bbox.topLeft.y)
                     
+                    if DEBUG:
+                        self.SRCC.CC.view.create_rectangle(x1, y1, x2, y2, outline="red", width=2)
+
                     region = image.copy(relativeCoords.x, relativeCoords.y, x2 - x1, y2 - y1)
                     blankCanvasImage.paste(x1 - self.SRCC.selectionRectangle.topLeft.x, y1 - self.SRCC.selectionRectangle.topLeft.y, region)
                     isBlank = False
-
-                    if DEBUG:
-                        self.SRCC.CC.view.create_rectangle(x1, y1, x2, y2, outline="red", width=2)
 
             if not isBlank:
                 blankCanvasImage = self.SRCC.CC.drawImage(blankCanvasImage, self.SRCC.selectionRectangle.min.x, self.SRCC.selectionRectangle.min.y)
