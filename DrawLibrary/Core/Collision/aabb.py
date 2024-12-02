@@ -2,6 +2,8 @@ from DrawLibrary.Core.Math.vector2 import Vector2
 from DrawLibrary.Core.Shapes.rectangle import Rectangle
 
 class AABB(Rectangle):
+    #region Constructor
+
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self._min = Vector2(min(self.x, self.x + self.width), min(self.y, self.y + self.height))
@@ -36,6 +38,10 @@ class AABB(Rectangle):
         yMax = max(y1, y2)
         return super().fromCoordinates(xMin, yMin, xMax, yMax)
     
+    #endregion Constructor
+    
+    #region Property
+
     @property
     def min(self) -> Vector2:
         return self._min
@@ -89,6 +95,10 @@ class AABB(Rectangle):
     @property
     def corners(self) -> list:
         return [self.topLeft, self.topRight, self.bottomLeft, self.bottomRight]
+    
+    #endregion Property
+
+    #region Public Methods
 
     def isInside(self, other) -> bool:
         """
@@ -167,3 +177,5 @@ class AABB(Rectangle):
             return AABB(x1, y1, x2 - x1, y2 - y1)
         else:
             raise TypeError()
+        
+    #endregion Public Methods

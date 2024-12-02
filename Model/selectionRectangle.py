@@ -14,6 +14,9 @@ class SelectionRectangleAction(Enum):
     RESIZE = 2
 
 class SelectionRectangle(AABB):
+
+    #region Constructor
+
     """
     A class representing a selection rectangle (like the tool used in Paint)
 
@@ -46,6 +49,41 @@ class SelectionRectangle(AABB):
 
         for i in range(len(self.corners)):
             self.cornersBbox.append(AABB.fromCoordinates(self.corners[i].x - self.cornerSize, self.corners[i].y - self.cornerSize, self.corners[i].x + self.cornerSize, self.corners[i].y + self.cornerSize))
+
+    @classmethod
+    def fromCoordinates(cls, x1: int, y1: int, x2: int, y2: int, cornerSize: int=10, cornerCanvasSize: int=5) -> 'SelectionRectangle':
+        """
+        Create a SelectionRectangle from start and end coordinates
+        The function also take the corner size as argument
+
+        Parameters
+        --------
+        x1 : int
+            The x start coordinate of the rectangle
+        y1 : int
+            The y start coordinate of the rectangle
+        x2 : int
+            The x end coordinate of the rectangle
+        y2 : int
+            The y end coordinate of the rectangle
+        cornerSize : int
+            The size of the corner, where the program is going to detect collision
+        cornerCanvasSize : int
+            The size of the corner rendered on the canvas
+
+        Returns
+        --------
+        SelectionRectangle
+            The new SelectionRectangle created from the arguments
+        """
+        instance: 'SelectionRectangle' =  super().fromCoordinates(x1, y1, x2, y2)
+        instance.cornerSize = cornerSize
+        instance.cornerCanvasSize = cornerCanvasSize
+        return instance
+    
+    #endregion Constructor
+
+    #region Property
 
     @property
     def min(self) -> Vector2:
@@ -105,6 +143,10 @@ class SelectionRectangle(AABB):
         super(SelectionRectangle, type(self)).bottomRight.fset(self, newValue)
         self.__updateCornersBbox(0)
 
+    #endregion
+
+    #region Private Methods
+
     def __updateCornersBbox(self, cornerIndexToSkip):
         for i in range(len(self.cornersBbox)):
             if i != cornerIndexToSkip:
@@ -112,38 +154,10 @@ class SelectionRectangle(AABB):
                 bbox.min = self.corners[i] - self.cornerSize
                 bbox.max = self.corners[i] + self.cornerSize
         
+    #endregion Private Methods
 
-    @classmethod
-    def fromCoordinates(cls, x1: int, y1: int, x2: int, y2: int, cornerSize: int=10, cornerCanvasSize: int=5) -> 'SelectionRectangle':
-        """
-        Create a SelectionRectangle from start and end coordinates
-        The function also take the corner size as argument
+    #region Public Methods
 
-        Parameters
-        --------
-        x1 : int
-            The x start coordinate of the rectangle
-        y1 : int
-            The y start coordinate of the rectangle
-        x2 : int
-            The x end coordinate of the rectangle
-        y2 : int
-            The y end coordinate of the rectangle
-        cornerSize : int
-            The size of the corner, where the program is going to detect collision
-        cornerCanvasSize : int
-            The size of the corner rendered on the canvas
-
-        Returns
-        --------
-        SelectionRectangle
-            The new SelectionRectangle created from the arguments
-        """
-        instance: 'SelectionRectangle' =  super().fromCoordinates(x1, y1, x2, y2)
-        instance.cornerSize = cornerSize
-        instance.cornerCanvasSize = cornerCanvasSize
-        return instance
-    
     def isInsideCorners(self, coords: Vector2) -> bool:
         """
         Check if a coordinates is inside the corners BBOX of the selection rectangle
@@ -212,3 +226,5 @@ class SelectionRectangle(AABB):
         if super().isOutside(other) and self.isOutsideCorners(other):
             return True
         return False
+
+    #endregion Public Methods

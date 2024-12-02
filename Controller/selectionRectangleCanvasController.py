@@ -19,6 +19,8 @@ class SelectionRectangleCanvasController:
         self.startGapOffset: int = 0
         self.endGapOffset: int = 0
 
+    #region Public Methods
+
     def setSelectionRectangle(self, selectionRectangle: SelectionRectangle, attachedImage: CanvasImage = None) -> None:
         self.selectionRectangle = selectionRectangle
         if attachedImage:
@@ -77,6 +79,10 @@ class SelectionRectangleCanvasController:
         self.erase()
         self.selectionRectangle = None
         self.CC.view.config(cursor="arrow")
+
+    #endregion Public Methods
+
+    #region Event
 
     def on_mouse_over(self, event) -> None:
         """
@@ -195,3 +201,4 @@ class SelectionRectangleCanvasController:
             self.CC.view.create_rectangle(self.selectionRectangle.min.x, self.selectionRectangle.min.y, self.selectionRectangle.max.x, self.selectionRectangle.max.y, outline="black", width=2)
             pass
 
+    #endregion Event

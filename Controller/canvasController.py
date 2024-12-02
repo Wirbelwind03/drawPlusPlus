@@ -102,7 +102,7 @@ class CanvasController:
     def _invoke_active_tool_method(self, method_name, event):
         self.toolManager.invoke_tool_method(method_name, event)
 
-    ## Events ##
+    #region Event
 
     def on_mouse_over(self, event):
         self._invoke_active_tool_method("on_mouse_over", event)
@@ -127,3 +127,5 @@ class CanvasController:
 
     def on_control_v(self, event):
         self._invoke_active_tool_method("on_control_v", event)
+
+    #endregion Event

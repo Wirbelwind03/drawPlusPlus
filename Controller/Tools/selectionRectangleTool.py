@@ -55,6 +55,8 @@ class SelectionRectangleTool:
                     if DEBUG:
                         self.SRCC.CC.view.create_rectangle(selectionRectangle.min.x, selectionRectangle.min.y, selectionRectangle.max.x, selectionRectangle.max.y, outline="red", width=2)
 
+    #region Event
+
     def on_mouse_over(self, event):
         """
         A event for when the mouse is hovering on the canvas
@@ -195,3 +197,5 @@ class SelectionRectangleTool:
     def on_control_v(self, event):
         if self.SRCC.selectionRectangle.attachedImage:
             self.SRCC.CC.drawImage(self.SRCC.selectionRectangle.attachedImage, self.SRCC.selectionRectangle.min.x, self.SRCC.selectionRectangle.min.y)
+
+    #endregion Event

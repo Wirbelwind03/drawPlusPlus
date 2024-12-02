@@ -9,6 +9,8 @@ class RectangleCorners(Enum):
     BOTTOM_RIGHT = 3
 
 class Rectangle:
+    #region Constructor
+
     """
     A class to represent a rectangle in a 2D space.
 
@@ -68,6 +70,10 @@ class Rectangle:
         width = x2 - x1
         height = y2 - y1
         return cls(x1, y1, width, height)
+    
+    #endregion Constructor
+
+    #region Property
 
     @property
     def topLeft(self) -> Vector2:
@@ -88,6 +94,10 @@ class Rectangle:
     @property
     def corners(self) -> list:
         return [self.topLeft, self.topRight, self.bottomLeft, self.bottomRight]
+    
+    #endregion Property
+
+    #region Public Methods
 
     def getArea(self):
         """
@@ -110,3 +120,5 @@ class Rectangle:
             The perimeter of the rectangle.
         """
         return (self.width + self.height) * 2
+    
+    #endregion Public Methods

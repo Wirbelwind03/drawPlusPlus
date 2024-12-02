@@ -13,6 +13,21 @@ class SelectionTool:
         # Connect the selection rectangle controller to the tool
         self.SRCC = SRCC
 
+    def getClickedImage(self, mouseCoords):
+        # Loop all the images present on the canvas
+        for imageId, image in self.SRCC.CC.model.images.items():
+            # Check if the mouse is inside the bounding box of the image
+            if image.bbox.isInside(mouseCoords):
+                self.SRCC.setSelectionRectangle(SelectionRectangle.fromCoordinates(image.bbox.min.x, image.bbox.min.y, image.bbox.max.x, image.bbox.max.y), image)
+                self.SRCC.draw()
+
+                # Check the action to move since the cursor is inside the image
+                self.SRCC.setAction(SelectionRectangleAction.MOVE)
+                self.SRCC.CC.view.config(cursor="fleur")
+                return
+
+    #region Event
+
     def on_mouse_over(self, event):
         mouseCoords = Vector2(event.x, event.y)
 
@@ -56,17 +71,8 @@ class SelectionTool:
         if self.SRCC.hasSelectionRectangle():
             self.SRCC.deleteSelectionRectangle()
 
-    def getClickedImage(self, mouseCoords):
-        # Loop all the images present on the canvas
-        for imageId, image in self.SRCC.CC.model.images.items():
-            # Check if the mouse is inside the bounding box of the image
-            if image.bbox.isInside(mouseCoords):
-                self.SRCC.setSelectionRectangle(SelectionRectangle.fromCoordinates(image.bbox.min.x, image.bbox.min.y, image.bbox.max.x, image.bbox.max.y), image)
-                self.SRCC.draw()
+    #endregion Event
 
-                # Check the action to move since the cursor is inside the image
-                self.SRCC.setAction(SelectionRectangleAction.MOVE)
-                self.SRCC.CC.view.config(cursor="fleur")
-                return
+
 
 
