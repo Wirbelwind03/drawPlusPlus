@@ -45,6 +45,8 @@ class CanvasController:
         self.view.bind("<Control-Key-c>", self.on_control_c)
         self.view.bind("<Control-Key-v>", self.on_control_v)
 
+    #region Public Methods
+
     def drawImage(self, canvasImage: CanvasImage, x, y, width=None, height=None):
         """
         Draw a image to the canvas
@@ -99,33 +101,39 @@ class CanvasController:
         self.view.delete("all")
         self.model.deleteAll()
 
-    def _invoke_active_tool_method(self, method_name, event):
+    #endregion Public Methods
+
+    #region Private Methods
+
+    def __invoke_active_tool_method(self, method_name, event):
         self.toolManager.invoke_tool_method(method_name, event)
+        
+    #endregion Private Methods
 
     #region Event
 
     def on_mouse_over(self, event):
-        self._invoke_active_tool_method("on_mouse_over", event)
+        self.__invoke_active_tool_method("on_mouse_over", event)
 
     def on_button_press(self, event):
         self.view.focus_set()
         
-        self._invoke_active_tool_method("on_button_press", event)
+        self.__invoke_active_tool_method("on_button_press", event)
 
     def on_mouse_drag(self, event):
-        self._invoke_active_tool_method("on_mouse_drag", event)
+        self.__invoke_active_tool_method("on_mouse_drag", event)
 
     def on_button_release(self, event):
-        self._invoke_active_tool_method("on_button_release", event)
+        self.__invoke_active_tool_method("on_button_release", event)
 
     def on_delete(self, event):
-        self._invoke_active_tool_method("on_delete", event)
+        self.__invoke_active_tool_method("on_delete", event)
         self.update()
 
     def on_control_c(self, event):
-        self._invoke_active_tool_method("on_control_c", event)
+        self.__invoke_active_tool_method("on_control_c", event)
 
     def on_control_v(self, event):
-        self._invoke_active_tool_method("on_control_v", event)
+        self.__invoke_active_tool_method("on_control_v", event)
 
     #endregion Event

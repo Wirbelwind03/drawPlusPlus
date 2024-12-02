@@ -7,6 +7,8 @@ from DrawLibrary.Core.Collision.aabb import AABB
 from DrawLibrary.Graphics.canvasEntity import CanvasEntity
 
 class CanvasImage(CanvasEntity):
+    #region Constructor
+    
     """
     A class representing a image on a tk.Canvas
     The class handle operation tied to the images
@@ -73,6 +75,10 @@ class CanvasImage(CanvasEntity):
         except FileNotFoundError as e:
             print(e)
 
+    #endregion Constructor
+
+    #region Property
+
     @property
     def width(self):
         return self._width
@@ -94,6 +100,10 @@ class CanvasImage(CanvasEntity):
         # Update the height of the AABB
         if self.bbox:
             self.bbox.height = self.height
+
+    #endregion Property
+
+    #region Public Methods
 
     def clone(self) -> 'CanvasImage':
         """
@@ -206,3 +216,5 @@ class CanvasImage(CanvasEntity):
 
     def createAABB(self, x, y, width=0, height=0):
         self.bbox = AABB(x, y, width, height)
+
+    #endregion Public Methods
