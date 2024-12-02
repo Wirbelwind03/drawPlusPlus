@@ -1,10 +1,6 @@
 import tkinter as tk
-from PIL import Image, ImageTk
-from enum import Enum
 
 from DrawLibrary.Graphics.canvasImage import CanvasImage
-
-from DrawLibrary.Core.Collision.aabb import AABB
 
 from Model.canvasEntities import CanvasEntities
 

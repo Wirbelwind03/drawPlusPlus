@@ -47,8 +47,10 @@ class SelectionTool:
     def on_button_release(self, event):
         mouseCoords = Vector2(event.x, event.y)
         
-        if self.SRCC.hasSelectionRectangle():
-            self.SRCC.setAction(SelectionRectangleAction.NONE)
+        if self.SRCC.hasSelectionRectangle() and self.SRCC.getAction() != SelectionRectangleAction.NONE:
+            self.SRCC.on_button_release(event)
+            pass
+            #self.SRCC.setAction(SelectionRectangleAction.NONE)
 
     def on_delete(self, event):
         if self.SRCC.hasSelectionRectangle():

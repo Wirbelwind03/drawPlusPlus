@@ -9,8 +9,6 @@ from Model.canvasEntities import CanvasEntities
 from Model.selectionRectangle import SelectionRectangle
 from Model.selectionRectangle import SelectionRectangleAction
 
-
-
 class SelectionRectangleCanvasController:
     def __init__(self, CC: CanvasController):
         # Connect the controller to the canvas
@@ -29,6 +27,12 @@ class SelectionRectangleCanvasController:
     
     def setAction(self, action: SelectionRectangleAction) -> None:
         self.selectionRectangle.action = action
+        if self.getAction() == SelectionRectangleAction.RESIZE:
+            self.CC.view.config(cursor="umbrella")
+        elif self.getAction() == SelectionRectangleAction.MOVE:
+            self.CC.view.config(cursor="fleur")
+        else:
+            self.CC.view.config(cursor="arrow")
 
     def getAction(self) -> SelectionRectangleAction:
         return self.selectionRectangle.action
@@ -85,16 +89,13 @@ class SelectionRectangleCanvasController:
         mouseCoords = Vector2(event.x, event.y)
         
         if self.selectionRectangle.isInsideCorners(mouseCoords):
-            self.selectionRectangle.action = SelectionRectangleAction.RESIZE
-            self.CC.view.config(cursor="umbrella")
+            self.setAction(SelectionRectangleAction.RESIZE)
         elif self.selectionRectangle.isInside(mouseCoords):
             # If it is, change that the action we want to do is moving the selection rectangle
-            self.selectionRectangle.action = SelectionRectangleAction.MOVE
-            self.CC.view.config(cursor="fleur")
+            self.setAction(SelectionRectangleAction.MOVE)
         else:
             # If it's not, change that the action we want to do is creating a selection rectangle
-            self.selectionRectangle.action = SelectionRectangleAction.NONE
-            self.CC.view.config(cursor="arrow")
+            self.setAction(SelectionRectangleAction.NONE)
 
     def on_button_press(self, event):
         """
@@ -128,7 +129,7 @@ class SelectionRectangleCanvasController:
         """
         mouseCoords = Vector2(event.x, event.y)
 
-        if self.selectionRectangle.action == SelectionRectangleAction.MOVE:
+        if self.getAction() == SelectionRectangleAction.MOVE:
             # Update the selection rectangle coordinates
             self.selectionRectangle.min = mouseCoords + self.startGapOffset
             self.selectionRectangle.max = mouseCoords + self.endGapOffset
@@ -140,11 +141,6 @@ class SelectionRectangleCanvasController:
                 cornerBbox.min = corners[i] - self.selectionRectangle.cornerSize
                 cornerBbox.max = corners[i] + self.selectionRectangle.cornerSize
             
-            # Update the image coordinates
-            if self.selectionRectangle.attachedImage:
-                self.selectionRectangle.attachedImage.bbox.min = self.selectionRectangle.min
-                self.selectionRectangle.attachedImage.bbox.max = self.selectionRectangle.max
-
             ## Render the shapes drawn on the canvas
             
             # Render the selection rectangle to the new position
@@ -160,7 +156,26 @@ class SelectionRectangleCanvasController:
 
             return
             
-        elif self.selectionRectangle.action == SelectionRectangleAction.RESIZE:
+        elif self.getAction() == SelectionRectangleAction.RESIZE:
+            self.selectionRectangle.max = mouseCoords - self.selectionRectangle.cornerSize
+            #self.CC.view.moveto(self.selectionRectangle.canvasIdCorners[2], self.selectionRectangle.bottomLeft.x - self.selectionRectangle.cornerSize, self.selectionRectangle.bottomRight.y - self.selectionRectangle.cornerSize)
             self.CC.view.coords(self.selectionRectangle.canvasIdRectangle, self.selectionRectangle.min.x, self.selectionRectangle.min.y, mouseCoords.x - self.selectionRectangle.cornerSize, mouseCoords.y - self.selectionRectangle.cornerSize)
             return
+        
+    def on_button_release(self, event):
+        """
+        A event for when the left click is released on the canvas
+
+        Parameters
+        -----------
+        event : 
+        """
+
+        # Get the cursor position
+        mouseCoords = Vector2(event.x, event.y)
+
+        if self.getAction() == SelectionRectangleAction.RESIZE:
+            self.selectionRectangle.max = mouseCoords - self.selectionRectangle.cornerSize
+            self.CC.view.create_rectangle(self.selectionRectangle.min.x, self.selectionRectangle.min.y, self.selectionRectangle.max.x, self.selectionRectangle.max.y, outline="black", width=2)
+            pass
 
