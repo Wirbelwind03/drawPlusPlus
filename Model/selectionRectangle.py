@@ -140,9 +140,9 @@ class SelectionRectangle(AABB):
         for corner in self.cornersBbox:
             if corner.isInside(coords):
                 self.selectedCorner = corner
-                return True
+                return False
         self.selectedCorner = None
-        return False
+        return True
 
     def getSelectedCorner(self, coords: Vector2) -> AABB:
         for corner in self.cornersBbox:
