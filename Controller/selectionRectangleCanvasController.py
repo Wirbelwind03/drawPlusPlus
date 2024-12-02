@@ -161,10 +161,10 @@ class SelectionRectangleCanvasController:
             
         elif self.getAction() == SelectionRectangleAction.RESIZE:
             corners = {
-                RectangleCorners.TOP_LEFT: "topLeft",
-                RectangleCorners.TOP_RIGHT: "topRight",
-                RectangleCorners.BOTTOM_LEFT: "bottomLeft",
-                RectangleCorners.BOTTOM_RIGHT: "bottomRight",
+                0: "topLeft",
+                1: "topRight",
+                2: "bottomLeft",
+                3: "bottomRight",
             }
 
             selected_corner = corners.get(self.selectionRectangle.selectedCornerIndex)
@@ -172,6 +172,11 @@ class SelectionRectangleCanvasController:
                 setattr(self.selectionRectangle, selected_corner, mouseCoords - self.selectionRectangle.cornerSize)
             
             self.CC.view.coords(self.selectionRectangle.canvasIdRectangle, self.selectionRectangle.min.x, self.selectionRectangle.min.y, self.selectionRectangle.max.x,  self.selectionRectangle.max.y)
+            
+            # Render the corners to the new position
+            for i in range(len(self.selectionRectangle.canvasIdCorners)):
+                self.CC.view.moveto(self.selectionRectangle.canvasIdCorners[i], self.selectionRectangle.cornersBbox[i].min.x, self.selectionRectangle.cornersBbox[i].min.y)
+            
             return
         
     def on_button_release(self, event):

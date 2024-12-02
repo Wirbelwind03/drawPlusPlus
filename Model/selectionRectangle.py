@@ -44,9 +44,8 @@ class SelectionRectangle(AABB):
 
         self.action: SelectionRectangleAction = SelectionRectangleAction.NONE
 
-        corners = [self.topLeft, self.topRight, self.bottomLeft, self.bottomRight]
-        for i in range(len(corners)):
-            self.cornersBbox.append(AABB.fromCoordinates(corners[i].x - self.cornerSize, corners[i].y - self.cornerSize, corners[i].x + self.cornerSize, corners[i].y + self.cornerSize))
+        for i in range(len(self.corners)):
+            self.cornersBbox.append(AABB.fromCoordinates(self.corners[i].x - self.cornerSize, self.corners[i].y - self.cornerSize, self.corners[i].x + self.cornerSize, self.corners[i].y + self.cornerSize))
 
     @property
     def min(self) -> Vector2:
@@ -55,7 +54,6 @@ class SelectionRectangle(AABB):
     @min.setter
     def min(self, newValue: Vector2):
         super(SelectionRectangle, type(self)).min.fset(self, newValue)
-        
         # Update the image coordinates
         if self.attachedImage:
             self.attachedImage.bbox.min = self.min
@@ -67,10 +65,53 @@ class SelectionRectangle(AABB):
     @max.setter
     def max(self, newValue: Vector2):
         super(SelectionRectangle, type(self)).max.fset(self, newValue)
-
         # Update the image coordinates
         if self.attachedImage:
             self.attachedImage.bbox.max = self.max
+
+    @property
+    def topLeft(self) -> Vector2:
+        return super().topLeft
+    
+    @topLeft.setter
+    def topLeft(self, newValue):
+        super(SelectionRectangle, type(self)).topLeft.fset(self, newValue)
+        self.__updateCornersBbox(3)
+
+    @property
+    def topRight(self) -> Vector2:
+        return super().topRight
+    
+    @topRight.setter
+    def topRight(self, newValue):
+        super(SelectionRectangle, type(self)).topRight.fset(self, newValue)
+        self.__updateCornersBbox(2)
+
+    @property
+    def bottomLeft(self) -> Vector2:
+        return super().bottomLeft
+    
+    @bottomLeft.setter
+    def bottomLeft(self, newValue):
+        super(SelectionRectangle, type(self)).bottomLeft.fset(self, newValue)
+        self.__updateCornersBbox(1)
+
+    @property
+    def bottomRight(self) -> Vector2:
+        return super().bottomRight
+    
+    @bottomRight.setter
+    def bottomRight(self, newValue):
+        super(SelectionRectangle, type(self)).bottomRight.fset(self, newValue)
+        self.__updateCornersBbox(0)
+
+    def __updateCornersBbox(self, cornerIndexToSkip):
+        for i in range(len(self.cornersBbox)):
+            if i != cornerIndexToSkip:
+                bbox: AABB = self.cornersBbox[i]
+                bbox.min = self.corners[i] - self.cornerSize
+                bbox.max = self.corners[i] + self.cornerSize
+        
 
     @classmethod
     def fromCoordinates(cls, x1: int, y1: int, x2: int, y2: int, cornerSize: int=10, cornerCanvasSize: int=5) -> 'SelectionRectangle':
@@ -120,7 +161,7 @@ class SelectionRectangle(AABB):
         for i in range(len(self.cornersBbox)):
             corner = self.cornersBbox[i]
             if corner.isInside(coords):
-                self.selectedCornerIndex = RectangleCorners(i)
+                self.selectedCornerIndex = i
                 return True
         self.selectedCornerIndex = -1
         return False
@@ -142,7 +183,7 @@ class SelectionRectangle(AABB):
         for i in range(len(self.cornersBbox)):
             corner = self.cornersBbox[i]
             if corner.isInside(coords):
-                self.selectedCornerIndex = RectangleCorners(i)
+                self.selectedCornerIndex = i
                 return False
         self.selectedCornerIndex = -1
         return True
@@ -151,7 +192,7 @@ class SelectionRectangle(AABB):
         for i in range(len(self.cornersBbox)):
             corner = self.cornersBbox[i]
             if corner.isInside(coords):
-                return RectangleCorners(i)
+                return i
         return -1
 
     def isOutside(self, other) -> bool:
