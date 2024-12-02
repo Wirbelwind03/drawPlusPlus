@@ -2,7 +2,9 @@ import tkinter as tk
 
 from Controller.canvasController import CanvasController
 
+from DrawLibrary.Core.Shapes.rectangle import RectangleCorners
 from DrawLibrary.Core.Math.vector2 import Vector2
+from DrawLibrary.Core.Collision.aabb import AABB
 from DrawLibrary.Graphics.canvasImage import CanvasImage
 
 from Model.canvasEntities import CanvasEntities
@@ -113,9 +115,10 @@ class SelectionRectangleCanvasController:
             self.startGapOffset = self.selectionRectangle.min - mouseCoords
             self.endGapOffset = self.selectionRectangle.max - mouseCoords
 
-        elif self.selectionRectangle.action == SelectionRectangleAction.RESIZE:
-            self.startGapOffset = self.selectionRectangle.selectedCorner.min - mouseCoords
-            self.endGapOffset = self.selectionRectangle.selectedCorner.max - mouseCoords
+        elif self.selectionRectangle.action == SelectionRectangleAction.RESIZE and self.selectionRectangle.selectedCornerIndex != -1:
+            selectedCorner: AABB = self.selectionRectangle.cornersBbox[self.selectionRectangle.selectedCornerIndex]
+            self.startGapOffset = selectedCorner.min - mouseCoords
+            self.endGapOffset = selectedCorner.max - mouseCoords
 
     def on_mouse_drag(self, event):
         """
@@ -157,9 +160,18 @@ class SelectionRectangleCanvasController:
             return
             
         elif self.getAction() == SelectionRectangleAction.RESIZE:
-            self.selectionRectangle.max = mouseCoords - self.selectionRectangle.cornerSize
-            #self.CC.view.moveto(self.selectionRectangle.canvasIdCorners[2], self.selectionRectangle.bottomLeft.x - self.selectionRectangle.cornerSize, self.selectionRectangle.bottomRight.y - self.selectionRectangle.cornerSize)
-            self.CC.view.coords(self.selectionRectangle.canvasIdRectangle, self.selectionRectangle.min.x, self.selectionRectangle.min.y, mouseCoords.x - self.selectionRectangle.cornerSize, mouseCoords.y - self.selectionRectangle.cornerSize)
+            corners = {
+                RectangleCorners.TOP_LEFT: "topLeft",
+                RectangleCorners.TOP_RIGHT: "topRight",
+                RectangleCorners.BOTTOM_LEFT: "bottomLeft",
+                RectangleCorners.BOTTOM_RIGHT: "bottomRight",
+            }
+
+            selected_corner = corners.get(self.selectionRectangle.selectedCornerIndex)
+            if selected_corner:
+                setattr(self.selectionRectangle, selected_corner, mouseCoords - self.selectionRectangle.cornerSize)
+            
+            self.CC.view.coords(self.selectionRectangle.canvasIdRectangle, self.selectionRectangle.min.x, self.selectionRectangle.min.y, self.selectionRectangle.max.x,  self.selectionRectangle.max.y)
             return
         
     def on_button_release(self, event):
@@ -175,7 +187,6 @@ class SelectionRectangleCanvasController:
         mouseCoords = Vector2(event.x, event.y)
 
         if self.getAction() == SelectionRectangleAction.RESIZE:
-            self.selectionRectangle.max = mouseCoords - self.selectionRectangle.cornerSize
             self.CC.view.create_rectangle(self.selectionRectangle.min.x, self.selectionRectangle.min.y, self.selectionRectangle.max.x, self.selectionRectangle.max.y, outline="black", width=2)
             pass
 

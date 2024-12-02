@@ -2,6 +2,7 @@ import tkinter as tk
 
 from enum import Enum
 
+from DrawLibrary.Core.Shapes.rectangle import RectangleCorners
 from DrawLibrary.Core.Collision.aabb import AABB
 from DrawLibrary.Core.Math.vector2 import Vector2
 
@@ -35,7 +36,7 @@ class SelectionRectangle(AABB):
         self.cornerCanvasSize: int = cornerCanvasSize
 
         self.cornersBbox: list[AABB]  = []
-        self.selectedCorner: AABB = None
+        self.selectedCornerIndex: int = None
         
         self.canvasIdRectangle: int = -1
         self.canvasIdCorners: list[int] = []
@@ -116,11 +117,12 @@ class SelectionRectangle(AABB):
         bool
             Boolean if the coords are inside the corners BBOX
         """
-        for corner in self.cornersBbox:
+        for i in range(len(self.cornersBbox)):
+            corner = self.cornersBbox[i]
             if corner.isInside(coords):
-                self.selectedCorner = corner
+                self.selectedCornerIndex = RectangleCorners(i)
                 return True
-        self.selectedCorner = None
+        self.selectedCornerIndex = -1
         return False
     
     def isOutsideCorners(self, coords: Vector2) -> bool:
@@ -137,18 +139,20 @@ class SelectionRectangle(AABB):
         bool
             Boolean if the coords are outside the corners BBOX
         """
-        for corner in self.cornersBbox:
+        for i in range(len(self.cornersBbox)):
+            corner = self.cornersBbox[i]
             if corner.isInside(coords):
-                self.selectedCorner = corner
+                self.selectedCornerIndex = RectangleCorners(i)
                 return False
-        self.selectedCorner = None
+        self.selectedCornerIndex = -1
         return True
 
-    def getSelectedCorner(self, coords: Vector2) -> AABB:
-        for corner in self.cornersBbox:
+    def getSelectedCorner(self, coords: Vector2) -> int:
+        for i in range(len(self.cornersBbox)):
+            corner = self.cornersBbox[i]
             if corner.isInside(coords):
-                return corner
-        return None
+                return RectangleCorners(i)
+        return -1
 
     def isOutside(self, other) -> bool:
         """
