@@ -4,8 +4,8 @@ from DrawLibrary.Core.Shapes.rectangle import Rectangle
 class AABB(Rectangle):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.min = Vector2(min(self.x, self.x + self.width), min(self.y, self.y + self.height))
-        self.max = Vector2(max(self.x, self.x + self.width), max(self.y, self.y + self.height))
+        self._min = Vector2(min(self.x, self.x + self.width), min(self.y, self.y + self.height))
+        self._max = Vector2(max(self.x, self.x + self.width), max(self.y, self.y + self.height))
 
     @classmethod
     def fromCoordinates(cls, x1, y1, x2, y2) -> 'AABB':
@@ -37,20 +37,54 @@ class AABB(Rectangle):
         return super().fromCoordinates(xMin, yMin, xMax, yMax)
     
     @property
+    def min(self) -> Vector2:
+        return self._min
+
+    @min.setter
+    def min(self, newValue):
+        self._min = newValue
+    
+    @property
+    def max(self) -> Vector2:
+        return self._max
+    
+    @max.setter
+    def max(self, newValue):
+        self._max = newValue
+
+    @property
     def topLeft(self) -> Vector2:
         return Vector2(self.min.x, self.min.y)
+    
+    @topLeft.setter
+    def topLeft(self, newValue: Vector2):
+        self.min = newValue
     
     @property
     def topRight(self) -> Vector2:
         return Vector2(self.max.x, self.min.y)
     
+    @topRight.setter
+    def topRight(self, newValue: Vector2):
+        self.max.x = newValue.x
+        self.min.y = newValue.y
+
     @property
     def bottomLeft(self) -> Vector2:
         return Vector2(self.min.x, self.max.y)
     
+    @bottomLeft.setter
+    def bottomLeft(self, newValue: Vector2):
+        self.min.x = newValue.x
+        self.max.y = newValue.y
+    
     @property
     def bottomRight(self) -> Vector2:
         return Vector2(self.max.x, self.max.y)
+    
+    @bottomRight.setter
+    def bottomRight(self, newValue: Vector2):
+        self.max = newValue
     
     @property
     def corners(self) -> list:
