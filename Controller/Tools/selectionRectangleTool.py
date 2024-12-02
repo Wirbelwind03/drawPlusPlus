@@ -111,7 +111,7 @@ class SelectionRectangleTool:
         # Get the cursor position
         mouseCoords = Vector2(event.x, event.y)
 
-        if self.SRCC.hasSelectionRectangle() and self.SRCC.getAction != SelectionRectangleAction.NONE:
+        if self.SRCC.hasSelectionRectangle() and self.SRCC.getAction() != SelectionRectangleAction.NONE:
             # Update the coordinates and move the selection rectangle
             self.SRCC.on_mouse_drag(event)
             return
