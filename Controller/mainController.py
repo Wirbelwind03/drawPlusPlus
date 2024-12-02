@@ -57,7 +57,7 @@ class MainController:
         # Since each of them has a selection rectangle, it's attached to the selection rectangle controller
         canvasToolManager.addTool("SELECTION_TOOL", SelectionTool(self.SRCC))
         canvasToolManager.addTool("SELECTION_TOOL_RECTANGLE", SelectionRectangleTool(self.SRCC))
-        canvasToolManager.setActiveTool("SELECTION_TOOL_RECTANGLE")
+        canvasToolManager.setActiveTool("SELECTION_TOOL")
         # Attach the script editor controller to the main controller
         self.SEC = ScriptEditorController(self.view.textEditor, self.view.terminal, self.CC)
         # Attach the menu bar controller to the main controller
