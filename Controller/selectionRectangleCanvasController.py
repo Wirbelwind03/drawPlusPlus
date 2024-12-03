@@ -143,13 +143,6 @@ class SelectionRectangleCanvasController:
             self.selectionRectangle.min = mouseCoords + self.startGapOffset
             self.selectionRectangle.max = mouseCoords + self.endGapOffset
             
-            # Update the corners coordinates
-            corners = [self.selectionRectangle.topLeft, self.selectionRectangle.topRight, self.selectionRectangle.bottomLeft, self.selectionRectangle.bottomRight]
-            for i in range(len(self.selectionRectangle.cornersBbox)):
-                cornerBbox = self.selectionRectangle.cornersBbox[i]
-                cornerBbox.min = corners[i] - self.selectionRectangle.cornerSize
-                cornerBbox.max = corners[i] + self.selectionRectangle.cornerSize
-            
             ## Render the shapes drawn on the canvas
             
             # Render the selection rectangle to the new position
@@ -173,16 +166,19 @@ class SelectionRectangleCanvasController:
                 3: "bottomRight",
             }
 
+            # if self.selectionRectangle.min.x >= self.selectionRectangle.max.x or self.selectionRectangle.max.y <= self.selectionRectangle.min.y:
+            #     return
+
             selected_corner = corners.get(self.selectionRectangle.selectedCornerIndex)
             if selected_corner:
                 setattr(self.selectionRectangle, selected_corner, mouseCoords - self.selectionRectangle.cornerSize)
-            
+
             self.CC.view.coords(self.selectionRectangle.canvasIdRectangle, self.selectionRectangle.min.x, self.selectionRectangle.min.y, self.selectionRectangle.max.x,  self.selectionRectangle.max.y)
             
             # Render the corners to the new position
             for i in range(len(self.selectionRectangle.canvasIdCorners)):
                 self.CC.view.moveto(self.selectionRectangle.canvasIdCorners[i], self.selectionRectangle.cornersBbox[i].min.x, self.selectionRectangle.cornersBbox[i].min.y)
-            
+
             # Render the image to the new position
             if self.selectionRectangle.attachedImage:
                 self.CC.view.moveto(self.selectionRectangle.attachedImage.id, self.selectionRectangle.min.x, self.selectionRectangle.min.y)

@@ -92,6 +92,7 @@ class SelectionRectangle(AABB):
     @min.setter
     def min(self, newValue: Vector2):
         super(SelectionRectangle, type(self)).min.fset(self, newValue)
+        self.__updateCornersBbox(-1)
         # Update the image coordinates
         if self.attachedImage:
             self.attachedImage.bbox.min = self.min
@@ -103,6 +104,7 @@ class SelectionRectangle(AABB):
     @max.setter
     def max(self, newValue: Vector2):
         super(SelectionRectangle, type(self)).max.fset(self, newValue)
+        self.__updateCornersBbox(-1)
         # Update the image coordinates
         if self.attachedImage:
             self.attachedImage.bbox.max = self.max
@@ -154,7 +156,7 @@ class SelectionRectangle(AABB):
         Parameters
         -----------
         cornerIndexToSkip : int
-            The index of the corner to skip
+            The index of the corner to skip, use -1 if no corners is skipped
         """
         for i in range(len(self.cornersBbox)):
             if i != cornerIndexToSkip:
