@@ -183,6 +183,13 @@ class SelectionRectangleCanvasController:
             for i in range(len(self.selectionRectangle.canvasIdCorners)):
                 self.CC.view.moveto(self.selectionRectangle.canvasIdCorners[i], self.selectionRectangle.cornersBbox[i].min.x, self.selectionRectangle.cornersBbox[i].min.y)
             
+            # Render the image to the new position
+            if self.selectionRectangle.attachedImage:
+                self.CC.view.moveto(self.selectionRectangle.attachedImage.id, self.selectionRectangle.min.x, self.selectionRectangle.min.y)
+                # Render the image resizing in the selection rectangle
+                self.selectionRectangle.attachedImage.resize(self.selectionRectangle.max.x - self.selectionRectangle.min.x, self.selectionRectangle.max.y - self.selectionRectangle.min.y)
+                self.CC.view.itemconfig(self.selectionRectangle.attachedImage.id, image=self.selectionRectangle.attachedImage.photoImage)
+
             return
         
     def on_button_release(self, event):
