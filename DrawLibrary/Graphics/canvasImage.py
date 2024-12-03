@@ -165,9 +165,7 @@ class CanvasImage(CanvasEntity):
         self.width = width
         self.height = height
         resizedImage = self.image.resize((self.width, self.height))
-        
-        # Update the image
-        self.image = resizedImage
+        # Update the photo image, keep the original one in the attribute image so it's doesn't resize the resized one
         self.photoImage = ImageTk.PhotoImage(resizedImage)
 
     def crop(self, x: int, y: int, width: int, height: int) -> None:
