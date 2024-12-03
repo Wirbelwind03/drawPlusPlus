@@ -148,9 +148,18 @@ class SelectionRectangle(AABB):
     #region Private Methods
 
     def __updateCornersBbox(self, cornerIndexToSkip):
+        """
+        Update the position of the corner BBOX
+
+        Parameters
+        -----------
+        cornerIndexToSkip : int
+            The index of the corner to skip
+        """
         for i in range(len(self.cornersBbox)):
             if i != cornerIndexToSkip:
                 bbox: AABB = self.cornersBbox[i]
+                # Update the corner bbox
                 bbox.min = self.corners[i] - self.cornerSize
                 bbox.max = self.corners[i] + self.cornerSize
         
