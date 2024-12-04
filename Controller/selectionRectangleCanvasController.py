@@ -171,7 +171,11 @@ class SelectionRectangleCanvasController:
 
             selected_corner = corners.get(self.selectionRectangle.selectedCornerIndex)
             if selected_corner:
-                setattr(self.selectionRectangle, selected_corner, mouseCoords - self.selectionRectangle.cornerSize)
+                setattr(self.selectionRectangle, selected_corner, mouseCoords)
+
+            if (self.selectionRectangle.bottomRight <= self.selectionRectangle.bottomLeft 
+                or self.selectionRectangle.bottomRight <= self.selectionRectangle.topRight):
+                return
 
             self.CC.view.coords(self.selectionRectangle.canvasIdRectangle, self.selectionRectangle.min.x, self.selectionRectangle.min.y, self.selectionRectangle.max.x,  self.selectionRectangle.max.y)
             
