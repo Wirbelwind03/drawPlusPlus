@@ -126,6 +126,8 @@ class SelectionRectangle(AABB):
     def topRight(self, newValue):
         if self.topRight <= self.topLeft:
             super(SelectionRectangle, type(self)).topRight.fset(self, self.topLeft + 1)
+        elif self.topRight >= self.bottomRight:
+            super(SelectionRectangle, type(self)).topRight.fset(self, self.bottomRight + 1)
         else:
             super(SelectionRectangle, type(self)).topRight.fset(self, newValue)
         self.__updateCornersBbox(2)
