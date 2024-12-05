@@ -173,8 +173,7 @@ class SelectionRectangleCanvasController:
             if selected_corner:
                 setattr(self.selectionRectangle, selected_corner, mouseCoords)
 
-            if (self.selectionRectangle.bottomLeft.x >= self.selectionRectangle.bottomRight.x
-                or self.selectionRectangle.bottomRight.y <= self.selectionRectangle.topRight.y):
+            if (self.selectionRectangle.ToName()):
                 return
 
             self.CC.view.coords(self.selectionRectangle.canvasIdRectangle, self.selectionRectangle.min.x, self.selectionRectangle.min.y, self.selectionRectangle.max.x,  self.selectionRectangle.max.y)

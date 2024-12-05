@@ -56,8 +56,9 @@ class AABB(Rectangle):
         return self._max
     
     @max.setter
-    def max(self, newValue):
+    def max(self, newValue: Vector2):
         self._max = newValue
+        #self.width, self.height =  newValue.x - self.min.x, newValue.y - self.min.y
 
     @property
     def topLeft(self) -> Vector2:
