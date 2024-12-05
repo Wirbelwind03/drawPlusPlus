@@ -3,6 +3,7 @@ import tkinter as tk
 from config import DEBUG
 
 from DrawLibrary.Core.Math.vector2 import Vector2
+from DrawLibrary.Graphics.canvasImage import CanvasImage
 
 from Controller.selectionRectangleCanvasController import SelectionRectangleCanvasController
 
@@ -13,18 +14,24 @@ class SelectionTool:
         # Connect the selection rectangle controller to the tool
         self.SRCC = SRCC
 
+        self.__copiedCanvasImage = None
+
     def getClickedImage(self, mouseCoords):
         # Loop all the images present on the canvas
         for imageId, image in self.SRCC.CC.model.images.items():
             # Check if the mouse is inside the bounding box of the image
             if image.bbox.isInside(mouseCoords):
-                self.SRCC.setSelectionRectangle(SelectionRectangle.fromCoordinates(image.bbox.min.x, image.bbox.min.y, image.bbox.max.x, image.bbox.max.y), image)
-                self.SRCC.draw()
-
-                # Check the action to move since the cursor is inside the image
-                self.SRCC.setAction(SelectionRectangleAction.MOVE)
-                self.SRCC.CC.view.config(cursor="fleur")
+                self.setSelectedImage(image)
                 return
+            
+    def setSelectedImage(self, image: CanvasImage):
+        self.SRCC.setSelectionRectangle(SelectionRectangle.fromCoordinates(image.bbox.min.x, image.bbox.min.y, image.bbox.max.x, image.bbox.max.y), image)
+        self.SRCC.draw()
+
+        # Check the action to move since the cursor is inside the image
+        self.SRCC.setAction(SelectionRectangleAction.MOVE)
+        self.SRCC.CC.view.config(cursor="fleur")
+
 
     #region Event
 
@@ -70,6 +77,17 @@ class SelectionTool:
     def on_delete(self, event):
         if self.SRCC.hasSelectionRectangle():
             self.SRCC.deleteSelectionRectangle()
+
+    def on_control_c(self, event):
+        if self.SRCC.hasSelectionRectangle():
+            self.__copiedCanvasImage = self.SRCC.selectionRectangle.attachedImage
+
+    def on_control_v(self, event):
+        if self.SRCC.hasSelectionRectangle():
+            if (self.__copiedCanvasImage):
+                newCanvasImage = self.SRCC.CC.drawImage(self.__copiedCanvasImage, 0, 0)
+                self.SRCC.deSelect()
+                self.setSelectedImage(newCanvasImage)
 
     #endregion Event
 
