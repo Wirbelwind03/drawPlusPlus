@@ -143,7 +143,7 @@ class CanvasImage(CanvasEntity):
 
         # Create a blank image
         new_img = self.image.convert("RGBA")
-        mask = Image.new("RGBA", (width, height), (255, 255, 255, 0))
+        mask = Image.new("RGBA", (width, height), (255, 0, 0, 0))
         # Paste it so the image feel it's cut
         new_img.paste(mask, (x, y))
 

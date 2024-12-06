@@ -50,11 +50,11 @@ class MainFrame(tk.Frame):
         self.toolBar.grid(row=0, column=0, columnspan=2, sticky="new")  # ToolBar spans across both columns
 
         # TextEditor on the left side, expands vertically
-        self.textEditor = TextEditor(self, bg="white")
+        self.textEditor = TextEditor(self)
         self.textEditor.grid(row=1, column=0, sticky="nsew")  # Left side, expands in all directions
 
         # Canvas on the right side, expands vertically and horizontally
-        self.canvas = tk.Canvas(self, width=800, height=600, bg="white")
+        self.canvas = tk.Canvas(self, width=800, height=600, bg="#333333")
         self.canvas.grid(row=1, column=1, rowspan=2, sticky="nsew")  # Right side, expands in all directions
         
         # Terminal at the bottom

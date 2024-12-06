@@ -165,7 +165,7 @@ class SelectionRectangleTool:
                     if DEBUG:
                         self.SRCC.CC.view.create_rectangle(intersectRectangle.min.x, intersectRectangle.min.y, intersectRectangle.max.x, intersectRectangle.max.y, outline="red", width=2)
 
-                    image.cut(relativeCoords.x, relativeCoords.y, intersectRectangle.width, intersectRectangle.height)
+                    image.cut(128, 128, 128, 128)
             
             self.SRCC.CC.update()
             self.SRCC.CC.view.delete(self.__debugBbox)
