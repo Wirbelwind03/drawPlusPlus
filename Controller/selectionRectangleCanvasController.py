@@ -76,8 +76,11 @@ class SelectionRectangleCanvasController:
         self.deSelect()
 
     def deSelect(self) -> None:
+        # Erase the rendering of the selection rectangle
         self.erase()
+        # Completly remove the selection rectangle
         self.selectionRectangle = None
+        # Set the cursor to default (arrow)
         self.CC.view.config(cursor="arrow")
 
     #endregion Public Methods
