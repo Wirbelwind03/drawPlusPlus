@@ -54,7 +54,7 @@ class MainFrame(tk.Frame):
         self.textEditor.grid(row=1, column=0, sticky="nsew")  # Left side, expands in all directions
 
         # Canvas on the right side, expands vertically and horizontally
-        self.canvas = tk.Canvas(self, width=800, height=600, bg="#333333")
+        self.canvas = tk.Canvas(self, width=800, height=600)
         self.canvas.grid(row=1, column=1, rowspan=2, sticky="nsew")  # Right side, expands in all directions
         
         # Terminal at the bottom
