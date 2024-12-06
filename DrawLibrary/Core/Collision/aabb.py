@@ -2,10 +2,12 @@ from DrawLibrary.Core.Math.vector2 import Vector2
 from DrawLibrary.Core.Shapes.rectangle import Rectangle
 
 class AABB(Rectangle):
+    #region Constructor
+
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.min = Vector2(min(self.x, self.x + self.width), min(self.y, self.y + self.height))
-        self.max = Vector2(max(self.x, self.x + self.width), max(self.y, self.y + self.height))
+        self._min = Vector2(min(self.x, self.x + self.width), min(self.y, self.y + self.height))
+        self._max = Vector2(max(self.x, self.x + self.width), max(self.y, self.y + self.height))
 
     @classmethod
     def fromCoordinates(cls, x1, y1, x2, y2) -> 'AABB':
@@ -36,25 +38,69 @@ class AABB(Rectangle):
         yMax = max(y1, y2)
         return super().fromCoordinates(xMin, yMin, xMax, yMax)
     
+    #endregion Constructor
+    
+    #region Property
+
+    @property
+    def min(self) -> Vector2:
+        return self._min
+
+    @min.setter
+    def min(self, newValue: Vector2):
+        self._min = newValue
+        self.x, self.y = newValue.x, newValue.y
+    
+    @property
+    def max(self) -> Vector2:
+        return self._max
+    
+    @max.setter
+    def max(self, newValue: Vector2):
+        self._max = newValue
+        #self.width, self.height =  newValue.x - self.min.x, newValue.y - self.min.y
+
     @property
     def topLeft(self) -> Vector2:
         return Vector2(self.min.x, self.min.y)
+    
+    @topLeft.setter
+    def topLeft(self, newValue: Vector2):
+        self.min = newValue
     
     @property
     def topRight(self) -> Vector2:
         return Vector2(self.max.x, self.min.y)
     
+    @topRight.setter
+    def topRight(self, newValue: Vector2):
+        self.max.x = newValue.x
+        self.min.y = newValue.y
+
     @property
     def bottomLeft(self) -> Vector2:
         return Vector2(self.min.x, self.max.y)
+    
+    @bottomLeft.setter
+    def bottomLeft(self, newValue: Vector2):
+        self.min.x = newValue.x
+        self.max.y = newValue.y
     
     @property
     def bottomRight(self) -> Vector2:
         return Vector2(self.max.x, self.max.y)
     
+    @bottomRight.setter
+    def bottomRight(self, newValue: Vector2):
+        self.max = newValue
+    
     @property
     def corners(self) -> list:
         return [self.topLeft, self.topRight, self.bottomLeft, self.bottomRight]
+    
+    #endregion Property
+
+    #region Public Methods
 
     def isInside(self, other) -> bool:
         """
@@ -130,6 +176,8 @@ class AABB(Rectangle):
             # Bottom-right cornoer of the intersecting rectangle
             x2 = min(self.topRight.x, other.topRight.x)
             y2 = min(self.bottomRight.y, other.bottomRight.y)
-            return AABB(x1 - other.topLeft.x, y1 - other.topLeft.y, x2 - x1, y2 - y1)
+            return AABB(x1, y1, x2 - x1, y2 - y1)
         else:
             raise TypeError()
+        
+    #endregion Public Methods

@@ -4,7 +4,11 @@ import os
 from DrawLibrary.Core.Math.vector2 import Vector2
 from DrawLibrary.Core.Collision.aabb import AABB
 
-class CanvasImage:
+from DrawLibrary.Graphics.canvasEntity import CanvasEntity
+
+class CanvasImage(CanvasEntity):
+    #region Constructor
+    
     """
     A class representing a image on a tk.Canvas
     The class handle operation tied to the images
@@ -28,15 +32,12 @@ class CanvasImage:
     """
 
     def __init__(self) -> None:
-        self.id: int = -1
+        super().__init__()
         self.filePath: str = ""
         self._width: int = 0
         self._height: int = 0
         self.image: Image = None
         self.photoImage: ImageTk.PhotoImage = None
-        self.bbox: AABB = None
-
-        self.debugBbox: int = -1
 
     @staticmethod
     def createBlank(width: int, height: int) -> 'CanvasImage':
@@ -49,6 +50,34 @@ class CanvasImage:
         blankCanvasImage.photoImage = ImageTk.PhotoImage(blankImage)
 
         return blankCanvasImage
+    
+    @classmethod
+    def fromPath(cls, filePath: str) -> 'CanvasImage':
+        """
+        Load a image from a filepath
+
+        Parameters
+        -----------
+        filePath : str
+            The file path where the image is going to be loaded
+        """
+
+        try:
+            # Check if the file exists
+            if not os.path.exists(filePath):
+                raise FileNotFoundError(f"The file '{filePath}' does not exist.")
+            canvasImage = CanvasImage()
+            canvasImage.filePath = filePath
+            canvasImage.image = Image.open(filePath)
+            canvasImage.photoImage = ImageTk.PhotoImage(canvasImage.image)
+            canvasImage.width, canvasImage.height = canvasImage.image.size
+            return canvasImage
+        except FileNotFoundError as e:
+            print(e)
+
+    #endregion Constructor
+
+    #region Property
 
     @property
     def width(self):
@@ -72,6 +101,10 @@ class CanvasImage:
         if self.bbox:
             self.bbox.height = self.height
 
+    #endregion Property
+
+    #region Public Methods
+
     def clone(self) -> 'CanvasImage':
         """
         Clone a existing CanvasImage
@@ -92,28 +125,6 @@ class CanvasImage:
 
         return canvasImage
 
-    def load(self, filePath: str) -> None:
-        """
-        Load a image from a filepath
-
-        Parameters
-        -----------
-        filePath : str
-            The file path where the image is going to be loaded
-        """
-
-        try:
-            # Check if the file exists
-            if not os.path.exists(filePath):
-                raise FileNotFoundError(f"The file '{filePath}' does not exist.")
-
-            # Load the image inside the CanvasImage
-            self.image = Image.open(filePath)
-            self.photoImage = ImageTk.PhotoImage(self.image)
-            self.width, self.height = self.image.size
-        except FileNotFoundError as e:
-            print(e)
-
     def cut(self, x: int, y: int, width: int, height: int) -> None:
         """
         Cut a CanvasImage, aka erasing a part of it
@@ -132,7 +143,7 @@ class CanvasImage:
 
         # Create a blank image
         new_img = self.image.convert("RGBA")
-        mask = Image.new("RGBA", (width, height), (255, 255, 255, 0))
+        mask = Image.new("RGBA", (width, height), (0, 0, 0, 0))
         # Paste it so the image feel it's cut
         new_img.paste(mask, (x, y))
 
@@ -154,9 +165,7 @@ class CanvasImage:
         self.width = width
         self.height = height
         resizedImage = self.image.resize((self.width, self.height))
-        
-        # Update the image
-        self.image = resizedImage
+        # Update the photo image, keep the original one in the attribute image so it's doesn't resize the resized one
         self.photoImage = ImageTk.PhotoImage(resizedImage)
 
     def crop(self, x: int, y: int, width: int, height: int) -> None:
@@ -205,3 +214,5 @@ class CanvasImage:
 
     def createAABB(self, x, y, width=0, height=0):
         self.bbox = AABB(x, y, width, height)
+
+    #endregion Public Methods

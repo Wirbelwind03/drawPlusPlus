@@ -1,4 +1,9 @@
 import tkinter as tk
+from PIL import Image, ImageTk
+
+from DrawLibrary.Graphics.canvasImage import CanvasImage
+
+from Model.canvasEntities import CanvasEntities
 
 from config import DEBUG
 
@@ -44,6 +49,8 @@ class CanvasController:
         self.view.bind("<Control-Key-c>", self.on_control_c)
         self.view.bind("<Control-Key-v>", self.on_control_v)
 
+    #region Public Methods
+
     def drawImage(self, canvasImage: CanvasImage, x, y, width=None, height=None):
         """
         Draw a image to the canvas
@@ -66,7 +73,12 @@ class CanvasController:
 
         # Draw the image to the canvas
         newCanvasImage = canvasImage.clone()
-        newCanvasImage.resize(width, height)
+
+        # Resize the image
+        resizedImage = newCanvasImage.image.resize((width, height))
+        newCanvasImage.image = resizedImage
+        newCanvasImage.photoImage = ImageTk.PhotoImage(resizedImage)
+        
         newCanvasImage.createAABB(x, y, width, height)
 
         imageId = self.view.create_image(x, y, anchor=tk.NW, image=newCanvasImage.photoImage) 
@@ -81,6 +93,8 @@ class CanvasController:
         return newCanvasImage
 
     def deleteImage(self, canvasImage: CanvasImage):
+        if canvasImage == None:
+            return
         self.view.delete(canvasImage.id)
         self.model.deleteEntity(canvasImage.id)
 
@@ -98,31 +112,39 @@ class CanvasController:
         self.view.delete("all")
         self.model.deleteAll()
 
-    def _invoke_active_tool_method(self, method_name, event):
-        self.toolManager.invoke_tool_method(method_name, event)
+    #endregion Public Methods
 
-    ## Events ##
+    #region Private Methods
+
+    def __invoke_active_tool_method(self, method_name, event):
+        self.toolManager.invoke_tool_method(method_name, event)
+        
+    #endregion Private Methods
+
+    #region Event
 
     def on_mouse_over(self, event):
-        self._invoke_active_tool_method("on_mouse_over", event)
+        self.__invoke_active_tool_method("on_mouse_over", event)
 
     def on_button_press(self, event):
         self.view.focus_set()
         
-        self._invoke_active_tool_method("on_button_press", event)
+        self.__invoke_active_tool_method("on_button_press", event)
 
     def on_mouse_drag(self, event):
-        self._invoke_active_tool_method("on_mouse_drag", event)
+        self.__invoke_active_tool_method("on_mouse_drag", event)
 
     def on_button_release(self, event):
-        self._invoke_active_tool_method("on_button_release", event)
+        self.__invoke_active_tool_method("on_button_release", event)
 
     def on_delete(self, event):
-        self._invoke_active_tool_method("on_delete", event)
+        self.__invoke_active_tool_method("on_delete", event)
         self.update()
 
     def on_control_c(self, event):
-        self._invoke_active_tool_method("on_control_c", event)
+        self.__invoke_active_tool_method("on_control_c", event)
 
     def on_control_v(self, event):
-        self._invoke_active_tool_method("on_control_v", event)
+        self.__invoke_active_tool_method("on_control_v", event)
+
+    #endregion Event

@@ -55,17 +55,16 @@ class MainController:
         self.SRCC: SelectionRectangleCanvasController = SelectionRectangleCanvasController(self.CC)
         # Attach the tools to the canvas controller and the selection rectangle controller
         # Since each of them has a selection rectangle, it's attached to the selection rectangle controller
-        canvasToolManager.addTool("SELECTION_TOOL", SelectionTool(self.CC, self.SRCC))
-        canvasToolManager.addTool("SELECTION_TOOL_RECTANGLE", SelectionRectangleTool(self.CC, self.SRCC))
-        canvasToolManager.setActiveTool("SELECTION_TOOL")
+        canvasToolManager.addTool("SELECTION_TOOL", SelectionTool(self.SRCC))
+        canvasToolManager.addTool("SELECTION_TOOL_RECTANGLE", SelectionRectangleTool(self.SRCC))
+        canvasToolManager.setActiveTool("SELECTION_TOOL_RECTANGLE")
         # Attach the script editor controller to the main controller
         self.SEC = ScriptEditorController(self.view.textEditor, self.view.terminal, self.CC)
         # Attach the menu bar controller to the main controller
         self.MBC = MenuBarController(self.view.menuBar, self.SEC)
     
     def start(self):
-        circleImage = CanvasImage()
-        circleImage.load("Data/Assets/circle.jpg")
+        circleImage = CanvasImage.fromPath("Data/Assets/circle.jpg")
 
         self.CC.drawImage(circleImage, 0, 0, 256, 256)
         self.CC.drawImage(circleImage, 256, 0, 256, 256)
