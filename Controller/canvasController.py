@@ -1,4 +1,5 @@
 import tkinter as tk
+from PIL import Image, ImageTk
 
 from DrawLibrary.Graphics.canvasImage import CanvasImage
 
@@ -69,7 +70,12 @@ class CanvasController:
 
         # Draw the image to the canvas
         newCanvasImage = canvasImage.clone()
-        newCanvasImage.resize(width, height)
+
+        # Resize the image
+        resizedImage = newCanvasImage.image.resize((width, height))
+        newCanvasImage.image = resizedImage
+        newCanvasImage.photoImage = ImageTk.PhotoImage(resizedImage)
+        
         newCanvasImage.createAABB(x, y, width, height)
 
         imageId = self.view.create_image(x, y, anchor=tk.NW, image=newCanvasImage.photoImage) 
@@ -84,6 +90,8 @@ class CanvasController:
         return newCanvasImage
 
     def deleteImage(self, canvasImage: CanvasImage):
+        if canvasImage == None:
+            return
         self.view.delete(canvasImage.id)
         self.model.deleteEntity(canvasImage.id)
 
