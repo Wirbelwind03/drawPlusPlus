@@ -76,6 +76,7 @@ class CanvasController:
 
         # Resize the image
         resizedImage = newCanvasImage.image.resize((width, height))
+        newCanvasImage.width, newCanvasImage.height = resizedImage.size
         newCanvasImage.image = resizedImage
         newCanvasImage.photoImage = ImageTk.PhotoImage(resizedImage)
         
