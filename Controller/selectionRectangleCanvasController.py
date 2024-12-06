@@ -189,7 +189,7 @@ class SelectionRectangleCanvasController:
             if self.selectionRectangle.attachedImage:
                 self.CC.view.moveto(self.selectionRectangle.attachedImage.id, self.selectionRectangle.min.x, self.selectionRectangle.min.y)
                 # Render the image resizing in the selection rectangle
-                self.selectionRectangle.attachedImage.resize(self.selectionRectangle.max.x - self.selectionRectangle.min.x, self.selectionRectangle.max.y - self.selectionRectangle.min.y)
+                self.selectionRectangle.attachedImage.resizePhotoImage(self.selectionRectangle.max.x - self.selectionRectangle.min.x, self.selectionRectangle.max.y - self.selectionRectangle.min.y)
                 self.CC.view.itemconfig(self.selectionRectangle.attachedImage.id, image=self.selectionRectangle.attachedImage.photoImage)
 
             return

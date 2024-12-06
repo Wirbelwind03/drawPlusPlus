@@ -162,10 +162,26 @@ class CanvasImage(CanvasEntity):
         height : int
             The height the image is going to be resized
         """
-        self.width = width
-        self.height = height
+        self.width, self.height = width, height
         resizedImage = self.image.resize((self.width, self.height))
-        # Update the photo image, keep the original one in the attribute image so it's doesn't resize the resized one
+        self.image = resizedImage
+        self.photoImage = ImageTk.PhotoImage(resizedImage)
+
+    def resizePhotoImage(self, width: int, height: int):
+        """
+        Resize the photo image of a CanvasImage
+        The image attribute doesn't get replaced. 
+
+        Parameters
+        -----------
+        width : int
+            The width the image is going to be resized
+        height : int
+            The height the image is going to be resized
+        """
+        self.width, self.height = width, height
+        resizedImage = self.image.resize((self.width, self.height))
+        # Update the photo image, keep the original one in the attribute image so it's doesn't resize a resized one
         self.photoImage = ImageTk.PhotoImage(resizedImage)
 
     def crop(self, x: int, y: int, width: int, height: int) -> None:
