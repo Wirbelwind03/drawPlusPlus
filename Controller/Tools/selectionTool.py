@@ -48,12 +48,13 @@ class SelectionTool:
         if not self.SRCC.hasSelectionRectangle():
             self.getClickedImage(mouseCoords)
         
-        # If the cursor is outside the selected image, deselect it
+        # If the cursor is outside the selected image/selection rectangle, deselect it
         if self.SRCC.hasSelectionRectangle() and self.SRCC.selectionRectangle.isOutside(mouseCoords):
             self.SRCC.deSelect()
             # Check if the user has clicked on another image
             self.getClickedImage(mouseCoords)
 
+        
         if self.SRCC.hasSelectionRectangle() and self.SRCC.getAction() != SelectionRectangleAction.NONE:
             # Calculate the offset between mouse click and rectangle's position
             self.SRCC.on_button_press(event)
