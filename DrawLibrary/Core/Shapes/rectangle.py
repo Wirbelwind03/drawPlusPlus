@@ -76,6 +76,10 @@ class Rectangle:
     #region Property
 
     @property
+    def center(self) -> Vector2:
+        return Vector2(self.topLeft.x // 2, self.topLeft.y // 2)
+
+    @property
     def topLeft(self) -> Vector2:
         return Vector2(min(self.x, self.x + self.width), min(self.y, self.y + self.height))
         

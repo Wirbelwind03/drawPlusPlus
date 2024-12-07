@@ -197,6 +197,7 @@ class CanvasImage(CanvasEntity):
         self.angle = degrees
 
         rotatedImage: Image = self.image.rotate(self.angle, resample=Image.BICUBIC, expand=True)
+        self.width, self.height = rotatedImage.size
         self.photoImage = ImageTk.PhotoImage(rotatedImage)
 
     def crop(self, x: int, y: int, width: int, height: int) -> None:
