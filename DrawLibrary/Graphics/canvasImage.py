@@ -38,6 +38,7 @@ class CanvasImage(CanvasEntity):
         self._height: int = 0
         self.image: Image = None
         self.photoImage: ImageTk.PhotoImage = None
+        self._angle = 0
 
     @staticmethod
     def createBlank(width: int, height: int) -> 'CanvasImage':
@@ -100,6 +101,14 @@ class CanvasImage(CanvasEntity):
         # Update the height of the AABB
         if self.bbox:
             self.bbox.height = self.height
+
+    @property
+    def angle(self):
+        return self._angle
+    
+    @angle.setter
+    def angle(self, degrees: int):
+        self._angle = (self.angle + degrees) % 360
 
     #endregion Property
 
@@ -183,6 +192,12 @@ class CanvasImage(CanvasEntity):
         resizedImage = self.image.resize((self.width, self.height))
         # Update the photo image, keep the original one in the attribute image so it's doesn't resize a resized one
         self.photoImage = ImageTk.PhotoImage(resizedImage)
+
+    def rotatePhotoImage(self, degrees: int):
+        self.angle = degrees
+
+        rotatedImage: Image = self.image.rotate(self.angle, resample=Image.BICUBIC, expand=True)
+        self.photoImage = ImageTk.PhotoImage(rotatedImage)
 
     def crop(self, x: int, y: int, width: int, height: int) -> None:
         self.image = self.image.crop((x, y, x + width, y + height))

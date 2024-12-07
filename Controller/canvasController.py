@@ -87,6 +87,11 @@ class CanvasController:
 
         return newCanvasImage
 
+    def rotateImage(self, canvasImage: CanvasImage, degrees: int):
+        canvasImage.rotatePhotoImage(degrees)
+
+        self.view.itemconfig(canvasImage.id, image=canvasImage.photoImage)
+
     def deleteImage(self, canvasImage: CanvasImage):
         if canvasImage == None:
             return

@@ -65,6 +65,9 @@ class MainController:
     
     def start(self):
         circleImage = CanvasImage.fromPath("Data/Assets/circle.jpg")
+        pencilImage = CanvasImage.fromPath("Data/Assets/pencil.png")
 
         self.CC.drawImage(circleImage, 0, 0, 256, 256)
         self.CC.drawImage(circleImage, 256, 0, 256, 256)
+        pencilCanvasImage = self.CC.drawImage(pencilImage, 512, 0, 256, 256)
+        self.CC.rotateImage(pencilCanvasImage, 30)
