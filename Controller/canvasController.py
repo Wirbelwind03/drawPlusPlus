@@ -1,6 +1,7 @@
 import tkinter as tk
 from PIL import Image, ImageTk
 
+from DrawLibrary.Core.Math.vector2 import Vector2
 from DrawLibrary.Graphics.canvasImage import CanvasImage
 
 from Model.canvasEntities import CanvasEntities
@@ -92,6 +93,7 @@ class CanvasController:
         canvasImage.rotatePhotoImage(degrees)
 
         self.view.itemconfig(canvasImage.id, image=canvasImage.photoImage)
+        self.view.coords(canvasImage.id, canvasImage.bbox.topLeft.x, canvasImage.bbox.topLeft.y)
 
     def deleteImage(self, canvasImage: CanvasImage):
         if canvasImage == None:

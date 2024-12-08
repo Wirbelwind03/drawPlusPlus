@@ -43,6 +43,28 @@ class AABB(Rectangle):
     #region Property
 
     @property
+    def width(self):
+        return super().width
+
+    @width.setter
+    def width(self, newValue: int):
+        self._width = newValue
+        self.max.x = self.min.x + max(newValue, 0)
+    
+    @property
+    def height(self):
+        return super().height
+
+    @height.setter
+    def height(self, newValue: int):
+        self._height = newValue
+        self.max.y = self.min.y + max(newValue, 0)
+
+    @property
+    def center(self):
+        return Vector2((self.min.x + self.max.x) // 2, (self.min.y + self.max.y) // 2)
+
+    @property
     def min(self) -> Vector2:
         return self._min
 

@@ -39,6 +39,7 @@ class CanvasImage(CanvasEntity):
         self.image: Image = None
         self.photoImage: ImageTk.PhotoImage = None
         self._angle = 0
+        self.center: Vector2 = None
 
     @staticmethod
     def createBlank(width: int, height: int) -> 'CanvasImage':
@@ -127,10 +128,10 @@ class CanvasImage(CanvasEntity):
         canvasImage.id = -1
         canvasImage.image = self.image.copy()
         canvasImage.photoImage = ImageTk.PhotoImage(canvasImage.image)
-        canvasImage.width = self.width
-        canvasImage.height = self.height
+        canvasImage.width, canvasImage.height = self.width, self.height
         canvasImage.filePath = self.filePath
         canvasImage.bbox = self.bbox
+        canvasImage.center = self.center
 
         return canvasImage
 
@@ -199,6 +200,8 @@ class CanvasImage(CanvasEntity):
         rotatedImage: Image = self.image.rotate(self.angle, resample=Image.BICUBIC, expand=True)
         self.width, self.height = rotatedImage.size
         self.photoImage = ImageTk.PhotoImage(rotatedImage)
+        print(self.center)
+        self.bbox.topLeft = Vector2(self.center.x - self.width // 2, self.center.y - self.height // 2)
 
     def crop(self, x: int, y: int, width: int, height: int) -> None:
         self.image = self.image.crop((x, y, x + width, y + height))
@@ -246,5 +249,6 @@ class CanvasImage(CanvasEntity):
 
     def createAABB(self, x, y, width=0, height=0):
         self.bbox = AABB(x, y, width, height)
+        self.center = Vector2(self.bbox.min.x + self.image.size[0] // 2, self.bbox.min.y + self.image.size[1] // 2)
 
     #endregion Public Methods

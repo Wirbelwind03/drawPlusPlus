@@ -43,8 +43,8 @@ class Rectangle:
         """
         self.x: int = x
         self.y: int = y
-        self.width: int = width
-        self.height: int = height
+        self._width: int = width
+        self._height: int = height
 
     @classmethod
     def fromCoordinates(cls, x1: int, y1: int, x2: int, y2: int) -> 'Rectangle':
@@ -75,6 +75,14 @@ class Rectangle:
 
     #region Property
 
+    @property
+    def width(self):
+        return self._width
+
+    @property
+    def height(self):
+        return self._height
+    
     @property
     def center(self) -> Vector2:
         return Vector2(self.topLeft.x // 2, self.topLeft.y // 2)
