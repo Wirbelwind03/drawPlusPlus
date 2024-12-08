@@ -90,6 +90,19 @@ class SelectionTool:
                 self.SRCC.deSelect()
                 self.setSelectedImage(newCanvasImage)
 
+    def on_left(self, event):
+        if self.SRCC.hasSelectionRectangle():
+            self.SRCC.CC.rotateImage(self.SRCC.selectionRectangle.attachedImage, 10)
+
+            # Render the selection rectangle to the new position
+            self.SRCC.CC.view.coords(self.SRCC.selectionRectangle.canvasIdRectangle, self.SRCC.selectionRectangle.min.x, self.SRCC.selectionRectangle.min.y, self.SRCC.selectionRectangle.max.x, self.SRCC.selectionRectangle.max.y)
+            
+            # Render the corners to the new position
+            for i in range(len(self.SRCC.selectionRectangle.canvasIdCorners)):
+                self.SRCC.CC.view.moveto(self.SRCC.selectionRectangle.canvasIdCorners[i], self.SRCC.selectionRectangle.cornersBbox[i].min.x, self.SRCC.selectionRectangle.cornersBbox[i].min.y)
+
+            return
+
     #endregion Event
 
 

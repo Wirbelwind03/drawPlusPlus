@@ -48,6 +48,7 @@ class CanvasController:
         self.view.bind("<Delete>", self.on_delete)
         self.view.bind("<Control-Key-c>", self.on_control_c)
         self.view.bind("<Control-Key-v>", self.on_control_v)
+        self.view.bind("<Left>", self.on_left)
 
     #region Public Methods
 
@@ -146,5 +147,8 @@ class CanvasController:
 
     def on_control_v(self, event):
         self.__invoke_active_tool_method("on_control_v", event)
+
+    def on_left(self, event):
+        self.__invoke_active_tool_method("on_left", event)
 
     #endregion Event
