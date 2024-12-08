@@ -75,8 +75,9 @@ class CanvasController:
 
         # Draw the image to the canvas
         newCanvasImage = canvasImage.clone()
-        newCanvasImage.resize(width, height)        
         newCanvasImage.createAABB(x, y, width, height)
+        newCanvasImage.resize(width, height)
+        newCanvasImage.move(x, y)        
 
         imageId = self.view.create_image(x, y, anchor=tk.NW, image=newCanvasImage.photoImage) 
         newCanvasImage.id = imageId

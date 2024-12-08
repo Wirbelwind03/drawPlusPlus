@@ -16,9 +16,14 @@ class CanvasEntity:
     """
     def __init__(self) -> None:
         self.id: int = -1
+        self.x: int = 0
+        self.y: int = 0
         self.bbox: AABB = None
 
         self.debugBbox: int = -1
 
     def createAABB(self, x, y, width=0, height=0):
         self.bbox = AABB(x, y, width, height)
+
+    def move(self, x, y):
+        self.x, self.y = x, y

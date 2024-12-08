@@ -93,6 +93,9 @@ class SelectionTool:
     def on_left(self, event):
         if self.SRCC.hasSelectionRectangle():
             self.SRCC.CC.rotateImage(self.SRCC.selectionRectangle.attachedImage, 10)
+
+            sr = self.SRCC.selectionRectangle
+            #self.SRCC.CC.view.create_rectangle(sr.attachedImage.x, sr.attachedImage.y, sr.max.x, sr.max.y, fill="red")
             
             # Render the selection rectangle to the new position
             self.SRCC.CC.view.coords(self.SRCC.selectionRectangle.canvasIdRectangle, self.SRCC.selectionRectangle.min.x, self.SRCC.selectionRectangle.min.y, self.SRCC.selectionRectangle.max.x, self.SRCC.selectionRectangle.max.y)

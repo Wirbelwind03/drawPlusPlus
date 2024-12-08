@@ -96,6 +96,10 @@ class SelectionRectangle(AABB):
         # Update the image coordinates
         if self.attachedImage:
             self.attachedImage.bbox.min = self.min
+            # self.attachedImage.x = self.min.x - self.attachedImage.x + self.min.x
+            # self.attachedImage.y = self.min.y - self.attachedImage.y + self.min.y
+            # print(self.attachedImage.x)
+            # print(self.attachedImage.y)
 
     @property
     def max(self) -> Vector2:
