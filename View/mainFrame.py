@@ -2,8 +2,8 @@ import tkinter as tk
 
 from DrawLibrary.Graphics.canvasImage import CanvasImage
 
-from .Resources.Widgets.textEditor import *
 from .Resources.Widgets.terminal import *
+from .Resources.Widgets.textEditor import *
 from .Resources.Widgets.toolBar import *
 
 class MainFrame(tk.Frame):
@@ -38,25 +38,26 @@ class MainFrame(tk.Frame):
         self.master.config(menu=self.menuBar)
 
         # Configure rows and columns for grid layout in MainFrame
-        self.grid_rowconfigure(0, weight=0)
-        self.grid_rowconfigure(1, weight=1) 
-        self.grid_rowconfigure(2, weight=0)
-
         self.grid_columnconfigure(0, weight=1)
-        self.grid_columnconfigure(1, weight=2) 
+        self.grid_columnconfigure(1, weight=1) 
 
-        # # Create and grid the widgets
+        self.grid_rowconfigure(0, weight=0)
+        self.grid_rowconfigure(1, weight=0) 
+        self.grid_rowconfigure(2, weight=1)
+        self.grid_rowconfigure(3, weight=0)
+
+        # Create and grid the widgets
         self.toolBar = ToolBar(self, bg="black")
-        self.toolBar.grid(row=0, column=0, columnspan=2, sticky="new")  # ToolBar spans across both columns
+        self.toolBar.grid(row=1, column=1, sticky="new", padx=10, pady=10)  # ToolBar spans across both columns
 
         # TextEditor on the left side, expands vertically
         self.textEditor = TextEditor(self)
-        self.textEditor.grid(row=1, column=0, sticky="nsew")  # Left side, expands in all directions
+        self.textEditor.grid(row=1, column=0, rowspan=2, sticky="nsew", padx=10, pady=10)  # Left side, expands in all directions
 
         # Canvas on the right side, expands vertically and horizontally
         self.canvas = tk.Canvas(self, width=800, height=600)
-        self.canvas.grid(row=1, column=1, rowspan=2, sticky="nsew")  # Right side, expands in all directions
+        self.canvas.grid(row=2, column=1, rowspan=2, sticky="nsew", padx=10, pady=10)  # Right side, expands in all directions
         
         # Terminal at the bottom
         self.terminal = Terminal(self, height=10, wrap="word", bg="lightgrey", fg="black")
-        self.terminal.grid(row=2, column=0, sticky="sew")
+        self.terminal.grid(row=3, column=0, sticky="sew", padx=10, pady=10)
