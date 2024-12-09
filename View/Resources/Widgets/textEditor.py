@@ -4,7 +4,7 @@ class TextEditor(tk.Frame):
     def __init__(self, *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)
         self.text = tk.Text(self)
-        self.vsb = tk.Scrollbar(self, orient="vertical", command=self.text.yview)
+        self.vsb = tk.Scrollbar(self, orient="vertical", command=self.text.yview, width=20)
         self.text.configure(yscrollcommand=self.vsb.set)
         self.text.tag_configure("bigfont", font=("Helvetica", "24", "bold"))
 
