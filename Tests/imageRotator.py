@@ -10,8 +10,7 @@ class ImageRotatorWithAABB:
         self.angle = 0
 
         # Load the image
-        original_image = Image.open(image_path)
-        self.original_image = original_image.resize((256, 256))
+        self.original_image = Image.open(image_path)
         self.tk_image = ImageTk.PhotoImage(self.original_image)
         self.width, self.height = self.original_image.size
 
@@ -27,6 +26,15 @@ class ImageRotatorWithAABB:
         x1, y1 = self.top_left
         x2, y2 = x1 + self.width, y1 + self.height
         self.aabb = self.canvas.create_rectangle(x1, y1, x2, y2, outline="red")
+
+        # Variables to track dragging state
+        self.dragging = False
+        self.drag_start = (0, 0)
+
+        # Bind mouse events
+        self.canvas.tag_bind(self.image_on_canvas, "<Button-1>", self.start_drag)
+        self.canvas.tag_bind(self.image_on_canvas, "<B1-Motion>", self.drag)
+        self.canvas.tag_bind(self.image_on_canvas, "<ButtonRelease-1>", self.stop_drag)
 
     def rotate(self, delta_angle):
         self.angle = (self.angle + delta_angle) % 360
@@ -51,23 +59,52 @@ class ImageRotatorWithAABB:
         x2, y2 = x1 + new_width, y1 + new_height
         self.canvas.coords(self.aabb, x1, y1, x2, y2)
 
+    def start_drag(self, event):
+        self.dragging = True
+        self.drag_start = (event.x, event.y)
 
-def rotate_image():
-    rotator.rotate(10)
+    def drag(self, event):
+        if self.dragging:
+            dx = event.x - self.drag_start[0]
+            dy = event.y - self.drag_start[1]
+
+            # Update the top-left position
+            self.top_left = (self.top_left[0] + dx, self.top_left[1] + dy)
+
+            # Update the center position
+            self.center = (self.center[0] + dx, self.center[1] + dy)
+
+            # Update image position on the canvas
+            self.canvas.coords(self.image_on_canvas, self.top_left[0], self.top_left[1])
+
+            # Update the AABB
+            x1, y1 = self.top_left
+            x2, y2 = x1 + self.width, y1 + self.height
+            self.canvas.coords(self.aabb, x1, y1, x2, y2)
+
+            # Update drag start for the next motion
+            self.drag_start = (event.x, event.y)
+
+    def stop_drag(self, event):
+        self.dragging = False
 
 
 # Tkinter setup
 root = tk.Tk()
-root.title("Image Rotator with Fixed Top-Left Position")
+root.title("Image Rotator and Draggable Object")
 
 canvas = tk.Canvas(root, width=600, height=600, bg="white")
 canvas.pack()
 
 # Path to your image
 image_path = "data/assets/circle.jpg"  # Replace with your image path
-rotator = ImageRotatorWithAABB(canvas, image_path=image_path, top_left=(300, 300))
+rotator = ImageRotatorWithAABB(canvas, image_path=image_path, top_left=(100, 100))
 
-rotate_button = tk.Button(root, text="Rotate", command=rotate_image)
-rotate_button.pack()
+# Rotate the image with the left arrow key
+def on_key_press(event):
+    if event.keysym == "Left":
+        rotator.rotate(-10)
+
+root.bind("<Left>", on_key_press)
 
 root.mainloop()
