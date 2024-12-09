@@ -26,7 +26,7 @@ class SelectionTool:
             
     def setSelectedImage(self, image: CanvasImage):
         self.SRCC.setSelectionRectangle(SelectionRectangle.fromCoordinates(image.bbox.min.x, image.bbox.min.y, image.bbox.max.x, image.bbox.max.y), image)
-        self.SRCC.draw()
+        self.SRCC.create()
 
         # Check the action to move since the cursor is inside the image
         self.SRCC.setAction(SelectionRectangleAction.MOVE)

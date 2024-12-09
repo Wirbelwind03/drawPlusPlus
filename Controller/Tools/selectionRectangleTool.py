@@ -151,7 +151,7 @@ class SelectionRectangleTool:
             return
 
         self.SRCC.setSelectionRectangle(SelectionRectangle.fromCoordinates(self.__tempStartCoordinates.x, self.__tempStartCoordinates.y, mouseCoords.x, mouseCoords.y, 10))
-        self.SRCC.draw()
+        self.SRCC.create()
 
     def on_delete(self, event):
         if self.SRCC.hasSelectionRectangle():

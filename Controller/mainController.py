@@ -7,6 +7,7 @@ from DrawScript.Core.drawScriptParser import DrawScriptParser
 from Controller.Tools.selectionTool import SelectionTool
 from Controller.Tools.selectionRectangleTool import SelectionRectangleTool
 from Controller.canvasController import CanvasController
+from Controller.debugCanvasController import DebugCanvasController
 from Controller.scriptEditorController import ScriptEditorController
 from Controller.menuBarController import MenuBarController
 from Controller.selectionRectangleCanvasController import SelectionRectangleCanvasController
@@ -48,8 +49,10 @@ class MainController:
 
         # Create a tool manager for the canvas controller
         canvasToolManager = ToolManager()
+        #
+        self.DCC = DebugCanvasController(self.view.canvas)
         # Attach the canvas controller to the main controller
-        self.CC = CanvasController(self.view.canvas, canvasToolManager)
+        self.CC = CanvasController(self.view.canvas, canvasToolManager, self.DCC)
         # Attach the selection rectangle canvas controller to the canvas
         # It's used to control the selection rectangle when it's on the canvas
         self.SRCC: SelectionRectangleCanvasController = SelectionRectangleCanvasController(self.CC)
@@ -57,7 +60,7 @@ class MainController:
         # Since each of them has a selection rectangle, it's attached to the selection rectangle controller
         canvasToolManager.addTool("SELECTION_TOOL", SelectionTool(self.SRCC))
         canvasToolManager.addTool("SELECTION_TOOL_RECTANGLE", SelectionRectangleTool(self.SRCC))
-        canvasToolManager.setActiveTool("SELECTION_TOOL_RECTANGLE")
+        canvasToolManager.setActiveTool("SELECTION_TOOL")
         # Attach the script editor controller to the main controller
         self.SEC = ScriptEditorController(self.view.textEditor, self.view.terminal, self.CC)
         # Attach the menu bar controller to the main controller
@@ -66,5 +69,4 @@ class MainController:
     def start(self):
         circleImage = CanvasImage.fromPath("Data/Assets/circle.jpg")
 
-        self.CC.drawImage(circleImage, 0, 0, 256, 256)
-        self.CC.drawImage(circleImage, 256, 0, 256, 256)
+        self.CC.drawImage(circleImage, 256, 256, 256, 256)

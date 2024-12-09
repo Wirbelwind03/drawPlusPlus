@@ -1,11 +1,9 @@
 import tkinter as tk
 from PIL import Image, ImageTk
 
-from DrawLibrary.Graphics.canvasImage import CanvasImage
-
-from Model.canvasEntities import CanvasEntities
-
 from config import DEBUG
+
+from Controller.debugCanvasController import DebugCanvasController
 
 from DrawLibrary.Graphics.canvasImage import CanvasImage
 
@@ -25,7 +23,7 @@ class CanvasController:
         The key are the ID given through the draw functions of tk.Canvas, and the value is the CanvasImage itself.
     """
 
-    def __init__(self, canvas: tk.Canvas, toolManager: ToolManager):
+    def __init__(self, canvas: tk.Canvas, toolManager: ToolManager, DCC: DebugCanvasController):
         """
         Constructs a new CanvasImagesManager to the canvas.
 
@@ -37,6 +35,7 @@ class CanvasController:
         self.view: tk.Canvas = canvas
         self.model: CanvasEntities = CanvasEntities()
         self.toolManager = toolManager
+        self.DCC = DCC
 
         # Bind mouse events to the canvas
         self.view.bind("<ButtonPress-1>", self.on_button_press)
@@ -85,7 +84,8 @@ class CanvasController:
         newCanvasImage.id = imageId
 
         if DEBUG:
-            newCanvasImage.debugBbox = self.view.create_rectangle(newCanvasImage.bbox.min.x, newCanvasImage.bbox.min.y, newCanvasImage.bbox.max.x, newCanvasImage.bbox.max.y, outline="black", width=2)
+            self.DCC.addCanvasID(newCanvasImage)
+            self.DCC.drawCanvasImageDebugInfos(newCanvasImage)
 
         # Put the image to dictionary with the id as the key
         self.model.addEntity(imageId, newCanvasImage)
