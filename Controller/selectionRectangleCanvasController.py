@@ -71,8 +71,8 @@ class SelectionRectangleCanvasController:
         if self.selectionRectangle.attachedImage:
             self.CC.view.moveto(self.selectionRectangle.attachedImage.id, self.selectionRectangle.min.x, self.selectionRectangle.min.y)
             # Render the image resizing in the selection rectangle
-            self.selectionRectangle.attachedImage.resize(self.selectionRectangle.max.x - self.selectionRectangle.min.x, self.selectionRectangle.max.y - self.selectionRectangle.min.y)
-            self.CC.view.itemconfig(self.selectionRectangle.attachedImage.id, image=self.selectionRectangle.attachedImage.photoImage)
+            #self.CC.resizeImage(self.selectionRectangle.attachedImage, self.selectionRectangle.max.x - self.selectionRectangle.min.x, self.selectionRectangle.max.y - self.selectionRectangle.min.y)
+            
 
     def erase(self) -> None:
         """
@@ -137,13 +137,13 @@ class SelectionRectangleCanvasController:
         """
         mouseCoords = Vector2(event.x, event.y)
 
-        if self.selectionRectangle.action == SelectionRectangleAction.MOVE:
+        if self.getAction() == SelectionRectangleAction.MOVE:
             # Get the gap between the cursor and the min and max of the AABB
             # So the user can move the rectangle by clicking anywhere inside
             self.startGapOffset = mouseCoords - self.selectionRectangle.min
             self.endGapOffset = mouseCoords - self.selectionRectangle.max
 
-        elif self.selectionRectangle.action == SelectionRectangleAction.RESIZE and self.selectionRectangle.selectedCornerIndex != -1:
+        elif self.getAction() == SelectionRectangleAction.RESIZE and self.selectionRectangle.selectedCornerIndex != -1:
             self.startGapOffset = mouseCoords - self.selectionRectangle.min
             self.endGapOffset = mouseCoords - self.selectionRectangle.max
 

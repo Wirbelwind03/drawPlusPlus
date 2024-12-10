@@ -36,6 +36,7 @@ class CanvasImage(CanvasEntity):
         self.filePath: str = ""
         self._width: int = 0
         self._height: int = 0
+        self._angle: int = 0
         self.image: Image = None
         self.photoImage: ImageTk.PhotoImage = None
 
@@ -78,6 +79,14 @@ class CanvasImage(CanvasEntity):
     #endregion Constructor
 
     #region Property
+
+    @property
+    def angle(self):
+        return self._angle
+    
+    @angle.setter
+    def angle(self, degrees: int):
+        self._angle = (self.angle + degrees) % 360
 
     @property
     def width(self):
@@ -151,7 +160,7 @@ class CanvasImage(CanvasEntity):
         self.image = new_img
         self.photoImage = ImageTk.PhotoImage(new_img)
     
-    def resize(self, width: int, height: int) -> None: 
+    def resizePhotoImage(self, width: int, height: int) -> None: 
         """
         Resize a CanvasImage
 
@@ -167,6 +176,12 @@ class CanvasImage(CanvasEntity):
         resizedImage = self.image.resize((self.width, self.height))
         # Update the photo image, keep the original one in the attribute image so it's doesn't resize the resized one
         self.photoImage = ImageTk.PhotoImage(resizedImage)
+
+    def rotatePhotoImage(self, degrees: int):
+        self.angle = degrees
+
+        rotatedImage: Image = self.image.rotate(self.angle, expand=True)
+        self.photoImage = ImageTk.PhotoImage(rotatedImage)
 
     def crop(self, x: int, y: int, width: int, height: int) -> None:
         self.image = self.image.crop((x, y, x + width, y + height))

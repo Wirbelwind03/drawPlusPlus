@@ -47,6 +47,7 @@ class CanvasController:
         self.view.bind("<Delete>", self.on_delete)
         self.view.bind("<Control-Key-c>", self.on_control_c)
         self.view.bind("<Control-Key-v>", self.on_control_v)
+        self.view.bind("<Left>", self.on_left)
 
     #region Public Methods
 
@@ -80,7 +81,7 @@ class CanvasController:
         
         newCanvasImage.createAABB(x, y, width, height)
 
-        imageId = self.view.create_image(x, y, anchor=tk.NW, image=newCanvasImage.photoImage) 
+        imageId = self.view.create_image(x + width // 2, y + height // 2, image=newCanvasImage.photoImage) 
         newCanvasImage.id = imageId
 
         if DEBUG:
@@ -91,6 +92,16 @@ class CanvasController:
         self.model.addEntity(imageId, newCanvasImage)
 
         return newCanvasImage
+    
+    def resizeImage(self, canvasImage: CanvasImage, width: int, height: int):
+        canvasImage.resizePhotoImage(width, height)
+
+        self.view.itemconfig(canvasImage.id, image=canvasImage.photoImage)
+
+    def rotateImage(self, canvasImage: CanvasImage, degrees: int):
+        canvasImage.rotatePhotoImage(degrees)
+
+        self.view.itemconfig(canvasImage.id, image=canvasImage.photoImage)
 
     def deleteImage(self, canvasImage: CanvasImage):
         if canvasImage == None:
@@ -146,5 +157,8 @@ class CanvasController:
 
     def on_control_v(self, event):
         self.__invoke_active_tool_method("on_control_v", event)
+
+    def on_left(self, event):
+        self.__invoke_active_tool_method("on_left", event)
 
     #endregion Event

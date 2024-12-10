@@ -90,6 +90,10 @@ class SelectionTool:
                 self.SRCC.deSelect()
                 self.setSelectedImage(newCanvasImage)
 
+    def on_left(self, event):
+        if self.SRCC.hasSelectionRectangle():
+            self.SRCC.CC.rotateImage(self.SRCC.selectionRectangle.attachedImage, 10)
+
     #endregion Event
 
 
