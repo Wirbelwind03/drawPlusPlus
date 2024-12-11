@@ -11,7 +11,6 @@ class TextEditor(tk.Frame):
         # Configure the grid of the Text Editor widget
         self.grid_rowconfigure(0, weight=1)
         self.grid_columnconfigure(0, weight=1)
-        self.grid_columnconfigure(1, weight=0) 
 
         self.vsb.grid(row=0, column=1, sticky="ns")  # Fill vertically
         self.text.grid(row=0, column=0, sticky="nsew")  # Fill both horizontally and vertically
