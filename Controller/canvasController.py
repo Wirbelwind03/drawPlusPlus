@@ -6,6 +6,7 @@ from config import DEBUG
 from Controller.debugCanvasController import DebugCanvasController
 
 from DrawLibrary.Graphics.canvasImage import CanvasImage
+from DrawLibrary.Core.Math.vector2 import Vector2
 
 from Model.canvasEntities import CanvasEntities
 from Model.toolManager import ToolManager
@@ -68,20 +69,28 @@ class CanvasController:
         height : int
             The height the image is going to be resized to
         """
+        # If the width and height arguments hasn't been put
+        # Put the width and height of the canvas image loaded
         width = width or canvasImage.width
         height = height or canvasImage.height
 
-        # Draw the image to the canvas
+        # Clone the canvas image, so a new reference can be create
         newCanvasImage = canvasImage.clone()
 
         # Resize the image
         resizedImage = newCanvasImage.image.resize((width, height))
+        # Attach the new resized image to the attribute
         newCanvasImage.image = resizedImage
         newCanvasImage.photoImage = ImageTk.PhotoImage(resizedImage)
         
+        # Create the abb of the image
         newCanvasImage.createAABB(x, y, width, height)
 
-        imageId = self.view.create_image(x + width // 2, y + height // 2, image=newCanvasImage.photoImage) 
+        # Set the CanvasImage position in the center
+        newCanvasImage.center = Vector2(x + width // 2, y + height // 2)
+        # Draw the image on the tkinter canvas
+        imageId = self.view.create_image(newCanvasImage.center.x, newCanvasImage.center.y, image=newCanvasImage.photoImage) 
+        # Assign the id to the CanvasImage
         newCanvasImage.id = imageId
 
         if DEBUG:
@@ -96,11 +105,13 @@ class CanvasController:
     def resizeImage(self, canvasImage: CanvasImage, width: int, height: int):
         canvasImage.resizePhotoImage(width, height)
 
+        # Update the photoImage on the tkinter Canvas
         self.view.itemconfig(canvasImage.id, image=canvasImage.photoImage)
 
     def rotateImage(self, canvasImage: CanvasImage, degrees: int):
         canvasImage.rotatePhotoImage(degrees)
 
+        # Update the photoImage on the tkiner Canvas
         self.view.itemconfig(canvasImage.id, image=canvasImage.photoImage)
 
     def deleteImage(self, canvasImage: CanvasImage):

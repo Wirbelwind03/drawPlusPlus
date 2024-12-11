@@ -34,8 +34,6 @@ class CanvasImage(CanvasEntity):
     def __init__(self) -> None:
         super().__init__()
         self.filePath: str = ""
-        self._width: int = 0
-        self._height: int = 0
         self._angle: int = 0
         self.image: Image = None
         self.photoImage: ImageTk.PhotoImage = None
@@ -43,8 +41,6 @@ class CanvasImage(CanvasEntity):
     @staticmethod
     def createBlank(width: int, height: int) -> 'CanvasImage':
         blankCanvasImage = CanvasImage()
-        blankCanvasImage.width = width
-        blankCanvasImage.height = height
 
         blankImage = Image.new("RGB", (width, height), "white")
         blankCanvasImage.image = blankImage
@@ -71,7 +67,6 @@ class CanvasImage(CanvasEntity):
             canvasImage.filePath = filePath
             canvasImage.image = Image.open(filePath)
             canvasImage.photoImage = ImageTk.PhotoImage(canvasImage.image)
-            canvasImage.width, canvasImage.height = canvasImage.image.size
             return canvasImage
         except FileNotFoundError as e:
             print(e)
@@ -90,26 +85,12 @@ class CanvasImage(CanvasEntity):
 
     @property
     def width(self):
-        return self._width
+        return self.image.size[0]
     
-    @width.setter
-    def width(self, width: int):
-        self._width = width
-        # Update the width of the AABB
-        if self.bbox:
-            self.bbox.width = self.width
-
     @property
     def height(self):
-        return self._height
+        return self.image.size[1]
     
-    @height.setter
-    def height(self, height: int):
-        self._height = height
-        # Update the height of the AABB
-        if self.bbox:
-            self.bbox.height = self.height
-
     #endregion Property
 
     #region Public Methods
@@ -125,12 +106,11 @@ class CanvasImage(CanvasEntity):
         """
         canvasImage = CanvasImage()
         canvasImage.id = -1
+        canvasImage.bbox = self.bbox
+        
         canvasImage.image = self.image.copy()
         canvasImage.photoImage = ImageTk.PhotoImage(canvasImage.image)
-        canvasImage.width = self.width
-        canvasImage.height = self.height
         canvasImage.filePath = self.filePath
-        canvasImage.bbox = self.bbox
 
         return canvasImage
 
@@ -171,16 +151,18 @@ class CanvasImage(CanvasEntity):
         height : int
             The height the image is going to be resized
         """
-        self.width = width
-        self.height = height
-        resizedImage = self.image.resize((self.width, self.height))
-        # Update the photo image, keep the original one in the attribute image so it's doesn't resize the resized one
+        # Resize the bbox of the CanvasImage
+        self.bbox.width = width
+        self.bbox.height = height
+        resizedImage = self.image.resize((width, height))
+        # Update the photoImage, keep the original one in the attribute image so it's doesn't resize the resized one
         self.photoImage = ImageTk.PhotoImage(resizedImage)
 
     def rotatePhotoImage(self, degrees: int):
         self.angle = degrees
 
         rotatedImage: Image = self.image.rotate(self.angle, expand=True)
+        # Update the photoImage, keep the original one in the attribute image so it's doesn't resize the rotated one
         self.photoImage = ImageTk.PhotoImage(rotatedImage)
 
     def crop(self, x: int, y: int, width: int, height: int) -> None:
@@ -227,7 +209,10 @@ class CanvasImage(CanvasEntity):
 
         self.image.paste(canvasImage.image, (x, y))
 
-    def createAABB(self, x, y, width=0, height=0):
-        self.bbox = AABB(x, y, width, height)
+    def getImageBox(self):
+        """Returns the axis-aligned bounding box of the image."""
+        x0, y0 = self.center.x - self.width // 2, self.center.y - self.height // 2
+        x1, y1 = self.center.x + self.width // 2, self.center.y + self.height // 2
+        return (x0, y0, x1, y1)
 
     #endregion Public Methods

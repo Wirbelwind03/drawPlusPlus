@@ -217,6 +217,11 @@ class SelectionRectangle(AABB):
 
     #region Public Methods
 
+    def SetCoords(self, newMin: Vector2, newMax: Vector2) -> None:
+        # Update the selection rectangle coordinates
+        self.min = newMin
+        self.max = newMax
+
     def isInsideCorners(self, coords: Vector2) -> bool:
         """
         Check if a coordinates is inside the corners BBOX of the selection rectangle
