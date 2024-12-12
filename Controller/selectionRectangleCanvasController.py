@@ -196,8 +196,7 @@ class SelectionRectangleCanvasController:
                 
                 width = self.selectionRectangle.bottomRight.x - self.selectionRectangle.topLeft.x
                 height = self.selectionRectangle.bottomRight.y - self.selectionRectangle.topLeft.y
-                degrees = self.selectionRectangle.attachedImage.angle
-                self.CC.updateImage(self.selectionRectangle.attachedImage, width, height, degrees)
+                self.CC.updateImage(self.selectionRectangle.attachedImage, width, height)
 
                 # rotated_image = self.selectionRectangle.attachedImage.image.rotate(degrees, expand=True)
                 # resized_image = rotated_image.resize((width, height))

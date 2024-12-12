@@ -140,14 +140,14 @@ class CanvasImage(CanvasEntity):
         self.image = new_img
         self.photoImage = ImageTk.PhotoImage(new_img)
 
-    def updatePhotoImage(self, width: int, height: int, degrees: int) -> None:
+    def updatePhotoImage(self, width: int, height: int, degrees: int = 0) -> None:
         self.angle = degrees
         rotatedImage: Image = self.image.rotate(self.angle, expand=True)
         rotatedWidth, rotatedHeight = rotatedImage.size
         # Resize the bbox of the CanvasImage
         self.bbox.width = width
         self.bbox.height = height
-        resizedImage = rotatedImage.resize((rotatedWidth, rotatedHeight))
+        resizedImage = rotatedImage.resize((width, height))
 
         self.photoImage = ImageTk.PhotoImage(resizedImage)
 
