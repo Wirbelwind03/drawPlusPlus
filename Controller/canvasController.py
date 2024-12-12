@@ -102,6 +102,12 @@ class CanvasController:
 
         return newCanvasImage
     
+    def updateImage(self, canvasImage: CanvasImage, width: int, height: int, degrees: int):
+        canvasImage.updatePhotoImage(width, height, degrees)
+
+        # Update the photoImage on the tkinter Canvas
+        self.view.itemconfig(canvasImage.id, image=canvasImage.photoImage)
+    
     def resizeImage(self, canvasImage: CanvasImage, width: int, height: int):
         canvasImage.resizePhotoImage(width, height)
 

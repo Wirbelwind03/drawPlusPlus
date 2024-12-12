@@ -217,7 +217,7 @@ class SelectionRectangle(AABB):
 
     #region Public Methods
 
-    def SetCoords(self, newMin: Vector2, newMax: Vector2) -> None:
+    def setCoords(self, newMin: Vector2, newMax: Vector2) -> None:
         # Update the selection rectangle coordinates
         self.min = newMin
         self.max = newMax

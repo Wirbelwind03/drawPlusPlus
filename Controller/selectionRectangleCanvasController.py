@@ -1,4 +1,5 @@
 import tkinter as tk
+from PIL import Image, ImageTk
 
 from config import DEBUG
 
@@ -58,21 +59,6 @@ class SelectionRectangleCanvasController:
         # Draw the selection corners of the selection rectangle
         for corner in self.selectionRectangle.cornersBbox:
             self.selectionRectangle.canvasIdCorners.append(self.CC.view.create_rectangle(corner.x, corner.y, corner.x + corner.width, corner.y + corner.height, outline="black", width=2))
-
-    def render(self, dx, dy) -> None:
-        # Render the selection rectangle to the new position
-        self.CC.view.moveto(self.selectionRectangle.canvasIdRectangle, dx, dy)
-        
-        # Render the corners to the new position
-        for i in range(len(self.selectionRectangle.canvasIdCorners)):
-            self.CC.view.moveto(self.selectionRectangle.canvasIdCorners[i], self.selectionRectangle.cornersBbox[i].min.x, self.selectionRectangle.cornersBbox[i].min.y)
-        
-        # Render the image to the new position
-        if self.selectionRectangle.attachedImage:
-            self.CC.view.moveto(self.selectionRectangle.attachedImage.id, dx, dy)
-            # Render the image resizing in the selection rectangle
-            #self.CC.resizeImage(self.selectionRectangle.attachedImage, self.selectionRectangle.max.x - self.selectionRectangle.min.x, self.selectionRectangle.max.y - self.selectionRectangle.min.y)
-            
 
     def erase(self) -> None:
         """
@@ -137,6 +123,8 @@ class SelectionRectangleCanvasController:
         """
         mouseCoords = Vector2(event.x, event.y)
 
+        self.drag_start = mouseCoords
+
         if self.getAction() == SelectionRectangleAction.MOVE:
             # Get the gap between the cursor and the min and max of the AABB
             # So the user can move the rectangle by clicking anywhere inside
@@ -159,18 +147,27 @@ class SelectionRectangleCanvasController:
         """
         mouseCoords = Vector2(event.x, event.y)
 
-        dx = mouseCoords.x - self.startGapOffset.x
-        dy = mouseCoords.y - self.startGapOffset.y
+        dx = mouseCoords.x - self.drag_start.x
+        dy = mouseCoords.y - self.drag_start.y
 
         if self.getAction() == SelectionRectangleAction.MOVE:
             # Update the selection rectangle coordinates
-            self.selectionRectangle.SetCoords(mouseCoords - self.startGapOffset, mouseCoords - self.endGapOffset)
+            self.selectionRectangle.setCoords(mouseCoords - self.startGapOffset, mouseCoords - self.endGapOffset)
             
             if self.selectionRectangle.attachedImage:
                 imageCenter = self.selectionRectangle.attachedImage.center
                 self.selectionRectangle.attachedImage.setCenter(Vector2(imageCenter.x + dx, imageCenter.y + dy))
 
-            self.render(dx, dy)
+            # Render the selection rectangle to the new position
+            self.CC.view.move(self.selectionRectangle.canvasIdRectangle, dx, dy)
+            
+            # Render the corners to the new position
+            for i in range(len(self.selectionRectangle.canvasIdCorners)):
+                self.CC.view.moveto(self.selectionRectangle.canvasIdCorners[i], self.selectionRectangle.cornersBbox[i].min.x, self.selectionRectangle.cornersBbox[i].min.y)
+            
+            # Render the image to the new position
+            if self.selectionRectangle.attachedImage:
+                self.CC.view.move(self.selectionRectangle.attachedImage.id, dx, dy)
 
         elif self.getAction() == SelectionRectangleAction.RESIZE:
             corners = {
@@ -186,11 +183,32 @@ class SelectionRectangleCanvasController:
 
             if (self.selectionRectangle.ToName()):
                 return
+            
+            self.CC.view.coords(self.selectionRectangle.canvasIdRectangle, self.selectionRectangle.topLeft.x, self.selectionRectangle.topLeft.y, self.selectionRectangle.bottomRight.x,  self.selectionRectangle.bottomRight.y)
+            
+            # Render the corners to the new position
+            for i in range(len(self.selectionRectangle.canvasIdCorners)):
+                self.CC.view.moveto(self.selectionRectangle.canvasIdCorners[i], self.selectionRectangle.cornersBbox[i].min.x, self.selectionRectangle.cornersBbox[i].min.y)
 
-            self.render(dx, dy)
+            # Render the image to the new position
+            if self.selectionRectangle.attachedImage:
+                self.CC.view.moveto(self.selectionRectangle.attachedImage.id, self.selectionRectangle.topLeft.x, self.selectionRectangle.topLeft.y)
+                
+                width = self.selectionRectangle.bottomRight.x - self.selectionRectangle.topLeft.x
+                height = self.selectionRectangle.bottomRight.y - self.selectionRectangle.topLeft.y
+                degrees = self.selectionRectangle.attachedImage.angle
+                self.CC.updateImage(self.selectionRectangle.attachedImage, width, height, degrees)
+
+                # rotated_image = self.selectionRectangle.attachedImage.image.rotate(degrees, expand=True)
+                # resized_image = rotated_image.resize((width, height))
+                # self.selectionRectangle.attachedImage.photoImage = ImageTk.PhotoImage(resized_image)
+                # self.CC.view.itemconfig(self.selectionRectangle.attachedImage.id, image=self.selectionRectangle.attachedImage.photoImage )
+
 
         if DEBUG:
             self.CC.DCC.drawCanvasImageDebugInfos(self.selectionRectangle.attachedImage)
+
+        self.drag_start = mouseCoords
 
     def on_button_release(self, event):
         """

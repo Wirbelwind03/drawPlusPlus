@@ -92,7 +92,7 @@ class SelectionTool:
 
     def on_left(self, event):
         if self.SRCC.hasSelectionRectangle():
-            self.SRCC.CC.rotateImage(self.SRCC.selectionRectangle.attachedImage, 10)
+            self.SRCC.CC.updateImage(self.SRCC.selectionRectangle.attachedImage, 256, 256, 10)
 
     #endregion Event
 
