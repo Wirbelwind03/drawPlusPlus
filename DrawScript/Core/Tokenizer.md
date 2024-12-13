@@ -1,6 +1,6 @@
-# Rappel
+# Partie Paul Pitiot - Tokenizer
 Ma partie consiste à détailler le script Python `drawScriptTokenizer.py`, qui joue un rôle clé dans l'analyse lexicale des programmes écrits en **draw++**. Cette analyse est une étape préliminaire à la compilation ou l'exécution d'un code **draw++**.
-
+ 
 # Structure Générale de `drawScriptTokenizer`
 Le fichier Python `drawScriptTokenizer.py` implémente une classe `DrawScriptTokenizer` qui convertit un programme draw++ en une liste de tokens (jetons). Ces jetons servent ensuite à identifier les éléments syntaxiques et à signaler les erreurs potentielles.
 
