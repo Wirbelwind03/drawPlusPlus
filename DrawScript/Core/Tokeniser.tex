@@ -1,0 +1,230 @@
+\documentclass[12pt]{article}
+\usepackage[utf8]{inputenc}
+\usepackage{geometry}
+\usepackage{listings}
+\usepackage{color}
+\usepackage{hyperref}
+
+% Configuration des marges
+\geometry{a4paper, margin=1in}
+
+% Configuration de lstlisting
+\definecolor{codegray}{gray}{0.9}
+\definecolor{codeborder}{rgb}{0.8, 0.8, 0.8}
+\lstset{
+    backgroundcolor=\color{codegray},
+    frame=single,
+    rulecolor=\color{codeborder},
+    numbers=left,
+    numberstyle=\tiny,
+    basicstyle=\ttfamily\footnotesize,
+    keywordstyle=\color{blue},
+    stringstyle=\color{red},
+    commentstyle=\color{green!60!black},
+    breaklines=true,
+    captionpos=b,
+    xleftmargin=2em,
+    framexleftmargin=1.5em
+}
+
+\title{Documentation Technique de \texttt{drawScriptTokenizer}}
+\author{Paul Pitiot}
+\date{Décembre 2024}
+
+\begin{document}
+
+\maketitle
+
+\section*{Rappel}
+Ma partie consiste a détaillé le script Python \texttt{drawScriptTokenizer.py}, qui joue un rôle clé dans l'analyse lexicale des programmes écrits en \textbf{draw++}. Cette analyse est une étape préliminaire à la compilation ou l'exécution d'un code \textbf{draw++}.
+
+\section{Structure Générale de \texttt{drawScriptTokenizer}}
+Le fichier Python \texttt{drawScriptTokenizer.py} implémente une classe \texttt{DrawScriptTokenizer} qui convertit un programme draw++ en une liste de tokens (jetons). Ces jetons servent ensuite à identifier les éléments syntaxiques et à signaler les erreurs potentielles.
+
+Le script se décompose en plusieurs parties principales :
+\begin{itemize}
+    \item \textbf{Initialisation :} Définit les attributs de la classe et prépare les structures nécessaires pour la tokenisation.
+    \item \textbf{Définition des expressions régulières :} Spécifie les règles lexicales pour reconnaître les types de tokens.
+    \item \textbf{Processus de tokenisation :} Analyse le code, ligne par ligne, pour générer des tokens et détecter des erreurs.
+    \item \textbf{Gestion des erreurs :} Identifie les erreurs dans le code source et les reporte.
+\end{itemize}
+
+\section{Initialisation du Tokenizer}
+\subsection*{Code Source}
+\begin{lstlisting}[language=Python, caption={Initialisation de \texttt{DrawScriptTokenizer}}]
+class DrawScriptTokenizer:
+    def __init__(self):
+        # Initialisation du tokenizer
+        self.cursors = {}  # Dictionnaire pour stocker les curseurs (non utilisé dans ce code)
+\end{lstlisting}
+
+\subsection*{Explication}
+Lors de l'initialisation :
+\begin{itemize}
+    \item L'attribut \texttt{cursors} est créé pour stocker les curseurs définis dans le code draw++. Cependant, dans ce script, il n'est pas encore utilisé activement.
+    \item Cette initialisation prépare la structure pour des extensions futures, comme la gestion des curseurs lors de l'analyse lexicale ou syntaxique.
+\end{itemize}
+
+\section{Définition des Règles Lexicales}
+La méthode \texttt{tokenize} est au cœur de la classe. Elle commence par définir les règles lexicales sous forme d'expressions régulières, organisées en catégories de tokens.
+
+\subsection*{Code Source}
+\begin{lstlisting}[language=Python, caption={Définition des règles lexicales pour draw++}]
+token_specification = [
+    ('NEWLINE',             r'\n'),                      # Nouvelle ligne
+    ('WHITESPACE',          r'[ \t]+'),                  # Espaces et tabulations
+    ('MULTILINE_COMMENT', r'/\*[\s\S]*?\*/'),           # Commentaire sur plusieurs lignes
+    ('COMMENT',             r'//.*'),                    # Commentaire sur une ligne
+    ('NUMBER', r'-?\d+(\.\d+)?|\.\d+'),                  # Nombres entiers ou décimaux
+    ('STRING',              r'"[^"\n]*"'),               # Chaînes de caractères
+    ('BOOLEAN',             r'\b(true|false)\b'),        # Booléens
+    ('IDENTIFIER',          r'[A-Za-z_]\w*'),            # Identifiants
+    ('ACCESS_OPERATOR',     r'\.'),                      # Opérateur d'accès
+    ('OPERATOR',            r'\+|\-|\*|\/|\%|==|!=|<=|>=|<|>|&&|\|\||!'),
+    ('DELIMITER',           r'\(|\)|\{|\}|;|,|\:'),  # Délimiteurs
+    ('ASSIGN',              r'='),                       # Opérateur d'affectation
+    ('MISMATCH',            r'.'),                       # Caractère non reconnu
+]
+\end{lstlisting}
+
+\subsection*{Explication}
+Cette liste associe chaque type de token à une expression régulière :
+\begin{itemize}
+    \item \textbf{NEWLINE} reconnaît les sauts de ligne pour suivre correctement les numéros de ligne.
+    \item \textbf{WHITESPACE} détecte les espaces et tabulations à ignorer.
+    \item \textbf{COMMENT} et \textbf{MULTILINE\_COMMENT} traitent les commentaires (une ou plusieurs lignes).
+    \item \textbf{NUMBER}, \textbf{STRING} et \textbf{BOOLEAN} identifient les valeurs littérales.
+    \item \textbf{IDENTIFIER} reconnaît les noms de variables et de fonctions, en distinguant les mots-clés.
+    \item \textbf{OPERATOR} et \textbf{DELIMITER} capturent les opérateurs et délimiteurs syntaxiques.
+    \item \textbf{MISMATCH} identifie les caractères non reconnus, signalant des erreurs potentielles.
+\end{itemize}
+
+\section{Gestion des Mots-Clés}
+En plus des expressions régulières, un ensemble de mots-clés est défini pour identifier des instructions spécifiques à draw++.
+
+\subsection*{Code Source}
+\begin{lstlisting}[language=Python, caption={Définition des mots-clés}]
+keywords = {
+    'var', 'function', 'if', 'else', 'while', 'for',
+    'copy', 'animate', 'to', 'cursor', 'return', 'clear',
+}
+\end{lstlisting}
+
+\subsection*{Explication}
+Ces mots-clés couvrent les principales instructions du langage draw++ :
+\begin{itemize}
+    \item \texttt{var}, \texttt{function} pour les déclarations.
+    \item \texttt{if}, \texttt{else} pour les conditions.
+    \item \texttt{while}, \texttt{for} pour les boucles.
+    \item \texttt{copy}, \texttt{animate} pour les instructions graphiques spécifiques.
+\end{itemize}
+
+\section{Processus de Tokenisation}
+La fonction \texttt{tokenize} est responsable de parcourir le code draw++ pour identifier et classifier les éléments syntaxiques en utilisant les règles lexicales définies précédemment.
+
+\subsection*{Code Source}
+\begin{lstlisting}[language=Python, caption={Implémentation de \texttt{tokenize}}]
+def tokenize(self, code):
+    pos = 0          # Position actuelle dans le code
+    tokens = []      # Liste des tokens générés
+    errors = []      # Liste des erreurs (0 si pas d'erreur, 1 si erreur)
+    line_number = 1  # Numéro de ligne, commence à 1
+
+    mo = get_token(code, pos)  # mo est un objet Match
+    while mo is not None:
+        kind = mo.lastgroup    # Type du token correspondant
+        value = mo.group(kind) # Valeur du token
+
+        if kind == 'NEWLINE':
+            line_number += 1
+        elif kind == 'WHITESPACE':
+            pass  # Ignorer les espaces blancs
+        elif kind == 'COMMENT':
+            pass  # Ignorer les commentaires sur une ligne
+        elif kind == 'MULTILINE_COMMENT':
+            line_number += value.count('\n')  # Compter les nouvelles lignes
+        elif kind == 'IDENTIFIER':
+            if value in keywords:
+                kind = 'KEYWORD'  # Identifier les mots-clés
+            tokens.append({'type': kind, 'value': value, 'line': line_number})
+            errors.append(0)
+        elif kind == 'NUMBER':
+            tokens.append({'type': kind, 'value': float(value), 'line': line_number})
+            errors.append(0)
+        elif kind == 'STRING':
+            tokens.append({'type': kind, 'value': value[1:-1], 'line': line_number})
+            errors.append(0)
+        elif kind in {'OPERATOR', 'DELIMITER', 'ASSIGN', 'ACCESS_OPERATOR'}:
+            tokens.append({'type': kind, 'value': value, 'line': line_number})
+            errors.append(0)
+        elif kind == 'MISMATCH':
+            tokens.append({'type': 'UNKNOWN', 'value': value, 'line': line_number})
+            errors.append(1)
+
+        pos = mo.end()
+        mo = get_token(code, pos)
+
+    if pos != len(code):
+        remaining = code[pos:]
+        for char in remaining:
+            if char == '\n':
+                line_number += 1
+            tokens.append({'type': 'UNKNOWN', 'value': char, 'line': line_number})
+            errors.append(1)
+
+    return tokens, errors
+\end{lstlisting}
+
+\subsection*{Explication}
+La fonction effectue les étapes suivantes :
+\begin{enumerate}
+    \item Initialise les variables pour suivre la position dans le code et stocker les tokens et erreurs.
+    \item Utilise les expressions régulières pour trouver les correspondances dans le code.
+    \item Traite chaque correspondance selon son type, en ajoutant des tokens valides ou en signalant des erreurs.
+    \item Gère les commentaires et les espaces blancs en les ignorant.
+    \item Retourne les listes de tokens et d'erreurs à la fin de l'analyse.
+\end{enumerate}
+
+\section{Exemples de Tokenisation}
+Voici un exemple d'utilisation de la classe \texttt{DrawScriptTokenizer} avec un code draw++ simple :
+
+\subsection*{Exemple de Code Source}
+\begin{lstlisting}[language=Python, caption={Code draw++ d'exemple}]
+code = """
+var x = 10;
+var y = 20;
+function draw() {
+    circle(x, y, 5);
+}
+"""
+
+# Tokenisation
+tokens, errors = tokenizer.tokenize(code)
+\end{lstlisting}
+
+\subsection*{Résultat Obtenue}
+\begin{lstlisting}[language=Python, caption={Résultats de la tokenisation}]
+Tokens:
+[{'type': 'KEYWORD', 'value': 'var', 'line': 1},
+ {'type': 'IDENTIFIER', 'value': 'x', 'line': 1},
+ {'type': 'ASSIGN', 'value': '=', 'line': 1},
+ {'type': 'NUMBER', 'value': 10.0, 'line': 1},
+ {'type': 'DELIMITER', 'value': ';', 'line': 1},
+ ...]
+\end{lstlisting}
+
+\subsection*{Explications}
+Chaque ligne du code est analysée pour produire des tokens qui reflètent sa structure syntaxique. Les erreurs sont rapportées lorsqu'un élément non reconnu est trouvé.
+
+\section{Gestion des Erreurs}
+Les erreurs sont identifiées en utilisant le token \texttt{MISMATCH} ou lorsque le code contient des caractères non reconnus après la fin de la correspondance principale. Chaque erreur est enregistrée avec des informations sur la ligne concernée, ce qui facilite le débogage.
+
+\section{Idées Extensions Futures}
+Pour améliorer le tokenizer, voici quelques pistes :
+\begin{itemize}
+    \item Ajouter la gestion active des curseurs définis dans \texttt{self.cursors}.
+    \item Implémenter des tests unitaires pour valider chaque fonctionnalité.
+    \item Intégrer des fonctionnalités avancées comme la détection de structures imbriquées complexes.
+\end{itemize}
+
+\end{document}
