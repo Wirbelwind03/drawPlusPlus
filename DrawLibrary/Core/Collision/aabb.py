@@ -2,6 +2,20 @@ from DrawLibrary.Core.Math.vector2 import Vector2
 from DrawLibrary.Core.Shapes.rectangle import Rectangle
 
 class AABB(Rectangle):
+    """
+    A class to represent a AABB (Axis Aligned Bounding Box).
+
+    Attributes
+    -----------
+    _min : Vector2
+        The minimum coordinates of the AABB (the top left corner).
+        The min x-coordinate represent the left of the AABB.
+        The min y-coordinate represent the top of the AABB.
+    _max : Vector2
+        The maximum coordinates of the AABB (the bottom right corner).
+        The max x-coordinate represent the right of the AABB.
+        The max y-coordinate represent the bottom of the AABB.
+    """
     #region Constructor
 
     def __init__(self, *args, **kwargs):
@@ -44,54 +58,156 @@ class AABB(Rectangle):
 
     @property
     def min(self) -> Vector2:
+        """
+        Property for the minimum coordinates of the AABB instance
+
+        Returns
+        --------
+        Vector2
+            The minimum coordinates of the AABB instance
+        """
         return self._min
 
     @min.setter
-    def min(self, newValue: Vector2):
+    def min(self, newValue: Vector2) -> None:
+        """
+        Set value for the minimum coordinates of the AABB instance
+
+        Parameters
+        --------
+        newValue : Vector2
+            The new value for the minimum coordinates of the AABB instance 
+        """
         self._min = newValue
         self.x, self.y = newValue.x, newValue.y
     
     @property
     def max(self) -> Vector2:
+        """
+        Property for the maximum coordinates of the AABB instance
+
+        Returns
+        --------
+        Vector2
+            The maximum coordinates of the AABB instance
+        """
         return self._max
     
     @max.setter
-    def max(self, newValue: Vector2):
+    def max(self, newValue: Vector2) -> None:
+        """
+        Set value for the maximum coordinates of the AABB instance
+
+        Parameters
+        --------
+        newValue : Vector2
+            The new value for the maximum coordinates of the AABB instance 
+        """
         self._max = newValue
         #self.width, self.height =  newValue.x - self.min.x, newValue.y - self.min.y
 
     @property
     def topLeft(self) -> Vector2:
+        """
+        Property for the top left coordinates of the AABB instance
+
+        Returns
+        --------
+        Vector2
+            The top left coordinates of the AABB instance
+        """
         return Vector2(self.min.x, self.min.y)
     
     @topLeft.setter
-    def topLeft(self, newValue: Vector2):
+    def topLeft(self, newValue: Vector2) -> None:
+        """
+        Set value for the top left coordinates of the AABB instance
+
+        Parameters
+        --------
+        newValue : Vector2
+            The new value for the top left coordinates of the AABB instance 
+        """
+        # The min represent the top left corner
         self.min = newValue
     
     @property
     def topRight(self) -> Vector2:
+        """
+        Property for the top right coordinates of the AABB instance
+
+        Returns
+        --------
+        Vector2
+            The top right coordinates of the AABB instance
+        """
         return Vector2(self.max.x, self.min.y)
     
     @topRight.setter
-    def topRight(self, newValue: Vector2):
+    def topRight(self, newValue: Vector2) -> None:
+        """
+        Set value for the top right coordinates of the AABB instance
+
+        Parameters
+        --------
+        newValue : Vector2
+            The new value for the top right coordinates of the AABB instance 
+        """
+        # The max x-coordinate represent the right
         self.max.x = newValue.x
+        # The min y-coordinate represent the top
         self.min.y = newValue.y
 
     @property
     def bottomLeft(self) -> Vector2:
+        """
+        Property for the bottom left coordinates of the AABB instance
+
+        Returns
+        --------
+        Vector2
+            The bottom left coordinates of the AABB instance
+        """
         return Vector2(self.min.x, self.max.y)
     
     @bottomLeft.setter
-    def bottomLeft(self, newValue: Vector2):
+    def bottomLeft(self, newValue: Vector2) -> None:
+        """
+        Set value for the bottom left coordinates of the AABB instance
+
+        Parameters
+        --------
+        newValue : Vector2
+            The new value for the bottom left coordinates of the AABB instance 
+        """
+        # The min x-coordinate represent the left
         self.min.x = newValue.x
+        # The max y-coordinates represent the bottom
         self.max.y = newValue.y
     
     @property
     def bottomRight(self) -> Vector2:
+        """
+        Property for the bottom right coordinates of the AABB instance
+
+        Returns
+        --------
+        Vector2
+            The bottom right coordinates of the AABB instance
+        """
         return Vector2(self.max.x, self.max.y)
     
     @bottomRight.setter
     def bottomRight(self, newValue: Vector2):
+        """
+        Set value for the bottom right coordinates of the AABB instance
+
+        Parameters
+        --------
+        newValue : Vector2
+            The new value for the bottom right coordinates of the AABB instance 
+        """
+        # The max represent the bottom right corner
         self.max = newValue
     
     @property

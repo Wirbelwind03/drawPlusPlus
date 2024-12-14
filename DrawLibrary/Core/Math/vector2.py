@@ -11,7 +11,8 @@ class Vector2:
     y : float
         The y-coordinate of the vector.
     """
-
+    #region Constructor
+    
     def __init__(self, x=0, y=0) -> None:
         """
         Construct a Vector2 instance.
@@ -24,6 +25,8 @@ class Vector2:
             The y-coordinate of the vector.
         """
         self.x, self.y = x, y
+    
+    #endregion Constructor
 
     def __add__(self, other) -> 'Vector2':
         """

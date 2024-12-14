@@ -15,6 +15,15 @@ from Model.selectionRectangle import SelectionRectangle
 from Model.selectionRectangle import SelectionRectangleAction
 
 class SelectionRectangleCanvasController:
+    """
+    A class to manage the selection rectangle in the Canvas
+
+    Attributes
+    -----------
+    CC : CanvasController
+        A Controller used to communicate with the Canvas
+    """
+
     def __init__(self, CC: CanvasController):
         # Connect the controller to the canvas
         self.CC = CC
@@ -30,9 +39,26 @@ class SelectionRectangleCanvasController:
             self.selectionRectangle.attachedImage = attachedImage
 
     def hasSelectionRectangle(self) -> bool:
+        """
+        Check if the canvas has a selection rectangle
+
+        Returns
+        -----------
+        Bool
+            If there is a selection rectangle present on the canvas
+        """
         return self.selectionRectangle is not None
     
     def setAction(self, action: SelectionRectangleAction) -> None:
+        """
+        Set the action of the selection rectangle.
+        Also set the cursor.
+
+        Parameters
+        -----------
+        action : SelectionRectangleAction
+            What action to set for the selection rectangle
+        """
         self.selectionRectangle.action = action
         if self.getAction() == SelectionRectangleAction.RESIZE:
             self.CC.view.config(cursor="umbrella")
@@ -42,16 +68,19 @@ class SelectionRectangleCanvasController:
             self.CC.view.config(cursor="arrow")
 
     def getAction(self) -> SelectionRectangleAction:
+        """
+        Get the current action of the selection rectangle.
+
+        Returns
+        -----------
+        SelectionRectangleAction
+            The current action of the selection rectangle
+        """
         return self.selectionRectangle.action
     
     def create(self) -> None:
         """
-        Create a selection rectangle on a canvas
-
-        Parameters
-        -----------
-        canvas : tk.Canvas
-            The canvas where the selection is going to be drawn
+        Create a selection rectangle on a canvas.
         """
         # Draw the main frame of the selection rectangle
         self.selectionRectangle.canvasIdRectangle = self.CC.view.create_rectangle(self.selectionRectangle.x, self.selectionRectangle.y, self.selectionRectangle.x + self.selectionRectangle.width, self.selectionRectangle.y + self.selectionRectangle.height, outline="black", width=2, dash=(2, 2))
@@ -62,23 +91,28 @@ class SelectionRectangleCanvasController:
 
     def erase(self) -> None:
         """
-        Erase all the drawn shapes tied to the selection rectangle on the canvas
-
-        Parameters
-        -----------
-        canvas : tk.Canvas
-            The canvas where the selection rectangle is drawn
+        Erase all the drawn shapes tied to the selection rectangle on the canvas.
         """
         self.CC.view.delete(self.selectionRectangle.canvasIdRectangle)
         for canvasCorner in self.selectionRectangle.canvasIdCorners:
             self.CC.view.delete(canvasCorner)
 
     def deleteSelectionRectangle(self) -> None:
+        """
+        Delete completly the selection rectangle on the canvas.
+        (Probs just put deleteSelectionRectangle and deselect together)
+        """
+        # If there is a attached image in the selection rectangle
         if self.selectionRectangle.attachedImage:
+            # Delete the image first
             self.CC.deleteImage(self.selectionRectangle.attachedImage)
+        # Deselect from the selection rectangle
         self.deSelect()
 
     def deSelect(self) -> None:
+        """
+        Deselect completly the selection rectangle on the canvas.
+        """
         # Erase the rendering of the selection rectangle
         self.erase()
         # Completly remove the selection rectangle

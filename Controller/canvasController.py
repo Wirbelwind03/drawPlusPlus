@@ -30,8 +30,12 @@ class CanvasController:
 
         Parameters
         -----------
-        canvas : tk.Canvas
+        view : tk.Canvas
             The canvas where the ViewModel is going to be tied to
+        toolManager : ToolManager
+            The tools tied to this controller, for example, the selection tool, the selection rectangle creation tool, etc.
+        DCC : DebugCanvasController
+            A controller used to communicate with the debug informations
         """
         self.view: tk.Canvas = canvas
         self.model: CanvasEntities = CanvasEntities()
@@ -120,13 +124,13 @@ class CanvasController:
         # Update the photoImage on the tkiner Canvas
         self.view.itemconfig(canvasImage.id, image=canvasImage.photoImage)
 
-    def deleteImage(self, canvasImage: CanvasImage):
+    def deleteImage(self, canvasImage: CanvasImage) -> None:
         if canvasImage == None:
             return
         self.view.delete(canvasImage.id)
         self.model.deleteEntity(canvasImage.id)
 
-    def update(self):
+    def update(self) -> None:
         """
         Update every image that is present in the canvas
         """
@@ -144,38 +148,103 @@ class CanvasController:
 
     #region Private Methods
 
-    def __invoke_active_tool_method(self, method_name, event):
+    def __invoke_active_tool_method(self, method_name: str, event) -> None:
+        """
+        Call the function from the tool
+
+        Parameters
+        -----------
+        method_name : str
+            The function name to be called in the tool
+        event :
+        """
         self.toolManager.invoke_tool_method(method_name, event)
         
     #endregion Private Methods
 
     #region Event
 
-    def on_mouse_over(self, event):
+    def on_mouse_over(self, event) -> None:
+        """
+        Event when the mouse is over the canvas
+
+        Parameters
+        -----------
+        event :
+        """
         self.__invoke_active_tool_method("on_mouse_over", event)
 
-    def on_button_press(self, event):
+    def on_button_press(self, event) -> None:
+        """
+        Event when the left click of the mouse is pressed
+
+        Parameters
+        -----------
+        event :
+        """
         self.view.focus_set()
         
         self.__invoke_active_tool_method("on_button_press", event)
 
-    def on_mouse_drag(self, event):
+    def on_mouse_drag(self, event) -> None:
+        """
+        Event when the mouse is dragged over the canvas
+
+        Parameters
+        -----------
+        event :
+        """
         self.__invoke_active_tool_method("on_mouse_drag", event)
 
-    def on_button_release(self, event):
+    def on_button_release(self, event) -> None:
+        """
+        Event when the left click of the mouse is released
+
+        Parameters
+        -----------
+        event :
+        """
         self.__invoke_active_tool_method("on_button_release", event)
 
-    def on_delete(self, event):
+    def on_delete(self, event) -> None:
+        """
+        Event when the "Del" button on the keyboard is pressed
+
+        Parameters
+        -----------
+        event :
+        """
         self.__invoke_active_tool_method("on_delete", event)
         self.update()
 
-    def on_control_c(self, event):
+    def on_control_c(self, event) -> None:
+        """
+        Event when the "Ctrl+C" short cut on the keyboard is pressed
+
+        Parameters
+        -----------
+        event :
+        """
         self.__invoke_active_tool_method("on_control_c", event)
 
-    def on_control_v(self, event):
+    def on_control_v(self, event) -> None:
+        """
+        Event when the "Ctrl+V" short cut on the keyboard is pressed
+
+        Parameters
+        -----------
+        event :
+        """
         self.__invoke_active_tool_method("on_control_v", event)
 
-    def on_left(self, event):
+    def on_left(self, event) -> None:
+        """
+        Event when the left arrow button on the keyboard is pressed
+
+        Parameters
+        -----------
+        event :
+        """
         self.__invoke_active_tool_method("on_left", event)
 
     #endregion Event

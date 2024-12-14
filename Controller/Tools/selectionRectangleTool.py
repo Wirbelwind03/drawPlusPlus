@@ -14,14 +14,12 @@ from Model.selectionRectangle import SelectionRectangleAction, SelectionRectangl
 
 class SelectionRectangleTool:
     """
-    A Controller to manage the selection rectangle inside a canvas
+    A Controller to manage the selection rectangle tool inside a canvas
 
     Attributes
     -----------
-    canvasViewModel : CanvasViewModel
-        The canvas widget where the selection tool is used
-    selectionRectangle : SelectionRectangle
-        The selection rectangle that is present on the Canvas
+    srcc : SelectionRectangleCanvasController
+        A Controller used to communicate with the selection rectangle
     __tempStartCoordinates : Vector2
         Temporary variable to stock when the selection rectangle is going to be created
     __tempCanvasSelectionRectangle : int

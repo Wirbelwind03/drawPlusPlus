@@ -10,6 +10,17 @@ from Controller.selectionRectangleCanvasController import SelectionRectangleCanv
 from Model.selectionRectangle import SelectionRectangleAction, SelectionRectangle
 
 class SelectionTool:
+    """
+    A Controller to manage the selection tool inside a canvas
+
+    Attributes
+    -----------
+    srcc : SelectionRectangleCanvasController
+        A Controller used to communicate with the selection rectangle
+    __copiedCanvasImage : CanvasImage
+        The copied Canvas image, used for the pasting
+    """
+
     def __init__(self, SRCC: SelectionRectangleCanvasController):
         # Connect the selection rectangle controller to the tool
         self.SRCC = SRCC

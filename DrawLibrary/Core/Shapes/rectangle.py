@@ -9,8 +9,6 @@ class RectangleCorners(Enum):
     BOTTOM_RIGHT = 3
 
 class Rectangle:
-    #region Constructor
-
     """
     A class to represent a rectangle in a 2D space.
 
@@ -25,6 +23,7 @@ class Rectangle:
     height : int
         The height of the rectangle.
     """
+    #region Constructor
 
     def __init__(self, x:int = 0, y:int = 0, width:int = 0, height:int = 0):
         """
