@@ -88,7 +88,6 @@ class SelectionRectangle(AABB):
     @min.setter
     def min(self, newValue: Vector2):
         super(SelectionRectangle, type(self)).min.fset(self, newValue)
-        # self.__updateCornersBbox(-1)
         # Update the image coordinates
         if self.attachedImage:
             self.attachedImage.bbox.min = self.min
@@ -123,6 +122,7 @@ class SelectionRectangle(AABB):
         elif self.topLeft.y >= self.bottomLeft.y:
             newValue = Vector2(self.bottomLeft.x, self.bottomLeft.y - 1)
         super(SelectionRectangle, type(self)).topLeft.fset(self, newValue)
+        # Update the image coordinates
         if self.attachedImage:
             self.attachedImage.bbox.topLeft = newValue
 
@@ -145,6 +145,7 @@ class SelectionRectangle(AABB):
         elif self.topRight.y >= self.bottomRight.y:
             newValue = Vector2(self.bottomRight.x, self.bottomRight.y - 1)
         super(SelectionRectangle, type(self)).topRight.fset(self, newValue)
+        # Update the image coordinates
         if self.attachedImage:
             self.attachedImage.bbox.topRight = newValue
 
@@ -167,6 +168,7 @@ class SelectionRectangle(AABB):
         elif self.bottomLeft.y <= self.topLeft.y:
             newValue = Vector2(self.topLeft.x, self.topLeft.y  + 1)
         super(SelectionRectangle, type(self)).bottomLeft.fset(self, newValue)
+        # Update the image coordinates
         if self.attachedImage:
             self.attachedImage.bbox.bottomLeft = newValue
 
@@ -213,25 +215,6 @@ class SelectionRectangle(AABB):
             f")"
         )
 
-    #region Private Methods
-
-    def __updateCornersBbox(self, cornerIndexToSkip):
-        """
-        Update the position of the corner BBOX
-
-        Parameters
-        -----------
-        cornerIndexToSkip : int
-            The index of the corner to skip, use -1 if no corners is skipped
-        """
-        for i in range(len(self.cornersBbox)):
-            if i != cornerIndexToSkip:
-                bbox: AABB = self.cornersBbox[i]
-                # Update the corner bbox
-                bbox.min = self.corners[i] - self.cornerSize
-                bbox.max = self.corners[i] + self.cornerSize
-        
-    #endregion Private Methods
 
     #region Public Methods
 
