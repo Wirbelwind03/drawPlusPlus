@@ -13,14 +13,14 @@ class ImageRotatorMover:
         self.canvas.pack(fill=tk.BOTH, expand=True)
         
         # Load and resize image
-        self.original_image = Image.open("data/assets/circle.jpg").resize((64, 64))
+        self.original_image = Image.open("data/assets/circle.jpg").resize((256, 256))
         self.image = self.original_image.copy()
         self.image_tk = ImageTk.PhotoImage(self.image)
         
         # Image state
         self.image_id = None
         self.angle = 0
-        self.image_center = [400, 300]  # Center of the image (mutable for movement)
+        self.image_center = [384, 384]  # Center of the image (mutable for movement)
         self.drag_start = None
         
         # Add image to canvas
@@ -51,7 +51,7 @@ class ImageRotatorMover:
     def rotate_image(self):
         """Rotates the image and updates its bounding box."""
         # Increase angle
-        self.angle = (self.angle + 15) % 360
+        self.angle = (self.angle + 10) % 360
         
         # Rotate image
         self.image = self.original_image.rotate(self.angle, expand=True)
