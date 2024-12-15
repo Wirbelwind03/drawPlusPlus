@@ -6,7 +6,8 @@ from Model.selectionRectangle import SelectionRectangle
 rectangle = Rectangle.fromCoordinates(1, 1, 5, 5)
 print(rectangle)
 aabb = AABB.fromCoordinates(1,1,5,5)
+aabb.top = 2
 print(aabb)
 sr = SelectionRectangle.fromCoordinates(1, 1, 5, 5)
-sr.topLeft = Vector2(6,6)
+sr.top = 2
 print(sr)

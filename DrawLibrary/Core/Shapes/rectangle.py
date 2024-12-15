@@ -94,7 +94,7 @@ class Rectangle:
             The new x-coordinate to place the rectangle to
         """
         if newValue < 0:
-            raise ValueError("x-coordinate cannot be < 0")
+            newValue = 0
         self._x = newValue
 
     @property
@@ -117,7 +117,7 @@ class Rectangle:
             The new y-coordinate to place the rectangle to
         """
         if newValue < 0:
-            raise ValueError("y-coordinate cannot be < 0")
+            newValue = 0
         self._y = newValue
 
     @property
