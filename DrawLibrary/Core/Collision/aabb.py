@@ -20,8 +20,8 @@ class AABB(Rectangle):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self._min = Vector2(min(self.x, self.x + self.width), min(self.y, self.y + self.height))
-        self._max = Vector2(max(self.x, self.x + self.width), max(self.y, self.y + self.height))
+        self.min = Vector2(self.left, self.top)
+        self.max = Vector2(self.right, self.bottom)
 
     @classmethod
     def fromCoordinates(cls, x1, y1, x2, y2) -> 'AABB':
@@ -79,7 +79,8 @@ class AABB(Rectangle):
             The new value for the minimum coordinates of the AABB instance 
         """
         self._min = newValue
-        self.x, self.y = newValue.x, newValue.y
+        self.left = newValue.x
+        self.top = newValue.y
     
     @property
     def max(self) -> Vector2:
@@ -104,7 +105,8 @@ class AABB(Rectangle):
             The new value for the maximum coordinates of the AABB instance 
         """
         self._max = newValue
-        #self.width, self.height =  newValue.x - self.min.x, newValue.y - self.min.y
+        self.right = newValue.x
+        self.bottom = newValue.y
 
     @property
     def topLeft(self) -> Vector2:
@@ -157,6 +159,8 @@ class AABB(Rectangle):
         self.max.x = newValue.x
         # The min y-coordinate represent the top
         self.min.y = newValue.y
+        self.right = newValue.x
+        self.top = newValue.y
 
     @property
     def bottomLeft(self) -> Vector2:
@@ -184,6 +188,8 @@ class AABB(Rectangle):
         self.min.x = newValue.x
         # The max y-coordinates represent the bottom
         self.max.y = newValue.y
+        self.left = newValue.x
+        self.bottom = newValue.y
     
     @property
     def bottomRight(self) -> Vector2:
@@ -209,12 +215,20 @@ class AABB(Rectangle):
         """
         # The max represent the bottom right corner
         self.max = newValue
-    
-    @property
-    def corners(self) -> list:
-        return [self.topLeft, self.topRight, self.bottomLeft, self.bottomRight]
-    
+        
     #endregion Property
+
+    def __repr__(self) -> str:
+        return (
+            f"AABB(\n"
+            f"    x={self.x}, y={self.y}, width={self.width}, height={self.height},\n"
+            f"    left={self.left}, right={self.right},\n"
+            f"    top={self.top}, bottom={self.bottom},\n"
+            f"    topLeft={self.topLeft}, topRight={self.topRight},\n"
+            f"    bottomLeft={self.bottomLeft}, bottomRight={self.bottomRight}\n"
+            f"    min={self.min}, max={self.max}\n"
+            f")"
+        )
 
     #region Public Methods
 

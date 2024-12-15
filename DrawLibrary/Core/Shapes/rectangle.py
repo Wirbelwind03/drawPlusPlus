@@ -73,22 +73,186 @@ class Rectangle:
     #endregion Constructor
 
     #region Property
+    
+    @property
+    def x(self) -> int:
+        """
+        The x-coordinate of the rectangle
+        """
+        return self._x
+    
+    @x.setter
+    def x(self, newValue: int):
+        """
+        Set the value for the x-coordinate of the rectangle
+        When changed, it move the whole rectangle in x-coordinate
+        It's cannot be < 0 since the library is for a tkinter canvas (where negative coordanites doesn't exist)
+
+        Parameters
+        -----------
+        newValue : int
+            The new x-coordinate to place the rectangle to
+        """
+        if newValue < 0:
+            raise ValueError("x-coordinate cannot be < 0")
+        self._x = newValue
+
+    @property
+    def y(self) -> int:
+        """
+        The y-coordinate of the rectangle
+        """
+        return self._y
+    
+    @y.setter
+    def y(self, newValue: int):
+        """
+        Set the value for the y-coordinate of the rectangle
+        When changed, it move the whole rectangle in the y-coordinate
+        It's cannot be < 0 since the library is for a tkinter canvas (where negative coordanites doesn't exist)
+
+        Parameters
+        -----------
+        newValue : int
+            The new y-coordinate to place the rectangle to
+        """
+        if newValue < 0:
+            raise ValueError("y-coordinate cannot be < 0")
+        self._y = newValue
+
+    @property
+    def width(self) -> int:
+        return self._width
+    
+    @width.setter
+    def width(self, newValue: int):
+        if newValue < 0:
+            raise ValueError("Width cannot be < 0")
+        self._width = newValue
+
+    @property
+    def height(self) -> int:
+        return self._height
+    
+    @height.setter
+    def height(self, newValue: int):
+        if newValue < 0:
+            raise ValueError("Width cannot be < 0")
+        self._height = newValue
+
+    @property
+    def left(self) -> int:
+        return min(self.x, self.x + self.width)
+    
+    @left.setter
+    def left(self, value: int) -> None:
+        """
+        Resize the left side of the rectangle
+        When changed, it move the x-coordinate to the left,
+        and resize the width of the rectangle
+
+        Parameters
+        -----------
+        value : int
+            The new x-coordinate to place the rectangle to
+        """
+        if value < 0:
+            raise ValueError("left cannot be < 0.")
+        self.width += self.x - value
+        self.x = value
+    
+    @property
+    def top(self) -> int:
+        return min(self.y, self.y + self.height)
+    
+    @top.setter
+    def top(self, value: int) -> None:
+        """
+        Resize the top side of the rectangle
+        When changed, it move the y-coordinate to the top,
+        and resize the width of the rectangle
+
+        Parameters
+        -----------
+        value : int
+            The new y-coordinate to place the rectangle to
+        """
+        if value < 0:
+            raise ValueError("top cannot be < 0.")
+        self.height += self.y - value
+        self.y = value
+    
+    @property
+    def right(self) -> int:
+        return max(self.x, self.x + self.width)
+    
+    @right.setter
+    def right(self, value: int) -> None:
+        """
+        Resize the right side of the rectangle
+
+        Parameters
+        -----------
+        value : int
+            The new width to set to the rectangle
+        """
+        if value < 0:
+            raise ValueError("right cannot be < 0.")
+        self.width = value - self.x
+    
+    @property
+    def bottom(self) -> int:
+        return max(self.y, self.y + self.height)
+    
+    @bottom.setter
+    def bottom(self, value: int) -> None:
+        """
+        Resize the bottom side of the rectangle
+
+        Parameters
+        -----------
+        value : int
+            The new height to set to the rectangle
+        """
+        if value < 0:
+            raise ValueError("bottom cannot be < 0.")
+        self.height = value - self.y
 
     @property
     def topLeft(self) -> Vector2:
-        return Vector2(min(self.x, self.x + self.width), min(self.y, self.y + self.height))
+        return Vector2(self.left, self.top)
+    
+    @topLeft.setter
+    def topLeft(self, value: Vector2) -> None:
+        self.left = value.x
+        self.top = value.y
         
     @property
     def topRight(self) -> Vector2:
-        return Vector2(max(self.x, self.x + self.width), min(self.y, self.y + self.height))
+        return Vector2(self.right, self.top)
+    
+    @topRight.setter
+    def topRight(self, value: Vector2) -> None:
+        self.right = value.x
+        self.top = value.y
     
     @property
     def bottomLeft(self) -> Vector2:
-        return Vector2(min(self.x, self.x + self.width), max(self.y, self.y + self.height))
+        return Vector2(self.left, self.bottom)
+    
+    @bottomLeft.setter
+    def bottomLeft(self, value: Vector2) -> None:
+        self.left = value.x
+        self.bottom = value.y
     
     @property
     def bottomRight(self) -> Vector2:
-        return Vector2(max(self.x, self.x + self.width), max(self.y, self.y + self.height))
+        return Vector2(self.right, self.bottom)
+    
+    @bottomRight.setter
+    def bottomRight(self, value: Vector2) -> None:
+        self.right = value.x
+        self.bottom = value.y
     
     @property
     def corners(self) -> list:
@@ -96,28 +260,13 @@ class Rectangle:
     
     #endregion Property
 
-    #region Public Methods
-
-    def getArea(self):
-        """
-        Calculates the area of the rectangle.
-
-        Returns
-        --------
-        float
-            The area of the rectangle.
-        """
-        return self.width * self.height
-    
-    def getPerimeter(self):
-        """
-        Calculates the perimeter of the rectangle.
-
-        Returns
-        --------
-        float
-            The perimeter of the rectangle.
-        """
-        return (self.width + self.height) * 2
-    
-    #endregion Public Methods
+    def __repr__(self) -> str:
+        return (
+            f"Rectangle(\n"
+            f"    x={self.x}, y={self.y}, width={self.width}, height={self.height},\n"
+            f"    left={self.left}, right={self.right},\n"
+            f"    top={self.top}, bottom={self.bottom},\n"
+            f"    topLeft={self.topLeft}, topRight={self.topRight},\n"
+            f"    bottomLeft={self.bottomLeft}, bottomRight={self.bottomRight}\n"
+            f")"
+        )
