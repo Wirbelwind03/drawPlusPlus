@@ -174,7 +174,7 @@ class SelectionRectangleTool:
     def on_control_c(self, event):
         if self.SRCC.hasSelectionRectangle():
             selectionRectangle = self.SRCC.selectionRectangle
-            blankCanvasImage = CanvasImage.createBlank(self.SRCC.selectionRectangle.width, self.SRCC.selectionRectangle.height)
+            blankCanvasImage = CanvasImage.createTransparent(self.SRCC.selectionRectangle.width, self.SRCC.selectionRectangle.height)
             isBlank = True
             for imageId, image in self.SRCC.CC.model.images.items():
                 # check overlap with image and selection tool
