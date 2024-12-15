@@ -104,6 +104,7 @@ class SelectionTool:
     def on_left(self, event):
         if self.SRCC.hasSelectionRectangle():
             self.SRCC.CC.updateImage(self.SRCC.selectionRectangle.attachedImage, 256, 256, 10)
+            self.SRCC.CC.DCC.drawCanvasImageDebugInfos(self.SRCC.selectionRectangle.attachedImage)
 
     #endregion Event
 
