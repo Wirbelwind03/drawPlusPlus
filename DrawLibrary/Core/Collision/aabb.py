@@ -20,8 +20,8 @@ class AABB(Rectangle):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.min = Vector2(self.left, self.top)
-        self.max = Vector2(self.right, self.bottom)
+        self._min = Vector2(self.left, self.top)
+        self._max = Vector2(self.right, self.bottom)
 
     @classmethod
     def fromCoordinates(cls, x1, y1, x2, y2) -> 'AABB':
@@ -66,7 +66,7 @@ class AABB(Rectangle):
         Vector2
             The minimum coordinates of the AABB instance
         """
-        return self._min
+        return Vector2(self.left, self.top)
 
     @min.setter
     def min(self, newValue: Vector2) -> None:
@@ -92,7 +92,7 @@ class AABB(Rectangle):
         Vector2
             The maximum coordinates of the AABB instance
         """
-        return self._max
+        return Vector2(self.right, self.bottom)
     
     @max.setter
     def max(self, newValue: Vector2) -> None:
@@ -109,6 +109,50 @@ class AABB(Rectangle):
         self.bottom = newValue.y
 
     @property
+    def left(self) -> int:
+        return super().left
+    
+    @left.setter
+    def left(self, value: int):
+        # Call the parent setter
+        super(AABB, type(self)).left.fset(self, value)
+        # The x-coordinate of the AABB min represent the left of the rectangle
+        self.min.x = self.left
+
+    @property
+    def top(self) -> int:
+        return super().top
+    
+    @top.setter
+    def top(self, value: int):
+        # Call the parent setter
+        super(AABB, type(self)).top.fset(self, value)
+        # The y-coordinate of the AABB min represent the top of the rectangle
+        self.min.y = self.top
+
+    @property
+    def right(self) -> int:
+        return super().right
+    
+    @right.setter
+    def right(self, value: int):
+        # Call the parent setter
+        super(AABB, type(self)).right.fset(self, value)
+        # The x-coordinate of the AABB max represent the right of the rectangle
+        self.max.x = self.right
+
+    @property
+    def bottom(self) -> int:
+        return super().bottom
+    
+    @bottom.setter
+    def bottom(self, value: int):
+        # Call the parent setter
+        super(AABB, type(self)).bottom.fset(self, value)
+        # The y-coordinate of the AABB max represent the bottom of the rectangle
+        self.max.y = self.bottom
+
+    @property
     def topLeft(self) -> Vector2:
         """
         Property for the top left coordinates of the AABB instance
@@ -118,7 +162,8 @@ class AABB(Rectangle):
         Vector2
             The top left coordinates of the AABB instance
         """
-        return Vector2(self.min.x, self.min.y)
+        # The min represent the top left corner
+        return super().topLeft
     
     @topLeft.setter
     def topLeft(self, newValue: Vector2) -> None:
@@ -130,7 +175,7 @@ class AABB(Rectangle):
         newValue : Vector2
             The new value for the top left coordinates of the AABB instance 
         """
-        # The min represent the top left corner
+        # Update min since it's the top left of the AABB
         self.min = newValue
     
     @property
@@ -143,7 +188,7 @@ class AABB(Rectangle):
         Vector2
             The top right coordinates of the AABB instance
         """
-        return Vector2(self.max.x, self.min.y)
+        return super().topRight
     
     @topRight.setter
     def topRight(self, newValue: Vector2) -> None:
@@ -172,7 +217,7 @@ class AABB(Rectangle):
         Vector2
             The bottom left coordinates of the AABB instance
         """
-        return Vector2(self.min.x, self.max.y)
+        return super().bottomLeft
     
     @bottomLeft.setter
     def bottomLeft(self, newValue: Vector2) -> None:
@@ -201,7 +246,7 @@ class AABB(Rectangle):
         Vector2
             The bottom right coordinates of the AABB instance
         """
-        return Vector2(self.max.x, self.max.y)
+        return super().bottomRight
     
     @bottomRight.setter
     def bottomRight(self, newValue: Vector2):

@@ -142,80 +142,112 @@ class Rectangle:
 
     @property
     def left(self) -> int:
+        """
+        Get the left boundary of the rectangle.
+
+        Returns
+        -------
+        int
+            The left boundary of the rectangle.
+        """
         return min(self.x, self.x + self.width)
     
     @left.setter
     def left(self, value: int) -> None:
         """
-        Resize the left side of the rectangle
-        When changed, it move the x-coordinate to the left,
-        and resize the width of the rectangle
+        Set the left boundary of the rectangle. If the value exceeds the right boundary, 
+        it will be clamped to the right boundary.
 
         Parameters
-        -----------
+        ----------
         value : int
-            The new x-coordinate to place the rectangle to
+            The new left boundary value.
         """
-        if value < 0:
-            raise ValueError("left cannot be < 0.")
+        if value > self.right:
+            value = self.right  # Clamp the left to be no greater than right
         self.width += self.x - value
         self.x = value
     
     @property
     def top(self) -> int:
+        """
+        Get the top boundary of the rectangle.
+
+        Returns
+        -------
+        int
+            The top boundary of the rectangle.
+        """
         return min(self.y, self.y + self.height)
     
     @top.setter
     def top(self, value: int) -> None:
         """
-        Resize the top side of the rectangle
-        When changed, it move the y-coordinate to the top,
-        and resize the width of the rectangle
+        Set the top boundary of the rectangle. If the value exceeds the bottom boundary, 
+        it will be clamped to the bottom boundary.
 
         Parameters
-        -----------
+        ----------
         value : int
-            The new y-coordinate to place the rectangle to
+            The new top boundary value.
         """
-        if value < 0:
-            raise ValueError("top cannot be < 0.")
+        if value > self.bottom:
+            value = self.bottom  # Clamp the top to be no greater than bottom
         self.height += self.y - value
         self.y = value
     
     @property
     def right(self) -> int:
+        """
+        Get the right boundary of the rectangle.
+
+        Returns
+        -------
+        int
+            The right boundary of the rectangle.
+        """
         return max(self.x, self.x + self.width)
     
     @right.setter
     def right(self, value: int) -> None:
         """
-        Resize the right side of the rectangle
+        Set the right boundary of the rectangle. If the value is less than the left boundary,
+        it will be clamped to the left boundary.
 
         Parameters
-        -----------
+        ----------
         value : int
-            The new width to set to the rectangle
+            The new right boundary value.
         """
-        if value < 0:
-            raise ValueError("right cannot be < 0.")
+        if value < self.left:
+            value = self.left  # Clamp the right to be no less than left
         self.width = value - self.x
     
     @property
     def bottom(self) -> int:
+        """
+        Get the bottom boundary of the rectangle.
+
+        Returns
+        -------
+        int
+            The bottom boundary of the rectangle.
+        """
         return max(self.y, self.y + self.height)
     
     @bottom.setter
     def bottom(self, value: int) -> None:
         """
-        Resize the bottom side of the rectangle
+        Set the bottom boundary of the rectangle. If the value is less than the top boundary, 
+        it will be clamped to the top boundary.
 
         Parameters
-        -----------
+        ----------
         value : int
-            The new height to set to the rectangle
+            The new bottom boundary value.
         """
-        if value < 0:
-            raise ValueError("bottom cannot be < 0.")
+        if value < self.top:
+            value = self.top  # Clamp the bottom to be no less than top
         self.height = value - self.y
 
     @property
