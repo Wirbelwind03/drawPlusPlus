@@ -39,12 +39,12 @@ class CanvasImage(CanvasEntity):
         self.photoImage: ImageTk.PhotoImage = None
 
     @staticmethod
-    def createBlank(width: int, height: int) -> 'CanvasImage':
+    def createTransparent(width: int, height: int) -> 'CanvasImage':
         blankCanvasImage = CanvasImage()
 
-        blankImage = Image.new("RGB", (width, height), "white")
+        blankImage = Image.new("RGBA", (width, height), (0, 0, 0, 0))
         blankCanvasImage.image = blankImage
-        blankCanvasImage.photoImage = ImageTk.PhotoImage(blankImage)
+        blankCanvasImage.photoImage = ImageTk.PhotoImage(blankImage)z
 
         return blankCanvasImage
     
@@ -145,9 +145,9 @@ class CanvasImage(CanvasEntity):
         rotatedImage: Image = self.image.rotate(self.angle, expand=True)
         rotatedWidth, rotatedHeight = rotatedImage.size
         # Resize the bbox of the CanvasImage
-        self.bbox.width = width
-        self.bbox.height = height
-        resizedImage = rotatedImage.resize((width, height))
+        #self.bbox.min = Vector2(self.center.x - rotatedWidth // 2, self.center.y - rotatedHeight // 2)
+        #self.bbox.max = Vector2(self.center.x + rotatedWidth // 2, self.center.y + rotatedHeight // 2)
+        resizedImage = rotatedImage.resize((rotatedWidth, rotatedHeight))
 
         self.photoImage = ImageTk.PhotoImage(resizedImage)
 
