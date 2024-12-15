@@ -123,6 +123,8 @@ class SelectionRectangle(AABB):
         elif self.topLeft.y >= self.bottomLeft.y:
             newValue = Vector2(self.bottomLeft.x, self.bottomLeft.y - 1)
         super(SelectionRectangle, type(self)).topLeft.fset(self, newValue)
+        if self.attachedImage:
+            self.attachedImage.bbox.topLeft = newValue
 
     @property
     def topRight(self) -> Vector2:
@@ -143,6 +145,8 @@ class SelectionRectangle(AABB):
         elif self.topRight.y >= self.bottomRight.y:
             newValue = Vector2(self.bottomRight.x, self.bottomRight.y - 1)
         super(SelectionRectangle, type(self)).topRight.fset(self, newValue)
+        if self.attachedImage:
+            self.attachedImage.bbox.topRight = newValue
 
     @property
     def bottomLeft(self) -> Vector2:
@@ -163,6 +167,8 @@ class SelectionRectangle(AABB):
         elif self.bottomLeft.y <= self.topLeft.y:
             newValue = Vector2(self.topLeft.x, self.topLeft.y  + 1)
         super(SelectionRectangle, type(self)).bottomLeft.fset(self, newValue)
+        if self.attachedImage:
+            self.attachedImage.bbox.bottomLeft = newValue
 
     @property
     def bottomRight(self) -> Vector2:
@@ -183,6 +189,8 @@ class SelectionRectangle(AABB):
         elif self.bottomRight.y <= self.topRight.y:
             newValue = Vector2(self.topRight.x, self.topRight.y + 1)
         super(SelectionRectangle, type(self)).bottomRight.fset(self, newValue)
+        if self.attachedImage:
+            self.attachedImage.bbox.bottomRight = newValue
 
     @property
     def cornersBbox(self):
@@ -229,6 +237,10 @@ class SelectionRectangle(AABB):
 
     def setCoords(self, newMin: Vector2, newMax: Vector2) -> None:
         # Update the selection rectangle coordinates
+        if newMin.x < 0:
+            newMin.x = 0
+        if newMin.y < 0:
+            newMin.y = 0
         self.min = newMin
         self.max = newMax
 

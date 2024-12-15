@@ -193,7 +193,7 @@ class SelectionRectangleCanvasController:
                 self.selectionRectangle.attachedImage.setCenter(Vector2(imageCenter.x + dx, imageCenter.y + dy))
 
             # Render the selection rectangle to the new position
-            self.CC.view.move(self.selectionRectangle.canvasIdRectangle, dx, dy)
+            self.CC.view.moveto(self.selectionRectangle.canvasIdRectangle, self.selectionRectangle.min.x, self.selectionRectangle.min.y)
             
             # Render the corners to the new position
             for i in range(len(self.selectionRectangle.canvasIdCorners)):
@@ -201,7 +201,7 @@ class SelectionRectangleCanvasController:
             
             # Render the image to the new position
             if self.selectionRectangle.attachedImage:
-                self.CC.view.move(self.selectionRectangle.attachedImage.id, dx, dy)
+                self.CC.view.moveto(self.selectionRectangle.attachedImage.id, self.selectionRectangle.min.x, self.selectionRectangle.min.y)
 
         elif self.getAction() == SelectionRectangleAction.RESIZE:
             corners = {
