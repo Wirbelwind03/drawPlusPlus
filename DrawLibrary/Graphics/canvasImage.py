@@ -44,7 +44,7 @@ class CanvasImage(CanvasEntity):
 
         blankImage = Image.new("RGBA", (width, height), (0, 0, 0, 0))
         blankCanvasImage.image = blankImage
-        blankCanvasImage.photoImage = ImageTk.PhotoImage(blankImage)z
+        blankCanvasImage.photoImage = ImageTk.PhotoImage(blankImage)
 
         return blankCanvasImage
     
