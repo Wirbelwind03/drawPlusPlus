@@ -82,8 +82,9 @@ Bibliothèque principale pour les opérations graphiques et mathématiques :
 
 ## `DrawScript/`
 Module pour la gestion et le parsing de scripts de dessin.
-- **Commands/** : Contient les commandes de dessin (à compléter).
-- **Core/drawScriptParser.py** : Analyse et interprétation des scripts de dessin.
+- **Commands/** : Contient les commandes de dessin (Commande de base pour teste petit à petit les fonctionnalités du paseur).
+- **Core/drawScriptTokeniser.py** : Décompose le script rentrer dans l'IDE (analyse lexicale) pour en faire une liste de mots et resort une liste de token (0 si tout va bien et 1 si il y a une erreur).
+- **Core/drawScriptParser.py** : Reprend la liste de token du tokeniser (analyse sémantique) pour les affectée à la grammaire de draw++.
 
 ## `Model/`
 Représentation des données du projet :

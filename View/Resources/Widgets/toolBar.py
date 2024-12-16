@@ -6,33 +6,43 @@ class ToolBar(tk.Frame):
         super().__init__(*args, **kwargs)
         self.grid(row=0, column=0, sticky="new")
 
-        self.columnconfigure(0, minsize=100)
-        self.columnconfigure(1, minsize=100)
-        self.columnconfigure(2, minsize=100)
+        # Creating a gap between icons by setting "minsize=100" every two column initializations
+        self.columnconfigure(0,weight=1)
+        self.columnconfigure(1)
+        self.columnconfigure(2,minsize=100)
+        self.columnconfigure(3)
+        self.columnconfigure(4,minsize=100)
+        self.columnconfigure(5,weight=1)
 
         self.rowconfigure(0, minsize=30)
 
-        # Charger les images
-        pencil_image = PhotoImage(file="Data/Assets/pencil.png")  # Assurez-vous que l'image existe
-        eraser_image = PhotoImage(file="Data/Assets/pencil.png")
-        highlighter_image = PhotoImage(file="Data/Assets/pencil.png")
+        # Load images
+        mouse_image = PhotoImage(file="Data/Assets/mouse.png")  # Assurez-vous que l'image existe
+        rectangle_image = PhotoImage(file="Data/Assets/rectangle.png")
+        rotation_image = PhotoImage(file="Data/Assets/rotation.png")
+        trash_image = PhotoImage(file="Data/Assets/trash.png")
 
-        # Tool 1 - Pencil
-        pencilButton = tk.Button(self, image=pencil_image, height=80, width=100)
-        pencilButton.image = pencil_image  # Nécessaire pour empêcher l'image d'être collectée par le garbage collector
-        pencilButton.grid(row=0, column=0)
+        # Tool 1 - Mouse
+        mouseButton = tk.Button(self, image=mouse_image, height=80, width=80)
+        mouseButton.image = mouse_image  # Nécessaire pour empêcher l'image d'être collectée par le garbage collector
+        mouseButton.grid(row=0, column=1)
 
-        # Tool 2 - Eraser
-        eraserButton = tk.Button(self, image=eraser_image, height=80, width=100)
-        eraserButton.image = eraser_image
-        eraserButton.grid(row=0, column=1)
+        # Tool 2 - Rectangle de selection
+        rectangleButton = tk.Button(self, image=rectangle_image, height=80, width=80)
+        rectangleButton.image = rectangle_image
+        rectangleButton.grid(row=0, column=2)
 
-        # Tool 3 - Highlighter
-        HighButton = tk.Button(self, image=highlighter_image, height=80, width=100)
-        HighButton.image = highlighter_image
-        HighButton.grid(row=0, column=2)
+        # Tool 3 - Rotation
+        rotationButton = tk.Button(self, image=rotation_image, height=80, width=80)
+        rotationButton.image = rotation_image
+        rotationButton.grid(row=0, column=3)
 
-# Fenêtre principale
+        # Tool 4 - Trash
+        trashButton= tk.Button(self, image=trash_image, height=80, width=80)
+        trashButton.image = trash_image
+        trashButton.grid(row=0, column=4)
+
+# Main window
 if __name__ == "__main__":
     root = tk.Tk()
     toolbar = ToolBar(root)

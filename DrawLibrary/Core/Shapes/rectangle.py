@@ -251,6 +251,10 @@ class Rectangle:
         self.height = value - self.y
 
     @property
+    def center(self) -> Vector2:
+        return Vector2(self.topLeft.x // 2, self.topLeft.y // 2)
+
+    @property
     def topLeft(self) -> Vector2:
         return Vector2(self.left, self.top)
     

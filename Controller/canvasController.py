@@ -53,6 +53,7 @@ class CanvasController:
         self.view.bind("<Control-Key-c>", self.on_control_c)
         self.view.bind("<Control-Key-v>", self.on_control_v)
         self.view.bind("<Left>", self.on_left)
+        self.view.bind("<Left>", self.on_left)
 
     #region Public Methods
 

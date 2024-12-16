@@ -37,6 +37,7 @@ class CanvasImage(CanvasEntity):
         self._angle: int = 0
         self.image: Image = None
         self.photoImage: ImageTk.PhotoImage = None
+        self._angle = 0
 
     @staticmethod
     def createTransparent(width: int, height: int) -> 'CanvasImage':
