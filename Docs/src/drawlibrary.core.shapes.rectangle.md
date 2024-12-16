@@ -170,4 +170,43 @@ Retourne les coordonnées du coté en haut à gauche du rectangle.
 def topLeft(self, value: Vector2) -> None
 ```
 Met à jour les coordonnées du coté en haut à gauche du rectangle.
-Cela met à jour les propriétés [Top](###top)
+Cela met à jour les propriétés **top** et **left**
+
+### topRight
+- Getter
+```python
+def topRight(self) -> Vector2
+```
+Retourne les coordonnées du coté en haut à droite du rectangle.<br>
+- Setter
+```python
+def topRight(self, value: Vector2) -> None
+```
+Met à jour les coordonnées du coté en haut à droite du rectangle.<br>
+Cela met à jour les propriétés **top** et **right**
+
+### bottomLeft
+- Getter
+```python
+def bottomLeft(self) -> Vector2
+```
+Retourne les coordonnées du coté en bas à gauche du rectangle.<br>
+- Setter
+```python
+def bottomLeft(self, value: Vector2) -> None
+```
+Met à jour les coordonnées du coté en bas à gauche du rectangle.<br>
+Cela met à jour les propriétés **bottom** et **left**
+
+### bottomRight
+- Getter
+```python
+def bottomRight(self) -> Vector2
+```
+Retourne les coordonnées du coté en bas à droite du rectangle.<br>
+- Setter
+```python
+def bottomRight(self, value: Vector2) -> None
+```
+Met à jour les coordonnées du coté en bas à droite du rectangle.<br>
+Cela met à jour les propriétés **bottom** et **right**
