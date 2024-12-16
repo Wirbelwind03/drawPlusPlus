@@ -8,3 +8,5 @@ class Terminal(scrolledtext.ScrolledText):
         # Enlarged scroll bar
         self.vsb = self.vbar 
         self.vsb.config(width=20)
+
+        self.config(state=tk.DISABLED)
