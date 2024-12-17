@@ -97,7 +97,7 @@ class SelectionRectangleCanvasController:
         for canvasCorner in self.selectionRectangle.canvasIdCorners:
             self.CC.view.delete(canvasCorner)
 
-    def update(self, dx, dy):
+    def update(self, dx = 0, dy = 0):
         sr = self.selectionRectangle
         if sr.attachedImage:
             width = self.selectionRectangle.bottomRight.x - self.selectionRectangle.topLeft.x
@@ -107,7 +107,7 @@ class SelectionRectangleCanvasController:
             imageCenter = self.selectionRectangle.attachedImage.center
             self.selectionRectangle.attachedImage.setCenter(Vector2(imageCenter.x + dx, imageCenter.y + dy))
 
-    def render(self, dx, dy) -> None:
+    def render(self, dx = 0, dy = 0) -> None:
         sr = self.selectionRectangle
 
         self.CC.view.coords(sr.canvasIdRectangle, sr.topLeft.x, sr.topLeft.y, sr.bottomRight.x,  sr.bottomRight.y)
@@ -232,9 +232,9 @@ class SelectionRectangleCanvasController:
             if (self.selectionRectangle.ToName()):
                 return
             
-            self.update(dx, dy)
+            self.update()
             # Render the selection rectangle to the new position
-            self.render(dx, dy)
+            self.render()
 
         if DEBUG:
             if self.selectionRectangle.attachedImage:
@@ -253,5 +253,17 @@ class SelectionRectangleCanvasController:
 
         # Get the cursor position
         mouseCoords = Vector2(event.x, event.y)
+
+    def on_left(self, event):
+        mouseCoords = Vector2(event.x, event.y)
+
+        self.selectionRectangle.setCoords(self.selectionRectangle.attachedImage.bbox.topLeft, self.selectionRectangle.attachedImage.bbox.bottomRight)
+
+        self.update()
+        # Render the selection rectangle to the new position
+        self.render()
+
+        if DEBUG:
+            self.CC.DCC.drawCanvasImageDebugInfos(self.selectionRectangle.attachedImage)
 
     #endregion Event
