@@ -103,7 +103,7 @@ class SelectionTool:
 
     def on_left(self, event):
         if self.SRCC.hasSelectionRectangle():
-            self.SRCC.CC.updateImage(self.SRCC.selectionRectangle.attachedImage, self.SRCC.selectionRectangle.width, self.SRCC.selectionRectangle.height, 10)
+            self.SRCC.CC.updateImage(self.SRCC.selectionRectangle.attachedImage, self.SRCC.selectionRectangle.attachedImage.width, self.SRCC.selectionRectangle.attachedImage.height, 10)
             self.SRCC.on_left(event)
 
     #endregion Event
