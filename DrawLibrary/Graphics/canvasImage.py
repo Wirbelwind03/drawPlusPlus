@@ -34,6 +34,8 @@ class CanvasImage(CanvasEntity):
     def __init__(self) -> None:
         super().__init__()
         self.filePath: str = ""
+        self.width = 0
+        self.height = 0
         self._angle: int = 0
         self.image: Image = None
         self.photoImage: ImageTk.PhotoImage = None
@@ -68,6 +70,8 @@ class CanvasImage(CanvasEntity):
             canvasImage.filePath = filePath
             canvasImage.image = Image.open(filePath)
             canvasImage.photoImage = ImageTk.PhotoImage(canvasImage.image)
+            canvasImage.width = canvasImage.image.width
+            canvasImage.height = canvasImage.image.height
             return canvasImage
         except FileNotFoundError as e:
             print(e)
@@ -83,14 +87,6 @@ class CanvasImage(CanvasEntity):
     @angle.setter
     def angle(self, degrees: int):
         self._angle = (self.angle + degrees) % 360
-
-    @property
-    def width(self):
-        return self.image.size[0]
-    
-    @property
-    def height(self):
-        return self.image.size[1]
     
     #endregion Property
 
@@ -112,6 +108,9 @@ class CanvasImage(CanvasEntity):
         canvasImage.image = self.image.copy()
         canvasImage.photoImage = ImageTk.PhotoImage(canvasImage.image)
         canvasImage.filePath = self.filePath
+
+        canvasImage.width = self.width
+        canvasImage.height = self.height
 
         return canvasImage
 
@@ -142,66 +141,40 @@ class CanvasImage(CanvasEntity):
         self.photoImage = ImageTk.PhotoImage(new_img)
 
     def updatePhotoImage(self, width: int, height: int, degrees: int = 0) -> None:
-        # self.angle = degrees
-        # rotatedImage: Image = self.image.rotate(self.angle, expand=True)
-        # rotatedWidth, rotatedHeight = rotatedImage.size
-        # # Resize the bbox of the CanvasImage
-        # self.bbox.min = Vector2(self.center.x - rotatedWidth // 2, self.center.y - rotatedHeight // 2)
-        # self.bbox.max = Vector2(self.center.x + rotatedWidth // 2, self.center.y + rotatedHeight // 2)
-        # resizedImage = rotatedImage.resize((rotatedWidth, rotatedHeight))
+        updatedImage = self.updateImage(width, height, degrees)
 
-        # # self.bbox.width = width
-        # # self.bbox.height = height
-        # #finalImage = resizedImage.resize((width, height))
+        self.photoImage = ImageTk.PhotoImage(updatedImage)
 
-        # self.photoImage = ImageTk.PhotoImage(resizedImage)
-        testImage = self.updateImage(width, height, degrees)
-
-        self.photoImage = ImageTk.PhotoImage(testImage)
-
-        img_width, img_height = testImage.size
+        img_width, img_height = updatedImage.size
         
         # Draw a rectangle as the bounding box
-        x0, y0 = (self.center.x - img_width // 2, self.center.y - img_height // 2)  # Top-left corner
-        x1, y1 = (self.center.x + img_width // 2, self.center.y + img_height // 2)  # Bottom-right corner
+        x0, y0 = (self.bbox.center.x - img_width // 2, self.bbox.center.y - img_height // 2)  # Top-left corner
+        x1, y1 = (self.bbox.center.x + img_width // 2, self.bbox.center.y + img_height // 2)  # Bottom-right corner
 
         self.bbox.min = Vector2(x0, y0)
         self.bbox.max = Vector2(x1, y1)
 
     def updateImage(self, width, height, degrees = 0) -> Image:
-        self.angle = degrees
-
-        resizedImage: Image = self.image.resize((width, height))
-
-        rotatedImage: Image = resizedImage.rotate(self.angle, expand=True)
+        resizedImage: Image = self.resizeImage(self.image, width, height)
+        rotatedImage: Image = self.rotateImage(resizedImage, degrees)
         
         return rotatedImage
     
-    def resizePhotoImage(self, width: int, height: int) -> None: 
-        """
-        Resize a CanvasImage
+    def resizeImage(self, image, width, height):
+        self.width = width
+        self.height = height
+        resizedImage: Image = image.resize((width, height))
 
-        Parameters
-        -----------
-        width : int
-            The width the image is going to be resized
-        height : int
-            The height the image is going to be resized
-        """
-        # Resize the bbox of the CanvasImage
-        self.bbox.width = width
-        self.bbox.height = height
-        resizedImage = self.image.resize((width, height))
-        # Update the photoImage, keep the original one in the attribute image so it's doesn't resize the resized one
-        self.photoImage = ImageTk.PhotoImage(resizedImage)
-
-    def rotatePhotoImage(self, degrees: int):
+        return resizedImage
+    
+    def rotateImage(self, iamge, degrees = 0):
         self.angle = degrees
+        # Fix this line when resizing the image, since rotation use the original image size
+        # While resize update the image size
+        rotatedImage: Image = iamge.rotate(self.angle, expand=True)
 
-        rotatedImage: Image = self.image.rotate(self.angle, expand=True)
-        # Update the photoImage, keep the original one in the attribute image so it's doesn't resize the rotated one
-        self.photoImage = ImageTk.PhotoImage(rotatedImage)
-
+        return rotatedImage
+    
     def crop(self, x: int, y: int, width: int, height: int) -> None:
         self.image = self.image.crop((x, y, x + width, y + height))
 
@@ -245,11 +218,5 @@ class CanvasImage(CanvasEntity):
         """
 
         self.image.paste(canvasImage.image, (x, y))
-
-    def getImageBox(self):
-        """Returns the axis-aligned bounding box of the image."""
-        x0, y0 = self.center.x - self.width // 2, self.center.y - self.height // 2
-        x1, y1 = self.center.x + self.width // 2, self.center.y + self.height // 2
-        return (x0, y0, x1, y1)
 
     #endregion Public Methods

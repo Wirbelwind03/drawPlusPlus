@@ -99,13 +99,6 @@ class SelectionRectangleCanvasController:
 
     def update(self, dx = 0, dy = 0):
         sr = self.selectionRectangle
-        if sr.attachedImage:
-            # width = self.selectionRectangle.bottomRight.x - self.selectionRectangle.topLeft.x
-            # height = self.selectionRectangle.bottomRight.y - self.selectionRectangle.topLeft.y
-            # self.CC.updateImage(self.selectionRectangle.attachedImage, width, height)
-
-            imageCenter = self.selectionRectangle.attachedImage.center
-            self.selectionRectangle.attachedImage.setCenter(Vector2(imageCenter.x + dx, imageCenter.y + dy))
 
     def render(self, dx = 0, dy = 0) -> None:
         sr = self.selectionRectangle
@@ -118,7 +111,7 @@ class SelectionRectangleCanvasController:
 
         # Render the image to the new position
         if self.selectionRectangle.attachedImage:
-            self.CC.view.move(sr.attachedImage.id, dx, dy)
+            self.CC.view.coords(self.selectionRectangle.attachedImage.id, self.selectionRectangle.center.x, self.selectionRectangle.center.y)
 
     def deleteSelectionRectangle(self) -> None:
         """
@@ -207,6 +200,8 @@ class SelectionRectangleCanvasController:
         dx = mouseCoords.x - self.drag_start.x
         dy = mouseCoords.y - self.drag_start.y
 
+        sr = self.selectionRectangle
+
         if self.getAction() == SelectionRectangleAction.MOVE:
             # Update the selection rectangle coordinates
             self.selectionRectangle.setCoords(mouseCoords - self.startGapOffset, mouseCoords - self.endGapOffset)
@@ -232,9 +227,13 @@ class SelectionRectangleCanvasController:
             if (self.selectionRectangle.ToName()):
                 return
             
+            self.CC.updateImage(self.selectionRectangle.attachedImage, self.selectionRectangle.width, self.selectionRectangle.height)
+            
             self.update()
             # Render the selection rectangle to the new position
             self.render()
+
+            print(sr.attachedImage.bbox)
 
         if DEBUG:
             if self.selectionRectangle.attachedImage:

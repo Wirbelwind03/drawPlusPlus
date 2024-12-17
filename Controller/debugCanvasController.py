@@ -34,10 +34,10 @@ class DebugCanvasController:
         debugCanvasEntity: DebugCanvasEntity = self.debugCanvas[canvasImage.id]
 
         bbox = canvasImage.bbox
-        debugCanvasEntity.canvasID.append(self.view.create_line(bbox.topLeft.x, bbox.topLeft.y, canvasImage.center.x, canvasImage.center.y, fill="green"))
-        debugCanvasEntity.canvasID.append(self.view.create_line(bbox.topRight.x, bbox.topRight.y, canvasImage.center.x, canvasImage.center.y, fill="green"))
-        debugCanvasEntity.canvasID.append(self.view.create_line(bbox.bottomLeft.x, bbox.bottomLeft.y, canvasImage.center.x, canvasImage.center.y, fill="green"))
-        debugCanvasEntity.canvasID.append(self.view.create_line(bbox.bottomRight.x, bbox.bottomRight.y, canvasImage.center.x, canvasImage.center.y, fill="green"))
+        debugCanvasEntity.canvasID.append(self.view.create_line(bbox.topLeft.x, bbox.topLeft.y, bbox.center.x, bbox.center.y, fill="green"))
+        debugCanvasEntity.canvasID.append(self.view.create_line(bbox.topRight.x, bbox.topRight.y, bbox.center.x, bbox.center.y, fill="green"))
+        debugCanvasEntity.canvasID.append(self.view.create_line(bbox.bottomLeft.x, bbox.bottomLeft.y, bbox.center.x, bbox.center.y, fill="green"))
+        debugCanvasEntity.canvasID.append(self.view.create_line(bbox.bottomRight.x, bbox.bottomRight.y, bbox.center.x, bbox.center.y, fill="green"))
 
     def erase(self, canvasImage: CanvasImage):
         debugCanvasEntity: DebugCanvasEntity = self.debugCanvas[canvasImage.id]
