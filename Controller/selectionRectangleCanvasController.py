@@ -100,9 +100,9 @@ class SelectionRectangleCanvasController:
     def update(self, dx = 0, dy = 0):
         sr = self.selectionRectangle
         if sr.attachedImage:
-            width = self.selectionRectangle.bottomRight.x - self.selectionRectangle.topLeft.x
-            height = self.selectionRectangle.bottomRight.y - self.selectionRectangle.topLeft.y
-            self.CC.updateImage(self.selectionRectangle.attachedImage, width, height)
+            # width = self.selectionRectangle.bottomRight.x - self.selectionRectangle.topLeft.x
+            # height = self.selectionRectangle.bottomRight.y - self.selectionRectangle.topLeft.y
+            # self.CC.updateImage(self.selectionRectangle.attachedImage, width, height)
 
             imageCenter = self.selectionRectangle.attachedImage.center
             self.selectionRectangle.attachedImage.setCenter(Vector2(imageCenter.x + dx, imageCenter.y + dy))

@@ -142,20 +142,40 @@ class CanvasImage(CanvasEntity):
         self.photoImage = ImageTk.PhotoImage(new_img)
 
     def updatePhotoImage(self, width: int, height: int, degrees: int = 0) -> None:
+        # self.angle = degrees
+        # rotatedImage: Image = self.image.rotate(self.angle, expand=True)
+        # rotatedWidth, rotatedHeight = rotatedImage.size
+        # # Resize the bbox of the CanvasImage
+        # self.bbox.min = Vector2(self.center.x - rotatedWidth // 2, self.center.y - rotatedHeight // 2)
+        # self.bbox.max = Vector2(self.center.x + rotatedWidth // 2, self.center.y + rotatedHeight // 2)
+        # resizedImage = rotatedImage.resize((rotatedWidth, rotatedHeight))
+
+        # # self.bbox.width = width
+        # # self.bbox.height = height
+        # #finalImage = resizedImage.resize((width, height))
+
+        # self.photoImage = ImageTk.PhotoImage(resizedImage)
+        testImage = self.updateImage(width, height, degrees)
+
+        self.photoImage = ImageTk.PhotoImage(testImage)
+
+        img_width, img_height = testImage.size
+        
+        # Draw a rectangle as the bounding box
+        x0, y0 = (self.center.x - img_width // 2, self.center.y - img_height // 2)  # Top-left corner
+        x1, y1 = (self.center.x + img_width // 2, self.center.y + img_height // 2)  # Bottom-right corner
+
+        self.bbox.min = Vector2(x0, y0)
+        self.bbox.max = Vector2(x1, y1)
+
+    def updateImage(self, width, height, degrees = 0) -> Image:
         self.angle = degrees
-        rotatedImage: Image = self.image.rotate(self.angle, expand=True)
-        rotatedWidth, rotatedHeight = rotatedImage.size
-        # Resize the bbox of the CanvasImage
-        self.bbox.min = Vector2(self.center.x - rotatedWidth // 2, self.center.y - rotatedHeight // 2)
-        self.bbox.max = Vector2(self.center.x + rotatedWidth // 2, self.center.y + rotatedHeight // 2)
-        resizedImage = rotatedImage.resize((rotatedWidth, rotatedHeight))
 
-        # self.bbox.width = width
-        # self.bbox.height = height
-        #finalImage = resizedImage.resize((width, height))
+        resizedImage: Image = self.image.resize((width, height))
 
-        self.photoImage = ImageTk.PhotoImage(resizedImage)
-
+        rotatedImage: Image = resizedImage.rotate(self.angle, expand=True)
+        
+        return rotatedImage
     
     def resizePhotoImage(self, width: int, height: int) -> None: 
         """
