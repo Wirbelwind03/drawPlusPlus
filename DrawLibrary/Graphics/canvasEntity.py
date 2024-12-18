@@ -24,16 +24,5 @@ class CanvasEntity:
 
         self.debugBbox: int = -1    
 
-    @property
-    def center(self):
-        return self._center
-    
-    @center.setter
-    def center(self, newValue: Vector2):
-        self._center = newValue
-
-    def setCenter(self, newCenter: Vector2):
-        self.center = newCenter
-
     def createAABB(self, x, y, width=0, height=0):
         self.bbox = AABB(x, y, width, height)

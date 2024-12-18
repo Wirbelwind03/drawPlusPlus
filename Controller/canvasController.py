@@ -87,14 +87,17 @@ class CanvasController:
         # Attach the new resized image to the attribute
         newCanvasImage.image = resizedImage
         newCanvasImage.photoImage = ImageTk.PhotoImage(resizedImage)
+
+        newCanvasImage.width = width
+        newCanvasImage.height = height
         
         # Create the abb of the image
         newCanvasImage.createAABB(x, y, width, height)
 
         # Set the CanvasImage position in the center
-        newCanvasImage.center = Vector2(x + width // 2, y + height // 2)
+        newCanvasImageCenter = Vector2(x + width // 2, y + height // 2)
         # Draw the image on the tkinter canvas
-        imageId = self.view.create_image(newCanvasImage.center.x, newCanvasImage.center.y, image=newCanvasImage.photoImage) 
+        imageId = self.view.create_image(newCanvasImageCenter.x, newCanvasImageCenter.y, image=newCanvasImage.photoImage) 
         # Assign the id to the CanvasImage
         newCanvasImage.id = imageId
 
@@ -107,24 +110,18 @@ class CanvasController:
 
         return newCanvasImage
     
-    def updateImage(self, canvasImage: CanvasImage, width: int, height: int, degrees: int = 0):
-        canvasImage.updatePhotoImage(width, height, degrees)
+    def rotateImage(self, canvasImage: CanvasImage, degrees: int = 0):
+        canvasImage.rotatePhotoImage(degrees)
 
         # Update the photoImage on the tkinter Canvas
         self.view.itemconfig(canvasImage.id, image=canvasImage.photoImage)
-    
+
     def resizeImage(self, canvasImage: CanvasImage, width: int, height: int):
         canvasImage.resizePhotoImage(width, height)
 
         # Update the photoImage on the tkinter Canvas
         self.view.itemconfig(canvasImage.id, image=canvasImage.photoImage)
-
-    def rotateImage(self, canvasImage: CanvasImage, degrees: int):
-        canvasImage.rotatePhotoImage(degrees)
-
-        # Update the photoImage on the tkiner Canvas
-        self.view.itemconfig(canvasImage.id, image=canvasImage.photoImage)
-
+    
     def deleteImage(self, canvasImage: CanvasImage) -> None:
         if canvasImage == None:
             return
