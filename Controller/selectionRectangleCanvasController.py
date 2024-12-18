@@ -227,7 +227,7 @@ class SelectionRectangleCanvasController:
             if (self.selectionRectangle.ToName()):
                 return
             
-            self.CC.updateImage(self.selectionRectangle.attachedImage, self.selectionRectangle.width, self.selectionRectangle.height)
+            self.CC.updateImage2(self.selectionRectangle.attachedImage, self.selectionRectangle.width, self.selectionRectangle.height)
             
             self.update()
             # Render the selection rectangle to the new position

@@ -115,6 +115,12 @@ class CanvasController:
 
         # Update the photoImage on the tkinter Canvas
         self.view.itemconfig(canvasImage.id, image=canvasImage.photoImage)
+
+    def updateImage2(self, canvasImage: CanvasImage, width: int, height: int, degrees: int = 0):
+        canvasImage.updatePhotoImage2(width, height, degrees)
+
+        # Update the photoImage on the tkinter Canvas
+        self.view.itemconfig(canvasImage.id, image=canvasImage.photoImage)
     
     def deleteImage(self, canvasImage: CanvasImage) -> None:
         if canvasImage == None:
