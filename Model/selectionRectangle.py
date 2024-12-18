@@ -296,7 +296,7 @@ class SelectionRectangle(AABB):
             return True
         return False
 
-    def ToName(self) -> bool:
+    def checkBounds(self) -> bool:
         if (self.topLeft.x >= self.topRight.x
             or self.topLeft.y >= self.bottomLeft.y
             or self.topRight.x <= self.topLeft.x

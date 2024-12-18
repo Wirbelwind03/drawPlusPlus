@@ -216,8 +216,8 @@ class SelectionRectangleCanvasController:
             if selected_corner:
                 setattr(self.selectionRectangle, selected_corner, mouseCoords)
 
-            # Check if 
-            if (self.selectionRectangle.ToName()):
+            # Check if a side boundary doesn't surpass another
+            if (self.selectionRectangle.checkBounds()):
                 return
             
             self.CC.resizeImage(self.selectionRectangle.attachedImage, self.selectionRectangle.width, self.selectionRectangle.height)
@@ -248,7 +248,6 @@ class SelectionRectangleCanvasController:
 
         self.selectionRectangle.setCoords(self.selectionRectangle.attachedImage.bbox.topLeft, self.selectionRectangle.attachedImage.bbox.bottomRight)
 
-        self.update()
         # Render the selection rectangle to the new position
         self.render()
 
