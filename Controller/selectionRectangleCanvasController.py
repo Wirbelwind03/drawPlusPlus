@@ -97,10 +97,7 @@ class SelectionRectangleCanvasController:
         for canvasCorner in self.selectionRectangle.canvasIdCorners:
             self.CC.view.delete(canvasCorner)
 
-    def update(self, dx = 0, dy = 0):
-        sr = self.selectionRectangle
-
-    def render(self, dx = 0, dy = 0) -> None:
+    def render(self) -> None:
         sr = self.selectionRectangle
 
         self.CC.view.coords(sr.canvasIdRectangle, sr.topLeft.x, sr.topLeft.y, sr.bottomRight.x,  sr.bottomRight.y)
@@ -197,18 +194,14 @@ class SelectionRectangleCanvasController:
         """
         mouseCoords = Vector2(event.x, event.y)
 
-        dx = mouseCoords.x - self.drag_start.x
-        dy = mouseCoords.y - self.drag_start.y
-
         sr = self.selectionRectangle
 
         if self.getAction() == SelectionRectangleAction.MOVE:
             # Update the selection rectangle coordinates
             self.selectionRectangle.setCoords(mouseCoords - self.startGapOffset, mouseCoords - self.endGapOffset)
             
-            self.update(dx, dy)
             # Render the selection rectangle to the new position
-            self.render(dx, dy)
+            self.render()
 
         elif self.getAction() == SelectionRectangleAction.RESIZE:
             corners = {
@@ -229,7 +222,6 @@ class SelectionRectangleCanvasController:
             
             self.CC.resizeImage(self.selectionRectangle.attachedImage, self.selectionRectangle.width, self.selectionRectangle.height)
             
-            self.update()
             # Render the selection rectangle to the new position
             self.render()
 
