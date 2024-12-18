@@ -225,8 +225,6 @@ class SelectionRectangleCanvasController:
             # Render the selection rectangle to the new position
             self.render()
 
-            print(sr.attachedImage.bbox)
-
         if DEBUG:
             if self.selectionRectangle.attachedImage:
                 self.CC.DCC.drawCanvasImageDebugInfos(self.selectionRectangle.attachedImage)
