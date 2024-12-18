@@ -140,8 +140,8 @@ class CanvasImage(CanvasEntity):
         self.image = new_img
         self.photoImage = ImageTk.PhotoImage(new_img)
 
-    def rotatePhotoImage(self, width: int, height: int, degrees: int = 0) -> None:
-        resizedImage: Image = self.resizeImage(self.image, width, height)
+    def rotatePhotoImage(self, degrees: int = 0) -> None:
+        resizedImage: Image = self.resizeImage(self.image, self.width, self.height)
         rotatedImage: Image = self.rotateImage(resizedImage, degrees)
 
         self.photoImage = ImageTk.PhotoImage(rotatedImage)
@@ -155,8 +155,8 @@ class CanvasImage(CanvasEntity):
         self.bbox.min = Vector2(x0, y0)
         self.bbox.max = Vector2(x1, y1)
 
-    def resizePhotoImage(self, width: int, height: int, degrees: int = 0) -> None:
-        rotatedImage: Image = self.rotateImage(self.image, degrees)
+    def resizePhotoImage(self, width: int, height: int) -> None:
+        rotatedImage: Image = self.rotateImage(self.image, 0)
         resizedImage: Image = self.resizeImage(rotatedImage, width, height)
 
         self.photoImage = ImageTk.PhotoImage(resizedImage)
