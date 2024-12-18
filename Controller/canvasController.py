@@ -110,14 +110,14 @@ class CanvasController:
 
         return newCanvasImage
     
-    def updateImage(self, canvasImage: CanvasImage, width: int, height: int, degrees: int = 0):
-        canvasImage.updatePhotoImage(width, height, degrees)
+    def rotateImage(self, canvasImage: CanvasImage, width: int, height: int, degrees: int = 0):
+        canvasImage.rotatePhotoImage(width, height, degrees)
 
         # Update the photoImage on the tkinter Canvas
         self.view.itemconfig(canvasImage.id, image=canvasImage.photoImage)
 
-    def updateImage2(self, canvasImage: CanvasImage, width: int, height: int, degrees: int = 0):
-        canvasImage.updatePhotoImage2(width, height, degrees)
+    def resizeImage(self, canvasImage: CanvasImage, width: int, height: int, degrees: int = 0):
+        canvasImage.resizePhotoImage(width, height, degrees)
 
         # Update the photoImage on the tkinter Canvas
         self.view.itemconfig(canvasImage.id, image=canvasImage.photoImage)
