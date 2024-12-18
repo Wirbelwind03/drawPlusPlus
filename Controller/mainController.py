@@ -70,4 +70,4 @@ class MainController:
     def start(self):
         circleImage = CanvasImage.fromPath("Data/Assets/pencil.png")
 
-        self.CC.drawImage(circleImage, 256, 256, 256, 256)
+        self.CC.drawImage(circleImage, 256, 256, 128, 256)

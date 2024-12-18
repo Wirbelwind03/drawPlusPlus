@@ -146,9 +146,13 @@ class CanvasImage(CanvasEntity):
         rotatedImage: Image = self.image.rotate(self.angle, expand=True)
         rotatedWidth, rotatedHeight = rotatedImage.size
         # Resize the bbox of the CanvasImage
-        #self.bbox.min = Vector2(self.center.x - rotatedWidth // 2, self.center.y - rotatedHeight // 2)
-        #self.bbox.max = Vector2(self.center.x + rotatedWidth // 2, self.center.y + rotatedHeight // 2)
+        self.bbox.min = Vector2(self.center.x - rotatedWidth // 2, self.center.y - rotatedHeight // 2)
+        self.bbox.max = Vector2(self.center.x + rotatedWidth // 2, self.center.y + rotatedHeight // 2)
         resizedImage = rotatedImage.resize((rotatedWidth, rotatedHeight))
+
+        # self.bbox.width = width
+        # self.bbox.height = height
+        #finalImage = resizedImage.resize((width, height))
 
         self.photoImage = ImageTk.PhotoImage(resizedImage)
 
