@@ -14,3 +14,4 @@ class TextEditor(tk.Frame):
 
         self.vsb.grid(row=0, column=1, sticky="ns")  # Fill vertically
         self.text.grid(row=0, column=0, sticky="nsew")  # Fill both horizontally and vertically
+        print("az")
