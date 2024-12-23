@@ -1,134 +1,181 @@
-program :
-    { statement }
+PROGRAM
+    ::= { STATEMENT } ;
 
-statement :
-      variableDeclaration
-    | functionDefinition
-    | assignmentOrFunctionCall
-    | ifStatement
-    | whileLoop
-    | forLoop
-    | copyPasteStatement
-    | animationBlock
-    | cursorStatement
-    | returnStatement
-    | ';'  // Pour permettre des points-virgules isolés
+STATEMENT
+    ::= VAR_DECLARATION
+     | FUNCTION_DECLARATION
+     | IF_STATEMENT
+     | FOR_STATEMENT
+     | WHILE_STATEMENT
+     | ANIMATE_STATEMENT
+     | COPY_STATEMENT
+     | CURSOR_STATEMENT
+     | RETURN_STATEMENT
+     | EXPRESSION_STMT
+     | EMPTY_STATEMENT
+     ;
 
-variableDeclaration :
-    'var' IDENTIFIER [ ':' type ] [ '=' expression ] ';'
+VAR_DECLARATION
+    ::= KEYWORD("var") IDENTIFIER [ DELIMITER(":") IDENTIFIER ]
+        ASSIGN("=") EXPRESSION
+        DELIMITER(";")
+    ;
 
-type :
-    'cursor'
-  | // Autres types si nécessaires
+FUNCTION_DECLARATION
+    ::= KEYWORD("function") IDENTIFIER
+        DELIMITER("(") [ PARAMETER_LIST ] DELIMITER(")")
+        BLOCK
+    ;
 
-assignmentOrFunctionCall :
-      assignment
-    | functionCall
-    | cursorMethodCallStatement
+IF_STATEMENT
+    ::= KEYWORD("if")
+        DELIMITER("(") EXPRESSION DELIMITER(")")
+        BLOCK
+        [ KEYWORD("else") BLOCK ]
+    ;
 
-assignment :
-    IDENTIFIER '=' expression ';'
+FOR_STATEMENT
+    ::= KEYWORD("for")
+        DELIMITER("(")
+            FOR_INIT
+            DELIMITER(";")
+            EXPRESSION
+            DELIMITER(";")
+            ASSIGNMENT_EXPR
+        DELIMITER(")")
+        BLOCK
+    ;
 
-functionDefinition :
-    'function' IDENTIFIER '(' [ parameterList ] ')' block
+FOR_INIT
+    ::= VAR_DECLARATION_NO_SEMI
+     | ASSIGNMENT_EXPR
+     | /* empty */
+    ;
 
-parameterList :
-    IDENTIFIER { ',' IDENTIFIER }
+VAR_DECLARATION_NO_SEMI
+    ::= KEYWORD("var") IDENTIFIER [ DELIMITER(":") IDENTIFIER ]
+        ASSIGN("=") EXPRESSION
+    ;
 
-functionCall :
-    IDENTIFIER '(' [ argumentList ] ')' ';'
+WHILE_STATEMENT
+    ::= KEYWORD("while")
+        DELIMITER("(") EXPRESSION DELIMITER(")")
+        BLOCK
+    ;
 
-argumentList :
-    expression { ',' expression }
+ANIMATE_STATEMENT
+    ::= KEYWORD("animate")
+        DELIMITER("(") EXPRESSION DELIMITER(",") EXPRESSION DELIMITER(")")
+        BLOCK
+    ;
 
-cursorMethodCallStatement :
-    IDENTIFIER '.' cursorMethodCall ';'
+COPY_STATEMENT
+    ::= KEYWORD("copy")
+        DELIMITER("(") ARGUMENT_LIST_4 DELIMITER(")")
+        KEYWORD("to")
+        DELIMITER("(") ARGUMENT_LIST_2 DELIMITER(")")
+        DELIMITER(";")
+    ;
 
-cursorMethodCall :
-      'moveTo' '(' expression ',' expression ')'
-    | 'rotate' '(' expression ')'
-    | 'drawLine' '(' expression ',' expression ')'
-    | 'drawCircle' '(' expression ')'
-    | 'drawRectangle' '(' expression ',' expression ')'
-    | // Autres méthodes du curseur
+ARGUMENT_LIST_4
+    ::= EXPRESSION DELIMITER(",") EXPRESSION DELIMITER(",") EXPRESSION DELIMITER(",") EXPRESSION ;
 
-ifStatement :
-    'if' '(' expression ')' block [ 'else' block ]
+ARGUMENT_LIST_2
+    ::= EXPRESSION DELIMITER(",") EXPRESSION ;
 
-whileLoop :
-    'while' '(' expression ')' block
+CURSOR_STATEMENT
+    ::= IDENTIFIER ACCESS_OPERATOR(".") IDENTIFIER
+        DELIMITER("(") [ ARGUMENT_LIST ] DELIMITER(")")
+        DELIMITER(";")
+    ;
 
-forLoop :
-    'for' '(' [ initialization ] ';' [ expression ] ';' [ iteration ] ')' block
+RETURN_STATEMENT
+    ::= KEYWORD("return")
+        [ EXPRESSION ]
+        DELIMITER(";")
+    ;
 
-initialization :
-      variableDeclaration
-    | assignment
+EXPRESSION_STMT
+    ::= (ASSIGNMENT_EXPR | FUNCTION_CALL) DELIMITER(";") ;
 
-iteration :
-    assignment
+ASSIGNMENT_EXPR
+    ::= IDENTIFIER ASSIGN("=") EXPRESSION ;
 
-copyPasteStatement :
-    'copy' '(' coordinatePair ',' coordinatePair ')' 'to' '(' coordinatePair ')' ';'
+FUNCTION_CALL
+    ::= IDENTIFIER
+         [
+           ACCESS_OPERATOR(".") IDENTIFIER
+         ]
+         DELIMITER("(") [ ARGUMENT_LIST ] DELIMITER(")")
+    ;
 
-animationBlock :
-    'animate' '(' IDENTIFIER ',' expression ')' block
+BLOCK
+    ::= DELIMITER("{") { STATEMENT } DELIMITER("}") ;
 
-cursorStatement :
-    'cursor' '(' expression ',' expression ')' ';'  // Instruction de base du curseur
-  | cursorMethodCallStatement
+PARAMETER_LIST
+    ::= IDENTIFIER { DELIMITER(",") IDENTIFIER } ;
 
-returnStatement :
-    'return' expression ';'
+ARGUMENT_LIST
+    ::= EXPRESSION { DELIMITER(",") EXPRESSION } ;
 
-block :
-    '{' { statement } '}'
+EMPTY_STATEMENT
+    ::= DELIMITER(";") ;
 
-coordinatePair :
-    expression ',' expression
+(* Expressions - gérant OPERATOR pour +, -, *, /, %, ==, !=, <, >, <=, >=, &&, ||, !, etc. *)
+EXPRESSION
+    ::= LOGICAL_OR_EXPR
+    ;
 
-expression :
-    logicalOrExpression
+LOGICAL_OR_EXPR
+    ::= LOGICAL_AND_EXPR
+     | LOGICAL_OR_EXPR OPERATOR("||") LOGICAL_AND_EXPR
+     | LOGICAL_OR_EXPR OPERATOR("&&") LOGICAL_AND_EXPR
+    ;
 
-logicalOrExpression :
-    logicalAndExpression { '||' logicalAndExpression }
+LOGICAL_AND_EXPR
+    ::= EQUALITY_EXPR
+     | LOGICAL_AND_EXPR OPERATOR("&&") EQUALITY_EXPR
+    ;
 
-logicalAndExpression :
-    equalityExpression { '&&' equalityExpression }
+EQUALITY_EXPR
+    ::= RELATIONAL_EXPR
+     | EQUALITY_EXPR OPERATOR("==") RELATIONAL_EXPR
+     | EQUALITY_EXPR OPERATOR("!=") RELATIONAL_EXPR
+    ;
 
-equalityExpression :
-    relationalExpression { ( '==' | '!=' ) relationalExpression }
+RELATIONAL_EXPR
+    ::= ADDITIVE_EXPR
+     | RELATIONAL_EXPR OPERATOR("<")  ADDITIVE_EXPR
+     | RELATIONAL_EXPR OPERATOR("<=") ADDITIVE_EXPR
+     | RELATIONAL_EXPR OPERATOR(">")  ADDITIVE_EXPR
+     | RELATIONAL_EXPR OPERATOR(">=") ADDITIVE_EXPR
+    ;
 
-relationalExpression :
-    additiveExpression { ( '<' | '>' | '<=' | '>=' ) additiveExpression }
+ADDITIVE_EXPR
+    ::= MULTIPLICATIVE_EXPR
+     | ADDITIVE_EXPR OPERATOR("+") MULTIPLICATIVE_EXPR
+     | ADDITIVE_EXPR OPERATOR("-") MULTIPLICATIVE_EXPR
+    ;
 
-additiveExpression :
-    multiplicativeExpression { ( '+' | '-' ) multiplicativeExpression }
+MULTIPLICATIVE_EXPR
+    ::= UNARY_EXPR
+     | MULTIPLICATIVE_EXPR OPERATOR("*") UNARY_EXPR
+     | MULTIPLICATIVE_EXPR OPERATOR("/") UNARY_EXPR
+     | MULTIPLICATIVE_EXPR OPERATOR("%") UNARY_EXPR
+    ;
 
-multiplicativeExpression :
-    unaryExpression { ( '*' | '/' | '%' ) unaryExpression }
+UNARY_EXPR
+    ::= [ OPERATOR("+") | OPERATOR("-") | OPERATOR("!") ] PRIMARY_EXPR
+    ;
 
-unaryExpression :
-    [ '+' | '-' | '!' ] primaryExpression
-
-primaryExpression :
-      NUMBER
-    | STRING
-    | BOOLEAN
-    | IDENTIFIER [ functionCallExpression ]
-    | '(' expression ')'
-
-functionCallExpression :
-    '(' [ argumentList ] ')'
-
-BOOLEAN :
-    'true' | 'false'
-
-NUMBER :
-    // Nombres entiers ou à virgule flottante
-
-STRING :
-    // Chaînes de caractères entre guillemets
-
-IDENTIFIER :
-    // Noms de variables, fonctions, etc.
+PRIMARY_EXPR
+    ::= NUMBER
+     | STRING
+     | BOOLEAN
+     | IDENTIFIER
+         (
+           (DELIMITER("(") [ ARGUMENT_LIST ] DELIMITER(")")
+            | /* juste la variable */ 
+         )
+     | DELIMITER("(") EXPRESSION DELIMITER(")")
+    ;

@@ -1,5 +1,5 @@
 import re  # Bibliothèque pour les expressions régulières
-from DrawScript.Core.drawScriptParser import DrawScriptParser
+#from DrawScript.Core.drawScriptParser import DrawScriptParser
 
 class DrawScriptTokenizer:
     def __init__(self):
