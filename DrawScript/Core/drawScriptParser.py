@@ -1,598 +1,226 @@
+class ParserError(Exception):
+    pass
+
 class DrawScriptParser:
     def __init__(self, tokens):
         self.tokens = tokens
-        self.current = 0  # Index du jeton courant
-        self.errors = []  # Liste des erreurs syntaxiques détectées
+        self.current_token_index = 0
+        self.errors = []
 
     def parse(self):
         """
-        Méthode principale du parseur qui commence l'analyse des tokens.
-        Elle parcourt tous les tokens et appelle la méthode 'statement' pour chaque instruction.
+        Méthode principale du parseur qui parcourt tous les tokens
+        et parse 'statement' jusqu'à la fin.
+        Retourne une liste de nœuds AST (ou None si erreur fatale).
         """
-        try:
-            while self.current < len(self.tokens):
-                self.statement()
-                print(self.current)
-                if (self.current == 102):
-                    print("test")
-        except Exception as e:
-            pass  # Ignorer les exceptions pour continuer l'analyse
-        return self.tokens, self.errors
+        ast_nodes = []
+        # Tant qu'on n'a pas atteint la fin
+        while not self.is_at_end():
+            stmt = self.parse_statement()  # tente de parser un statement
+            if stmt is not None:
+                ast_nodes.append(stmt)
+        return ast_nodes, self.errors
 
-    def statement(self):
-        """
-        Analyse une instruction en fonction du type de jeton courant.
-        Elle détermine le type d'instruction et appelle la méthode appropriée.
-        """
-        if self.match('KEYWORD', 'var'):
-            self.variable_declaration()
-        elif self.match('IDENTIFIER'):
-            if self.lookahead(1) and self.lookahead(1)['type'] == 'OPERATOR' and self.lookahead(1)['value'] == '.':
-                # Appel à une méthode du curseur
-                self.cursor_method_call_statement()
-            else:
-                # Affectation ou appel de fonction
-                self.assignment_or_function_call()
-        elif self.match('KEYWORD', 'function'):
-            self.function_definition()
-        elif self.match('KEYWORD', 'if'):
-            self.if_statement()
-        elif self.match('KEYWORD', 'while'):
-            self.while_loop()
-        elif self.match('KEYWORD', 'for'):
-            self.for_loop()
-        elif self.match('KEYWORD', 'copy'):
-            self.copy_paste_statement()
-        elif self.match('KEYWORD', 'animate'):
-            self.animation_block()
-        elif self.match('KEYWORD', 'cursor'):
-            self.cursor_statement()
-        elif self.match('KEYWORD', 'return'):
-            self.return_statement()
-        elif self.match('COMMENT'):
-            # Ignorer les commentaires
-            self.advance()
-        else:
-            # Si aucun des cas précédents ne correspond, enregistrer une erreur
-            self.record_error("Unexpected token in statement")
+    # ----------------- Méthodes utilitaires -------------------
+    def advance(self):
+        if not self.is_at_end():
+            self.current_token_index += 1
 
-    def return_statement(self):
-        """
-        Analyse une instruction 'return'.
-        """
-        self.consume('KEYWORD', 'return')
-        self.expression()
-        if not self.consume('DELIMITER', ';'):
-            self.record_error('DELIMITER')
-
-    def variable_declaration(self, expect_semicolon=True):
-        """
-        Analyse une déclaration de variable.
-        Si 'expect_semicolon' est True, attend un point-virgule à la fin.
-        """
-        self.consume('KEYWORD', 'var')
-        if not self.consume('IDENTIFIER'):
-            self.record_error('IDENTIFIER')
-            return
-        if self.match('DELIMITER', ':'):
-            self.advance()
-            if not (self.consume('IDENTIFIER') or self.consume('KEYWORD')):
-                self.record_error('TYPE')
-                return
-        if self.match('OPERATOR', '='):
-            self.advance()
-            self.expression()
-        if expect_semicolon:
-            if not self.consume('DELIMITER', ';'):
-                self.record_error('DELIMITER')
-
-    def assignment_or_function_call(self):
-        """
-        Détermine si l'instruction est une affectation ou un appel de fonction.
-        """
-        self.consume('IDENTIFIER')
-        if self.match('OPERATOR', '='):
-            # Affectation
-            self.advance()
-            self.expression()
-            if not self.consume('DELIMITER', ';'):
-                self.record_error('DELIMITER')
-        elif self.match('DELIMITER', '('):
-            # Appel de fonction
-            self.function_call()
-        else:
-            self.record_error('OPERATOR or DELIMITER')
-
-    def function_definition(self):
-        """
-        Analyse la définition d'une fonction.
-        """
-        self.consume('KEYWORD', 'function')
-        if not self.consume('IDENTIFIER'):
-            self.record_error('IDENTIFIER')
-            return
-        if not self.consume('DELIMITER', '('):
-            self.record_error('DELIMITER')
-            return
-        if not self.match('DELIMITER', ')'):
-            # Paramètres de la fonction
-            self.parameter_list()
-        if not self.consume('DELIMITER', ')'):
-            self.record_error('DELIMITER')
-            return
-        if not self.consume('DELIMITER', '{'):
-            self.record_error('DELIMITER')
-            return
-        # Corps de la fonction
-        while not self.match('DELIMITER', '}') and self.current < len(self.tokens):
-            self.statement()
-        if not self.consume('DELIMITER', '}'):
-            self.record_error('DELIMITER')
-
-    def function_call(self):
-        """
-        Analyse un appel de fonction.
-        """
-        self.consume('DELIMITER', '(')
-        if not self.match('DELIMITER', ')'):
-            # Arguments de la fonction
-            self.argument_list()
-        if not self.consume('DELIMITER', ')'):
-            self.record_error('DELIMITER')
-            return
-        if not self.consume('DELIMITER', ';'):
-            self.record_error('DELIMITER')
-
-    def if_statement(self):
-        """
-        Analyse une instruction 'if' avec une clause optionnelle 'else'.
-        """
-        self.consume('KEYWORD', 'if')
-        if not self.consume('DELIMITER', '('):
-            self.record_error('DELIMITER')
-            return
-        self.expression()
-        if not self.consume('DELIMITER', ')'):
-            self.record_error('DELIMITER')
-            return
-        if not self.consume('DELIMITER', '{'):
-            self.record_error('DELIMITER')
-            return
-        # Bloc 'if'
-        while not self.match('DELIMITER', '}') and self.current < len(self.tokens):
-            self.statement()
-        if not self.consume('DELIMITER', '}'):
-            self.record_error('DELIMITER')
-            return
-        if self.match('KEYWORD', 'else'):
-            # Bloc 'else' optionnel
-            self.advance()
-            if not self.consume('DELIMITER', '{'):
-                self.record_error('DELIMITER')
-                return
-            while not self.match('DELIMITER', '}') and self.current < len(self.tokens):
-                self.statement()
-            if not self.consume('DELIMITER', '}'):
-                self.record_error('DELIMITER')
-
-    def while_loop(self):
-        """
-        Analyse une boucle 'while'.
-        """
-        self.consume('KEYWORD', 'while')
-        if not self.consume('DELIMITER', '('):
-            self.record_error('DELIMITER')
-            return
-        self.expression()
-        if not self.consume('DELIMITER', ')'):
-            self.record_error('DELIMITER')
-            return
-        if not self.consume('DELIMITER', '{'):
-            self.record_error('DELIMITER')
-            return
-        # Corps de la boucle
-        while not self.match('DELIMITER', '}') and self.current < len(self.tokens):
-            self.statement()
-        if not self.consume('DELIMITER', '}'):
-            self.record_error('DELIMITER')
-
-    def for_loop(self):
-        """
-        Analyse une boucle 'for'.
-        """
-        self.consume('KEYWORD', 'for')
-        if not self.consume('DELIMITER', '('):
-            self.record_error('DELIMITER')
-            return
-        if not self.match('DELIMITER', ';'):
-            # Initialisation
-            self.initialization()
-        if not self.consume('DELIMITER', ';'):
-            self.record_error('DELIMITER')
-            return
-        # Condition
-        self.expression()
-        if not self.consume('DELIMITER', ';'):
-            self.record_error('DELIMITER')
-            return
-        if not self.match('DELIMITER', ')'):
-            # Incrémentation
-            self.iteration()
-        if not self.consume('DELIMITER', ')'):
-            self.record_error('DELIMITER')
-            return
-        if not self.consume('DELIMITER', '{'):
-            self.record_error('DELIMITER')
-            return
-        # Corps de la boucle
-        while not self.match('DELIMITER', '}') and self.current < len(self.tokens):
-            self.statement()
-        if not self.consume('DELIMITER', '}'):
-            self.record_error('DELIMITER')
-
-    def copy_paste_statement(self):
-        """
-        Analyse une instruction 'copy' avec 'to'.
-        """
-        self.consume('KEYWORD', 'copy')
-        if not self.consume('DELIMITER', '('):
-            self.record_error('DELIMITER')
-            return
-        # Coordonnées source
-        self.coordinate_pair()
-        if not self.consume('DELIMITER', ','):
-            self.record_error('DELIMITER')
-            return
-        self.coordinate_pair()
-        if not self.consume('DELIMITER', ')'):
-            self.record_error('DELIMITER')
-            return
-        if not self.consume('KEYWORD', 'to'):
-            self.record_error('KEYWORD')
-            return
-        if not self.consume('DELIMITER', '('):
-            self.record_error('DELIMITER')
-            return
-        # Coordonnées destination
-        self.coordinate_pair()
-        if not self.consume('DELIMITER', ')'):
-            self.record_error('DELIMITER')
-            return
-        if not self.consume('DELIMITER', ';'):
-            self.record_error('DELIMITER')
-
-    def animation_block(self):
-        """
-        Analyse un bloc 'animate'.
-        """
-        self.consume('KEYWORD', 'animate')
-        if not self.consume('DELIMITER', '('):
-            self.record_error('DELIMITER')
-            return
-        if not self.consume('IDENTIFIER'):
-            self.record_error('IDENTIFIER')
-            return
-        if not self.consume('DELIMITER', ','):
-            self.record_error('DELIMITER')
-            return
-        # Durée de l'animation
-        self.expression()
-        if not self.consume('DELIMITER', ')'):
-            self.record_error('DELIMITER')
-            return
-        if not self.consume('DELIMITER', '{'):
-            self.record_error('DELIMITER')
-            return
-        # Corps du bloc d'animation
-        while not self.match('DELIMITER', '}') and self.current < len(self.tokens):
-            self.statement()
-        if not self.consume('DELIMITER', '}'):
-            self.record_error('DELIMITER')
-
-    def cursor_statement(self):
-        """
-        Analyse une instruction 'cursor'.
-        """
-        self.consume('KEYWORD', 'cursor')
-        if not self.consume('DELIMITER', '('):
-            self.record_error('DELIMITER')
-            return
-        # Coordonnées du curseur
-        self.coordinate_pair()
-        if not self.consume('DELIMITER', ')'):
-            self.record_error('DELIMITER')
-            return
-        if not self.consume('DELIMITER', ';'):
-            self.record_error('DELIMITER')
-
-    def lookahead(self, n):
-        """
-        Regarde le 'n'-ième jeton à venir sans avancer le pointeur 'current'.
-        """
-        if self.current + n < len(self.tokens):
-            return self.tokens[self.current + n]
-        else:
+    def current_token(self):
+        if self.is_at_end():
             return None
+        return self.tokens[self.current_token_index]
 
-    def coordinate_pair(self):
-        """
-        Analyse une paire de coordonnées (expression, expression).
-        """
-        self.expression()
-        if not self.consume('DELIMITER', ','):
-            self.record_error('DELIMITER')
-            return
-        self.expression()
+    def previous_token(self):
+        if self.current_token_index == 0:
+            return None
+        return self.tokens[self.current_token_index - 1]
 
-    def initialization(self):
-        """
-        Analyse l'initialisation dans une boucle 'for'.
-        """
-        if self.match('KEYWORD', 'var'):
-            self.variable_declaration(expect_semicolon=False)
-        else:
-            self.assignment()
+    def is_at_end(self):
+        return self.current_token_index >= len(self.tokens)
 
-    def iteration(self):
-        """
-        Analyse l'incrémentation dans une boucle 'for'.
-        """
-        self.assignment()
-
-    def assignment(self):
-        """
-        Analyse une affectation.
-        """
-        if not self.consume('IDENTIFIER'):
-            self.record_error('IDENTIFIER')
-            return
-        if not self.consume('OPERATOR', '='):
-            self.record_error('OPERATOR')
-            return
-        self.expression()
-
-    def parameter_list(self):
-        """
-        Analyse une liste de paramètres dans une définition de fonction.
-        """
-        if not self.consume('IDENTIFIER'):
-            self.record_error('IDENTIFIER')
-            return
-        while self.match('DELIMITER', ','):
-            self.advance()
-            if not self.consume('IDENTIFIER'):
-                self.record_error('IDENTIFIER')
-                return
-
-    def argument_list(self):
-        """
-        Analyse une liste d'arguments dans un appel de fonction.
-        """
-        self.expression()
-        while self.match('DELIMITER', ','):
-            self.advance()
-            self.expression()
-
-    def expression(self):
-        """
-        Analyse une expression.
-        """
-        self.logical_or_expression()
-
-    def logical_or_expression(self):
-        """
-        Analyse une expression logique avec l'opérateur '||'.
-        """
-        self.logical_and_expression()
-        while self.match('OPERATOR', '||'):
-            self.advance()
-            self.logical_and_expression()
-
-    def logical_and_expression(self):
-        """
-        Analyse une expression logique avec l'opérateur '&&'.
-        """
-        self.equality_expression()
-        while self.match('OPERATOR', '&&'):
-            self.advance()
-            self.equality_expression()
-
-    def equality_expression(self):
-        """
-        Analyse une expression d'égalité '==' ou de différence '!='.
-        """
-        self.relational_expression()
-        while self.match('OPERATOR', '==') or self.match('OPERATOR', '!='):
-            self.advance()
-            self.relational_expression()
-
-    def relational_expression(self):
-        """
-        Analyse une expression relationnelle ('<', '>', '<=', '>=').
-        """
-        self.additive_expression()
-        while self.match('OPERATOR', '<') or self.match('OPERATOR', '>') or \
-              self.match('OPERATOR', '<=') or self.match('OPERATOR', '>='):
-            self.advance()
-            self.additive_expression()
-
-    def additive_expression(self):
-        """
-        Analyse une expression additive ('+' ou '-').
-        """
-        self.multiplicative_expression()
-        while self.match('OPERATOR', '+') or self.match('OPERATOR', '-'):
-            self.advance()
-            self.multiplicative_expression()
-
-    def multiplicative_expression(self):
-        """
-        Analyse une expression multiplicative ('*', '/', '%').
-        """
-        self.unary_expression()
-        while self.match('OPERATOR', '*') or self.match('OPERATOR', '/') or self.match('OPERATOR', '%'):
-            self.advance()
-            self.unary_expression()
-
-    def unary_expression(self):
-        """
-        Analyse une expression unaire ('+', '-', '!').
-        """
-        if self.match('OPERATOR', '+') or self.match('OPERATOR', '-') or self.match('OPERATOR', '!'):
-            self.advance()
-        self.primary_expression()
-
-    def primary_expression(self):
-        """
-        Analyse une expression primaire (nombre, chaîne, identifiant, ou expression entre parenthèses).
-        """
-        if self.match('NUMBER') or self.match('STRING') or self.match('BOOLEAN'):
-            self.advance()
-        elif self.match('KEYWORD', 'true') or self.match('KEYWORD', 'false') or self.match('KEYWORD', 'cursor'):
-            self.advance()
-            if self.match('DELIMITER', '('):
-                self.function_call_expression()
-        elif self.match('IDENTIFIER'):
-            self.advance()
-            if self.match('DELIMITER', '('):
-                self.function_call_expression()
-        elif self.match('DELIMITER', '('):
-            self.advance()
-            self.expression()
-            if not self.consume('DELIMITER', ')'):
-                self.record_error('DELIMITER')
-        else:
-            self.record_error("NUMBER, STRING, BOOLEAN, IDENTIFIER or '('")
-
-    def function_call_expression(self):
-        """
-        Analyse un appel de fonction dans une expression.
-        """
-        if not self.consume('DELIMITER', '('):
-            self.record_error('DELIMITER')
-            return
-        if not self.match('DELIMITER', ')'):
-            self.argument_list()
-        if not self.consume('DELIMITER', ')'):
-            self.record_error('DELIMITER')
-
-    def cursor_method_call_statement(self):
-        """
-        Analyse un appel à une méthode du curseur.
-        """
-        if not self.consume('IDENTIFIER'):
-            self.record_error('IDENTIFIER')
-            return
-        if not self.consume('OPERATOR', '.'):
-            self.record_error('.')
-            return
-        self.cursor_method_call()
-        if not self.consume('DELIMITER', ';'):
-            self.record_error('DELIMITER')
-
-    def cursor_method_call(self):
-        """
-        Analyse les différentes méthodes disponibles pour un curseur.
-        """
-        if self.match('IDENTIFIER', 'moveTo'):
-            self.advance()
-            self.consume('DELIMITER', '(')
-            self.expression()
-            self.consume('DELIMITER', ',')
-            self.expression()
-            self.consume('DELIMITER', ')')
-        elif self.match('IDENTIFIER', 'rotate'):
-            self.advance()
-            self.consume('DELIMITER', '(')
-            self.expression()
-            self.consume('DELIMITER', ')')
-        elif self.match('IDENTIFIER', 'drawLine'):
-            self.advance()
-            self.consume('DELIMITER', '(')
-            self.expression()
-            self.consume('DELIMITER', ',')
-            self.expression()
-            self.consume('DELIMITER', ')')
-        elif self.match('IDENTIFIER', 'drawCircle'):
-            self.advance()
-            self.consume('DELIMITER', '(')
-            self.expression()
-            self.consume('DELIMITER', ')')
-        elif self.match('IDENTIFIER', 'drawRectangle'):
-            self.advance()
-            self.consume('DELIMITER', '(')
-            self.expression()
-            self.consume('DELIMITER', ',')
-            self.expression()
-            self.consume('DELIMITER', ')')
-        else:
-            self.record_error('Cursor method')
-
-    # Fonctions utilitaires
-
-    def match(self, token_type, value=None):
-        """
-        Vérifie si le jeton courant correspond au type et à la valeur donnés.
-        """
-        if self.current >= len(self.tokens):
+    def match(self, expected_type, expected_value=None):
+        if self.is_at_end():
             return False
-        token = self.tokens[self.current]
-        if token['type'] != token_type:
+        token = self.current_token()
+        if token["type"] != expected_type:
             return False
-        if value is not None and token['value'] != value:
+        if expected_value is not None and token["value"] != expected_value:
             return False
         return True
 
-    def consume(self, token_type, value=None):
+    def consume(self, expected_type, expected_value=None):
         """
-        Consomme le jeton courant s'il correspond au type et à la valeur donnés.
+        Consume le token courant s'il correspond (type, value).
+        Sinon, lève une ParserError.
         """
-        if self.match(token_type, value):
+        if self.is_at_end():
+            raise ParserError(
+                f"Fin de fichier inattendue (attendu '{expected_type}' / '{expected_value}')."
+            )
+        token = self.current_token()
+        if token["type"] != expected_type:
+            raise ParserError(
+                f"Type de token inattendu à la ligne {token['line']}. "
+                f"Attendu '{expected_type}', reçu '{token['type']}' (valeur='{token['value']}')."
+            )
+        if expected_value is not None and token["value"] != expected_value:
+            raise ParserError(
+                f"Valeur de token inattendue à la ligne {token['line']}. "
+                f"Attendu '{expected_value}', reçu '{token['value']}'."
+            )
+        self.advance()
+        return token
+
+    def synchronize(self):
+        """
+        Sauter des tokens jusqu'à trouver un délimiteur fiable
+        pour reprendre (par ex: ';' ou '}' etc.).
+        """
+        while not self.is_at_end():
+            prev = self.previous_token()
+            if prev and prev["value"] == ";":
+                return
+            curr = self.current_token()
+            if curr["type"] == "DELIMITER" and curr["value"] in ("}",):
+                return
             self.advance()
-            return True
-        else:
-            return False
 
-    def advance(self):
+    # ----------------- Parsing statements -------------------
+    def parse_statement(self):
         """
-        Avance le pointeur 'current' pour passer au jeton suivant.
+        Parse un statement en fonction du token courant
         """
-        self.current += 1
+        try:
+            return self._parse_statement_internal()
+        except ParserError as e:
+            # On stocke l'erreur et on sync
+            line = self.current_token()['line'] if not self.is_at_end() else -1
+            self.errors.append({"message": str(e), "line": line})
+            self.synchronize()
+            return None
 
-    def record_error(self, expected):
+    def _parse_statement_internal(self):
         """
-        Enregistre une erreur syntaxique avec les informations du jeton courant.
+        Logique interne qui peut lever ParserError.
         """
-        if self.current < len(self.tokens):
-            token = self.tokens[self.current]
-            error_info = {
-                'TOKEN_INCORRECT': token['value'],
-                'TYPE_DU_TOKEN_INCORRECT': token['type'],
-                'SUGGESTION_TOKEN_CORRECT': expected,
-                'line': token['line']
-            }
-            self.errors.append(error_info)
-            self.advance()
-        else:
-            # S'il n'y a plus de jetons, on ajoute une erreur à la fin
-            error_info = {
-                'TOKEN_INCORRECT': 'EOF',
-                'TYPE_DU_TOKEN_INCORRECT': 'EOF',
-                'SUGGESTION_TOKEN_CORRECT': expected,
-                'line': self.tokens[-1]['line'] if self.tokens else 0
-            }
-            self.errors.append(error_info)
-            # Ajouter un token EOF pour éviter les erreurs d'index
-            self.tokens.append({'type': 'EOF', 'value': '', 'line': self.tokens[-1]['line'] if self.tokens else 0})
+        if self.match('KEYWORD', 'var'):
+            return self.parse_var_declaration()
+
+        # if statement
+        if self.match('KEYWORD', 'if'):
+            return self.parse_if_statement()
+
+        # etc. si 'for', 'while', ...
+        
+        # Sinon, c'est potentiellement une expression statement
+        return self.parse_expression_statement()
+
+    def parse_var_declaration(self):
+        """
+        var IDENTIFIER [":" IDENTIFIER] "=" EXPRESSION ";"
+        """
+        self.consume('KEYWORD', 'var')
+        id_token = self.consume('IDENTIFIER')
+        var_name = id_token['value']
+        var_type = None
+
+        if self.match('DELIMITER', ':'):
+            self.consume('DELIMITER', ':')
+            type_token = self.consume('IDENTIFIER')
+            var_type = type_token['value']
+
+        self.consume('ASSIGN', '=')
+        expr = self.parse_expression()
+        self.consume('DELIMITER', ';')
+
+        # Pour l'instant, on retourne un simple dict
+        return {
+            "node_type": "var_declaration",
+            "name": var_name,
+            "type": var_type,
+            "expression": expr
+        }
+
+    def parse_if_statement(self):
+        """
+        if "(" EXPRESSION ")" BLOCK [ "else" BLOCK ]
+        """
+        self.consume('KEYWORD', 'if')
+        self.consume('DELIMITER', '(')
+        condition = self.parse_expression()
+        self.consume('DELIMITER', ')')
+        then_block = self.parse_block()
+
+        else_block = None
+        # Vérifier si on a 'else'
+        if self.match('KEYWORD', 'else'):
+            self.consume('KEYWORD', 'else')
+            else_block = self.parse_block()
+
+        return {
+            "node_type": "if_statement",
+            "condition": condition,
+            "then_block": then_block,
+            "else_block": else_block
+        }
+
+    def parse_block(self):
+        """
+        "{" { statement } "}"
+        """
+        self.consume('DELIMITER', '{')
+        statements = []
+        while not self.is_at_end() and not self.match('DELIMITER', '}'):
+            stmt = self.parse_statement()
+            if stmt:
+                statements.append(stmt)
+        self.consume('DELIMITER', '}')
+        return {
+            "node_type": "block",
+            "statements": statements
+        }
+
+    def parse_expression_statement(self):
+        """
+        EXPR ";"
+        """
+        expr = self.parse_expression()
+        self.consume('DELIMITER', ';')
+        return {
+            "node_type": "expression_statement",
+            "expression": expr
+        }
+
+    def parse_expression(self):
+        """
+        Pour l'exemple, on va juste consommer un IDENTIFIER ou un NUMBER...
+        (À toi de l'implémenter selon la grammaire)
+        """
+        if self.match('IDENTIFIER'):
+            token = self.consume('IDENTIFIER')
+            return {"node_type": "identifier", "value": token["value"]}
+
+        if self.match('NUMBER'):
+            token = self.consume('NUMBER')
+            return {"node_type": "number", "value": token["value"]}
+
+        # etc. Gérer OPERATOR, parenthèses, etc.
+        raise ParserError("Expression invalide.")
 
 
 
 
-'''
+
+
+
+
+
+"""
 ----------------------------------------------------------------------------------------------------------------------
 TEST DU PARSER AVEC UN CODE "REEL"
 ----------------------------------------------------------------------------------------------------------------------
-''' 
+"""
 #tokens corrects : 
 '''
 correct_tokens = [

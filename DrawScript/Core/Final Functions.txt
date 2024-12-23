@@ -1,0 +1,157 @@
+Liste des fonctions correctes et/ou améliorées
+
+
+                                    FINIES :
+
+class ParserError(Exception):
+    pass
+
+class DrawScriptParser:
+    def __init__(self, tokens):
+        pass
+
+    def parse(self):
+        """
+        Méthode principale du parseur qui parcourt tous les tokens
+        et parse 'statement' jusqu'à la fin.
+        Retourne une liste de nœuds AST (ou None si erreur fatale).
+        """
+
+    # ----------------- Méthodes utilitaires -------------------
+    def advance(self):
+        pass
+
+    def current_token(self):
+        pass
+
+    def previous_token(self):
+        pass
+
+    def is_at_end(self):
+        pass
+
+    def match(self, expected_type, expected_value=None):
+        pass
+
+    def consume(self, expected_type, expected_value=None):
+        """
+        Consume le token courant s'il correspond (type, value).
+        Sinon, lève une ParserError.
+        """
+
+    def synchronize(self):
+        """
+        Sauter des tokens jusqu'à trouver un délimiteur fiable
+        pour reprendre (par ex: ';' ou '}' etc.).
+        """
+
+    # ----------------- Parsing statements -------------------
+    def parse_statement(self):
+        """
+        Parse un statement en fonction du token courant
+        """
+
+    def _parse_statement_internal(self):
+        """
+        Logique interne qui peut lever ParserError.
+        """
+
+    def parse_var_declaration(self):
+        """
+        var IDENTIFIER [":" IDENTIFIER] "=" EXPRESSION ";"
+        """
+
+    def parse_if_statement(self):
+        """
+        if "(" EXPRESSION ")" BLOCK [ "else" BLOCK ]
+        """
+
+    def parse_block(self):
+        """
+        "{" { statement } "}"
+        """
+
+    def parse_expression_statement(self):
+        """
+        EXPR ";"
+        """
+
+    def parse_expression(self):
+        """
+        Pour l'exemple, on va juste consommer un IDENTIFIER ou un NUMBER...
+        (À toi de l'implémenter selon la grammaire)
+        """
+
+
+
+                                    A FAIRE :
+
+
+# ----------------------- Statements ------------------- #
+1. Les statements
+
+parse_function_declaration()
+Gère la déclaration d’une fonction, ex. :
+function IDENTIFIER ( [ PARAMETER_LIST ] ) BLOCK
+
+
+parse_for_statement()
+Gère la boucle for, ex. :
+for ( FOR_INIT ; EXPRESSION ; ASSIGNMENT_EXPR ) BLOCK
+
+parse_while_statement()
+Gère la boucle while, ex. :
+while (EXPRESSION) BLOCK
+
+parse_animate_statement()
+Gère l’instruction animate(...) { ... }, ex. :
+animate ( EXPRESSION , EXPRESSION ) BLOCK
+
+parse_copy_statement()
+Gère l’instruction copy(...) to(...) ;, ex. :
+copy ( ARG_LIST_4 ) to ( ARG_LIST_2 ) ;
+
+parse_cursor_statement()
+Gère les appels de type obj.methode(...) ;, ex. :
+myCursor.moveTo(100, 100);
+
+parse_return_statement()
+Gère return [EXPRESSION] ;.
+
+parse_empty_statement()
+Gère un simple ; isolé si on l’autorise (instruction vide).
+
+# ------------------------- Expressions ------------------#
+
+2. EXPRESSIONS : parsing complet des opérateurs
+parse_expression()
+Gère le plus haut niveau (souvent ||). Appelle parse_logical_or_expr().
+
+parse_logical_or_expr()
+Gère || et appelle parse_logical_and_expr() pour ses sous-expressions.
+
+parse_logical_and_expr()
+Gère && et appelle parse_equality_expr().
+
+parse_equality_expr()
+Gère == et != puis appelle parse_relational_expr().
+
+parse_relational_expr()
+Gère <, <=, >, >= et appelle parse_additive_expr().
+
+parse_additive_expr()
+Gère + et - puis appelle parse_multiplicative_expr().
+
+parse_multiplicative_expr()
+Gère *, /, % puis appelle parse_unary_expr().
+
+parse_unary_expr()
+Gère +, -, ! (unaire) et appelle parse_primary_expr().
+
+parse_primary_expr()
+Gère les parenthèses, les littéraux (NUMBER, STRING, BOOLEAN), et les identifiants (variables ou potentiellement appels de fonction).
+
+
+
+
+
