@@ -112,8 +112,7 @@ class SelectionRectangleCanvasController:
 
     def deleteSelectionRectangle(self) -> None:
         """
-        Delete completly the selection rectangle on the canvas.
-        (Probs just put deleteSelectionRectangle and deselect together)
+        Delete completly the selection rectangle and the image inside it if there's one on the canvas.
         """
         # If there is a attached image in the selection rectangle
         if self.selectionRectangle.attachedImage:
@@ -124,7 +123,7 @@ class SelectionRectangleCanvasController:
 
     def deSelect(self) -> None:
         """
-        Deselect completly the selection rectangle on the canvas.
+        Deselect the selection rectangle on the canvas.
         """
         # Erase the rendering of the selection rectangle
         self.erase()
@@ -212,11 +211,12 @@ class SelectionRectangleCanvasController:
             }
 
             selected_corner = corners.get(self.selectionRectangle.selectedCornerIndex)
-            # Set new coordinates for the corner
+            # Set new coordinates for the corner that has been clicked
             if selected_corner:
                 setattr(self.selectionRectangle, selected_corner, mouseCoords)
 
             # Check if a side boundary doesn't surpass another
+            # If there is, then stop the resize
             if (self.selectionRectangle.checkBounds()):
                 return
             
