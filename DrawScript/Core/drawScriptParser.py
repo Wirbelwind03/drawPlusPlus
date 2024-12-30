@@ -106,10 +106,13 @@ class DrawScriptParser:
         """
         if self.match('KEYWORD', 'var'):
             return self.parse_var_declaration()
-
+        
         # if statement
         if self.match('KEYWORD', 'if'):
             return self.parse_if_statement()
+        
+        if self.match('IDENTIFIER'):
+            return self.parse_var_declaration()
 
         # etc. si 'for', 'while', ...
         
@@ -117,30 +120,49 @@ class DrawScriptParser:
         return self.parse_expression_statement()
 
     def parse_var_declaration(self):
-        """
-        var IDENTIFIER [":" IDENTIFIER] "=" EXPRESSION ";"
-        """
+        '''
+        var IDENTIFIER [":" IDENTIFIER] "=" EXPRESSION ";" 
+        '''
+        # 1) On s'attend impérativement à un mot-clé 'var'
+        if not self.match('KEYWORD', 'var'):
+            raise ParserError("Déclaration de variable invalide : mot-clé 'var' attendu avant ton identificateur.")
         self.consume('KEYWORD', 'var')
+
+        # 2) On s'attend à un identifiant après 'var'
+        if not self.match('IDENTIFIER'):
+            raise ParserError("Déclaration de variable invalide : identifiant attendu après 'var'.")
         id_token = self.consume('IDENTIFIER')
         var_name = id_token['value']
         var_type = None
 
-        if self.match('DELIMITER', ':'):
+        # 3)Condition Bonus, type de phrase non vérifié dans le parseur, Vérifie si on a ':' pour un typage optionnel
+        '''if self.match('DELIMITER', ':'):
             self.consume('DELIMITER', ':')
+            if not self.match('IDENTIFIER'):
+                raise ParserError(f"Typage invalide pour la variable '{var_name}': nom de type attendu.")
             type_token = self.consume('IDENTIFIER')
             var_type = type_token['value']
-
+        '''
+        # 4) On s'attend à un '=' (token ASSIGN)
+        if not self.match('ASSIGN', '='):
+            raise ParserError(f"Déclaration invalide pour '{var_name}' : signe '=' attendu.")
         self.consume('ASSIGN', '=')
+
+        # 5) Parse l'expression qui suit le '='
         expr = self.parse_expression()
+
+        # 6) On s'attend à un point-virgule final
+        if not self.match('DELIMITER', ';'):
+            raise ParserError(f"Point-virgule manquant après la déclaration de '{var_name}'.")
         self.consume('DELIMITER', ';')
 
-        # Pour l'instant, on retourne un simple dict
         return {
             "node_type": "var_declaration",
             "name": var_name,
             "type": var_type,
             "expression": expr
         }
+
 
     def parse_if_statement(self):
         """
@@ -222,67 +244,23 @@ TEST DU PARSER AVEC UN CODE "REEL"
 ----------------------------------------------------------------------------------------------------------------------
 """
 #tokens corrects : 
-'''
+
 correct_tokens = [
-    {'type': 'KEYWORD', 'value': 'var', 'line': 3},
-    {'type': 'IDENTIFIER', 'value': 'centerX', 'line': 3},
-    {'type': 'OPERATOR', 'value': '=', 'line': 3},
-    {'type': 'NUMBER', 'value': 300.0, 'line': 3},
-    {'type': 'DELIMITER', 'value': ';', 'line': 3},
-    {'type': 'KEYWORD', 'value': 'var', 'line': 4},
-    {'type': 'IDENTIFIER', 'value': 'centerY', 'line': 4},
-    {'type': 'OPERATOR', 'value': '=', 'line': 4},
-    {'type': 'NUMBER', 'value': 300.0, 'line': 4},
-    {'type': 'DELIMITER', 'value': ';', 'line': 4},
-    {'type': 'KEYWORD', 'value': 'var', 'line': 5},
-    {'type': 'IDENTIFIER', 'value': 'radius', 'line': 5},
-    {'type': 'OPERATOR', 'value': '=', 'line': 5},
-    {'type': 'NUMBER', 'value': 50.0, 'line': 5},
-    {'type': 'DELIMITER', 'value': ';', 'line': 5},
-    {'type': 'KEYWORD', 'value': 'var', 'line': 6},
-    {'type': 'IDENTIFIER', 'value': 'numCircles', 'line': 6},
-    {'type': 'OPERATOR', 'value': '=', 'line': 6},
-    {'type': 'NUMBER', 'value': 5.0, 'line': 6},
-    {'type': 'DELIMITER', 'value': ';', 'line': 6},
-    {'type': 'KEYWORD', 'value': 'var', 'line': 7},
-    {'type': 'IDENTIFIER', 'value': 'angle', 'line': 7},
-    {'type': 'OPERATOR', 'value': '=', 'line': 7},
-    {'type': 'NUMBER', 'value': 0.0, 'line': 7},
-    {'type': 'DELIMITER', 'value': ';', 'line': 7},
-    {'type': 'KEYWORD', 'value': 'var', 'line': 8},
-    {'type': 'IDENTIFIER', 'value': 'speed', 'line': 8},
-    {'type': 'OPERATOR', 'value': '=', 'line': 8},
-    {'type': 'NUMBER', 'value': 0.05, 'line': 8},
-    {'type': 'DELIMITER', 'value': ';', 'line': 8},
-    {'type': 'KEYWORD', 'value': 'var', 'line': 9},
-    {'type': 'IDENTIFIER', 'value': 'isAnimating', 'line': 9},
-    {'type': 'OPERATOR', 'value': '=', 'line': 9},
-    {'type': 'KEYWORD', 'value': 'true', 'line': 9},
-    {'type': 'DELIMITER', 'value': ';', 'line': 9},
-    # Déclaration du curseur (ligne 12)
-    {'type': 'KEYWORD', 'value': 'var', 'line': 12},
-    {'type': 'IDENTIFIER', 'value': 'myCursor', 'line': 12},
-    {'type': 'DELIMITER', 'value': ':', 'line': 12},
-    {'type': 'KEYWORD', 'value': 'cursor', 'line': 12},
-    {'type': 'OPERATOR', 'value': '=', 'line': 12},
-    {'type': 'KEYWORD', 'value': 'cursor', 'line': 12},
-    {'type': 'DELIMITER', 'value': '(', 'line': 12},
-    {'type': 'IDENTIFIER', 'value': 'centerX', 'line': 12},
-    {'type': 'DELIMITER', 'value': ',', 'line': 12},
-    {'type': 'IDENTIFIER', 'value': 'centerY', 'line': 12},
-    {'type': 'DELIMITER', 'value': ')', 'line': 12},
-    {'type': 'DELIMITER', 'value': ';', 'line': 12},
-    # Définition de la fonction 'drawCircle' (ligne 15)
-    {'type': 'KEYWORD', 'value': 'function', 'line': 15},
-    {'type': 'IDENTIFIER', 'value': 'drawCircle', 'line': 15},
-    {'type': 'DELIMITER', 'value': '(', 'line': 15},
-    {'type': 'IDENTIFIER', 'value': 'x', 'line': 15},
-    {'type': 'DELIMITER', 'value': ',', 'line': 15},
-    {'type': 'IDENTIFIER', 'value': 'y', 'line': 15},
-    {'type': 'DELIMITER', 'value': ',', 'line': 15},
-    {'type': 'IDENTIFIER', 'value': 'r', 'line': 15},
-    {'type': 'DELIMITER', 'value': ')', 'line': 15},
-    {'type': 'DELIMITER', 'value': '{', 'line': 15},
+{'type': 'KEYWORD', 'value': 'var', 'line': 8},
+{'type': 'IDENTIFIER', 'value': 'centerX', 'line': 8},
+{'type': 'ASSIGN', 'value': '=', 'line': 8},
+{'type': 'NUMBER', 'value': 300.0, 'line': 8},
+{'type': 'DELIMITER', 'value': ';', 'line': 8},
+{'type': 'KEYWORD', 'value': 'var', 'line': 9},
+{'type': 'IDENTIFIER', 'value': 'centerY', 'line': 9},
+{'type': 'ASSIGN', 'value': '=', 'line': 9},
+{'type': 'NUMBER', 'value': 300.0, 'line': 9},
+{'type': 'DELIMITER', 'value': ';', 'line': 9},
+{'type': 'KEYWORD', 'value': 'var', 'line': 10},
+{'type': 'IDENTIFIER', 'value': 'radius', 'line': 10},
+{'type': 'ASSIGN', 'value': '=', 'line': 10},
+{'type': 'NUMBER', 'value': 50.0, 'line': 10},
+{'type': 'DELIMITER', 'value': ';', 'line': 10}
     # il manque des tokens donc il y aura une erreur EOF
 ]
 
@@ -368,7 +346,7 @@ incorrect_tokens = [
 
 
 
-#script de test des tokens
+#script de test des tokens 
 
 if __name__ == "__main__":
     # Pour tester le code correct
@@ -379,14 +357,15 @@ if __name__ == "__main__":
     print("Erreurs dans le code correct:")
     for error in correct_errors:
         print(error)
-
+    print("")
+    print("Fin analyse erreur dans correct_tokens")
     # Pour tester le code avec des erreurs
-    parser = DrawScriptParser(incorrect_tokens)
-    parsed_incorrect_tokens, incorrect_errors = parser.parse()
+    # parser = DrawScriptParser(incorrect_tokens)
+    # parsed_incorrect_tokens, incorrect_errors = parser.parse()
 
     # Afficher les erreurs du code incorrect
-    print("Erreurs dans le code incorrect:")
-    for error in incorrect_errors:
-        print(error)
+    # print("Erreurs dans le code incorrect:")
+    # for error in incorrect_errors:
+    #    print(error)
 
-'''
+
