@@ -168,14 +168,26 @@ class DrawScriptParser:
         """
         if "(" EXPRESSION ")" BLOCK [ "else" BLOCK ]
         """
+        if not self.match('KEYWORD', 'if'):
+            raise ParserError("Instruction 'if' invalide : mot-clé 'if' attendu.")
         self.consume('KEYWORD', 'if')
+
+        if not self.match('DELIMITER', '('):
+            raise ParserError("Syntaxe 'if' invalide : '(' attendu après 'if'.")
         self.consume('DELIMITER', '(')
+
+        # Parse l'expression dans les parenthèses
         condition = self.parse_expression()
+
+        if not self.match('DELIMITER', ')'):
+            raise ParserError("Syntaxe 'if' invalide : ')' manquant après la condition.")
         self.consume('DELIMITER', ')')
+
+        # Parse le bloc suivant
         then_block = self.parse_block()
 
+        # Si on a un 'else', on parse un second bloc
         else_block = None
-        # Vérifier si on a 'else'
         if self.match('KEYWORD', 'else'):
             self.consume('KEYWORD', 'else')
             else_block = self.parse_block()
@@ -186,6 +198,7 @@ class DrawScriptParser:
             "then_block": then_block,
             "else_block": else_block
         }
+
 
     def parse_block(self):
         """
