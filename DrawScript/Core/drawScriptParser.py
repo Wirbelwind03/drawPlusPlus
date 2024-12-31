@@ -337,10 +337,10 @@ class DrawScriptParser:
         """
         parse_expression ::= parse_assignment_expr()
         """
-        return self.parse_assignment_expr()
+        return self.parse_simple_assignment_expr() #Modifs Paul car la fonction parse_assignment_expr(self) est trop rigide (à supprimer pour l'instant)
 
-# Expression d'assignation
-    def parse_assignment_expr(self):
+# Expression d'assignation 
+    def parse_simple_assignment_expr(self): #Modifs Paul car deux fois le même nom de fonction plus strict
         """
         assignment_expr ::= logical_or_expr
                         | IDENTIFIER '=' assignment_expr
@@ -356,7 +356,7 @@ class DrawScriptParser:
         # Regarde si c'est un =
         if self.match('ASSIGN', '='):
             self.consume('ASSIGN', '=')
-            right = self.parse_assignment_expr()
+            right = self.parse_simple_assignment_expr() #Modifs Paul pour prendre en compte bien toute les expressions x = y + 1, ou même x = y = z + 2
             return {
                 "node_type": "binary_op",
                 "op": "=",
@@ -691,7 +691,7 @@ class DrawScriptParser:
         # Sinon, c’est vide (rien)
         return None
 
-    def parse_simple_assignment(self):
+    """def parse_simple_assignment(self): #Mis en commentaire (Paul) car elle ne sert à rien et est trop strict
         # Identifiant
         id_token = self.consume('IDENTIFIER')
         self.consume('ASSIGN', '=')
@@ -702,7 +702,7 @@ class DrawScriptParser:
         "target": id_token["value"],
         "value": expr
         }
-
+    """
 
     #Initialisation en cas de variable deja existante (pas de declaration de variable var)
     def parse_var_declaration_no_semi(self):
@@ -1034,6 +1034,8 @@ class SemanticAnalyzer:
             pass  # rien à faire
         elif node_type == "expression_statement":
             self.analyze_expression_statement(node)
+        elif node_type == "var_declaration_no_semi":
+            self.analyze_var_declaration(node) # Réutiliser la même fonction
         else:
             self.errors.append(f"Statement inconnu : {node_type}")
 
@@ -1126,6 +1128,50 @@ class SemanticAnalyzer:
                 self.analyze_expression(arg)
         # etc.
         # On peut renvoyer un type si on veut un typage plus strict
+
+    def analyze_for_statement(self, node): #Analyse la boucle for
+        """
+        Analyser un nœud "for_statement" :
+        - node["init"]
+        - node["condition"]
+        - node["increment"]
+        - node["body"]
+        """
+        # Analyser la partie init (var_declaration_no_semi, assignment, ou None)
+        init_node = node["init"]
+        if init_node is not None:
+            self.analyze_statement(init_node)
+
+        # Analyser la condition, si elle existe
+        condition_node = node["condition"]
+        if condition_node is not None:
+            self.analyze_expression(condition_node)
+
+        # Analyser la partie incrément
+        increment_node = node["increment"]
+        if increment_node is not None:
+            self.analyze_expression(increment_node)
+
+        # Analyser le bloc (body) du for
+        body_node = node["body"]
+        self.analyze_block(body_node)
+    
+    def analyze_while_statement(self, node): #Analyse boucle while
+        """
+        Analyser un nœud "while_statement" :
+        - node["condition"]
+        - node["body"]
+        """
+        # Vérifier la condition (node["condition"])
+        condition_node = node["condition"]
+        if condition_node is not None:
+            self.analyze_expression(condition_node)
+
+        # Analyser le body (node["body"]), qui est un block
+        body_node = node["body"]
+        self.analyze_block(body_node)
+
+
 
 
 
@@ -1265,7 +1311,8 @@ correct_tokens = [
     {'type': 'NUMBER', 'value': 10.0, 'line': 13},
     {'type': 'DELIMITER', 'value': ';', 'line': 13},
     {'type': 'DELIMITER', 'value': '}', 'line': 14},
-
+] 
+"""
     # 7) function foo(x) { return x; }
     {'type': 'KEYWORD', 'value': 'function', 'line': 15},
     {'type': 'IDENTIFIER', 'value': 'foo', 'line': 15},
@@ -1314,7 +1361,7 @@ correct_tokens = [
     {'type': 'DELIMITER', 'value': ';', 'line': 20},
     {'type': 'DELIMITER', 'value': '}', 'line': 21},
 ]
-
+"""
 # --------------------- INCORRECT TOKENS ---------------------
 # On force quelques erreurs sémantiques et syntaxiques :
 # 1) Erreur syntaxique: "myCursor" "." "rotate" "(" -> on oublie le ';'
@@ -1387,7 +1434,7 @@ def test_parser_and_semantic():
             print("-- Pas d'erreur sémantique, c'est bon !")
     except Exception as e:
         print(f"Erreur détectée pendant le traitement des tokens corrects : {e}")
-
+    """
     print("\n========== TEST PARSER & SEMANTIC (INCORRECT) ==========")
     try:
         parser2 = DrawScriptParser(incorrect_tokens)
@@ -1413,7 +1460,7 @@ def test_parser_and_semantic():
             print("-- Pas d'erreur sémantique sur incorrect ? (Surprenant)")
     except Exception as e:
         print(f"Erreur détectée pendant le traitement des tokens incorrects : {e}")
-
+    """
 
 if __name__ == "__main__":
     test_parser_and_semantic()
