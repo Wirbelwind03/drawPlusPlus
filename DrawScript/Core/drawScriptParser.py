@@ -14,7 +14,7 @@ class DrawScriptParser:
         Retourne une liste de nœuds AST (ou None si erreur fatale).
         """
         ast_nodes = []
-        max_iterations = len(self.tokens) + 10  # Ajouter une limite
+        max_iterations = len(self.tokens) + 1000  # Ajouter une limite
         iterations = 0
         while not self.is_at_end():
             if iterations > max_iterations:
@@ -1374,7 +1374,7 @@ def test_parser_and_semantic():
         if not parse_errors_correct:
             print("-- Pas d'erreur de parsing, c'est bon !")
         print("\n--- AST (correct) ---")
-        print("",ast_correct)
+        print(ast_correct)
 
         analyzer = SemanticAnalyzer()
         print("Lancement de l'analyse sémantique pour les tokens corrects...")
@@ -1400,7 +1400,7 @@ def test_parser_and_semantic():
         if not parse_errors_incorrect:
             print("-- Pas d'erreur de parsing sur incorrect ? (Surprenant)")
         print("\n--- AST (incorrect) ---")
-        print('',ast_incorrect)
+        print(ast_incorrect)
 
         analyzer2 = SemanticAnalyzer()
         print("Lancement de l'analyse sémantique pour les tokens incorrects...")
