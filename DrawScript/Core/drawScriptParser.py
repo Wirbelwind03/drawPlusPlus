@@ -1171,6 +1171,58 @@ class SemanticAnalyzer:
         body_node = node["body"]
         self.analyze_block(body_node)
 
+    def analyze_function_declaration(self, node):
+        """
+        Analyse un nœud de type 'function_declaration'.
+        On peut vérifier ici la cohérence du nom de la fonction, 
+        s'assurer qu'elle n'a pas déjà été déclarée, vérifier 
+        ses paramètres, etc.
+        """
+
+        func_name = node["name"]
+        line_num = node["line"]
+
+        # Vérifier si elle existe déjà :
+        if func_name in self.symbols:
+            self.errors.append(
+                f"Ligne {line_num}: Fonction '{func_name}' déjà déclarée."
+            )
+        else:
+            # On peut l'ajouter à la table des symboles. 
+            # Ici, j’exemple en la stockant comme un "function".
+            self.symbols[func_name] = "function"
+
+        # Puis on analyse le corps de la fonction (c'est un block)
+        body_block = node["body"]
+        self.analyze_block(body_block)
+    def analyze_return_statement(self, node):
+        """
+        Analyser un nœud 'return_statement'.
+        """
+        # Si node["expression"] n'est pas None, on l'analyse
+        if node["expression"] is not None:
+            self.analyze_expression(node["expression"])
+
+    def analyze_copy_statement(self, node):
+        """
+        Analyser un nœud 'copy_statement'.
+        """
+        # node["source"] est une liste de 4 expressions
+        # node["destination"] est une liste de 2 expressions
+        for expr in node["source"]:
+            self.analyze_expression(expr)
+        for expr in node["destination"]:
+            self.analyze_expression(expr)
+
+    def analyze_animate_statement(self, node):
+        """
+        Analyser un nœud 'animate_statement'.
+        """
+        # node["obj_or_expr1"] et node["expr2"] sont des expressions
+        self.analyze_expression(node["obj_or_expr1"])
+        self.analyze_expression(node["expr2"])
+        # node["body"] est un block => on peut réutiliser analyze_block
+        self.analyze_block(node["body"])
 
 
 
@@ -1311,8 +1363,7 @@ correct_tokens = [
     {'type': 'NUMBER', 'value': 10.0, 'line': 13},
     {'type': 'DELIMITER', 'value': ';', 'line': 13},
     {'type': 'DELIMITER', 'value': '}', 'line': 14},
-] 
-"""
+
     # 7) function foo(x) { return x; }
     {'type': 'KEYWORD', 'value': 'function', 'line': 15},
     {'type': 'IDENTIFIER', 'value': 'foo', 'line': 15},
@@ -1343,7 +1394,8 @@ correct_tokens = [
     {'type': 'NUMBER', 'value': 400.0, 'line': 18},
     {'type': 'DELIMITER', 'value': ')', 'line': 18},
     {'type': 'DELIMITER', 'value': ';', 'line': 18},
-
+]
+"""
     # 9) animate(obj, 10) { x = x + 100; }
     {'type': 'KEYWORD', 'value': 'animate', 'line': 19},
     {'type': 'DELIMITER', 'value': '(', 'line': 19},
@@ -1360,8 +1412,7 @@ correct_tokens = [
     {'type': 'NUMBER', 'value': 100.0, 'line': 20},
     {'type': 'DELIMITER', 'value': ';', 'line': 20},
     {'type': 'DELIMITER', 'value': '}', 'line': 21},
-]
-"""
+
 # --------------------- INCORRECT TOKENS ---------------------
 # On force quelques erreurs sémantiques et syntaxiques :
 # 1) Erreur syntaxique: "myCursor" "." "rotate" "(" -> on oublie le ';'
@@ -1405,7 +1456,7 @@ incorrect_tokens = [
     {'type': 'DELIMITER', 'value': ')', 'line': 4},
     {'type': 'DELIMITER', 'value': ';', 'line': 4},
 ]
-
+"""
 def test_parser_and_semantic():
     print("Tokens fournis au parser :", correct_tokens)
 
@@ -1434,6 +1485,7 @@ def test_parser_and_semantic():
             print("-- Pas d'erreur sémantique, c'est bon !")
     except Exception as e:
         print(f"Erreur détectée pendant le traitement des tokens corrects : {e}")
+    
     """
     print("\n========== TEST PARSER & SEMANTIC (INCORRECT) ==========")
     try:
