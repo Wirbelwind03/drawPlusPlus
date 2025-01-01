@@ -1,8 +1,9 @@
 ████████████████████████████████████████████  A FAIRE :   ████████████████████████████████████████████
 
-TEST d'un code "réel"
+Verifier totalement le parseur
 
-Debuter l'analyse sémantique
+Completer et verifier l'analyseur sémantique
 
-Après l'analyse sémantique transformer en C et verifier le C et la bibliotheque graphics.h 
+Faire  le traducteur en C à l'aide de l'AST 
+
 
