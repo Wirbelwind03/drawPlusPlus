@@ -1,0 +1,24 @@
+{
+    "version": "2.0.0",
+    "tasks": [
+      {
+        "label": "build",
+        "type": "shell",
+        "command": "gcc",
+        "args": [
+          "-I", "${workspaceFolder}/DrawLibrary/SDL2/src/include",
+          "${workspaceFolder}/DrawLibrary/SDL2/main.c",
+          "-L", "${workspaceFolder}/DrawLibrary/SDL2/src/lib",
+          "-lmingw32",
+          "-lSDL2main",
+          "-lSDL2",
+          "-o", "${workspaceFolder}/DrawLibrary/SDL2/main.exe",
+        ],
+        "group": {
+          "kind": "build",
+          "isDefault": true
+        }
+      }
+    ]
+  }
+  
