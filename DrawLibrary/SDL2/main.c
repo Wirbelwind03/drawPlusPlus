@@ -1,9 +1,3 @@
-/*
- * Exemple complet utilisant SDL2
- * Auteur : Votre Nom
- * Date : Date du jour
- */
-
 #include <SDL2/SDL.h>
 #include <math.h>
 #include <stdbool.h>
