@@ -999,7 +999,7 @@ class DrawScriptParser:
 
 class SemanticAnalyzer:
     def __init__(self):
-        self.symbols = {}  # { var_name: "cursor"/"number"/... }
+        self.symbols = {}
         self.errors = []
 
     def analyze(self, ast_nodes):
@@ -1030,11 +1030,11 @@ class SemanticAnalyzer:
         elif node_type == "cursor_method":
             self.analyze_cursor_method(node)
         elif node_type == "empty_statement":
-            pass  # rien à faire
+            pass
         elif node_type == "expression_statement":
             self.analyze_expression_statement(node)
         elif node_type == "var_declaration_no_semi":
-            self.analyze_var_declaration(node) # Réutiliser la même fonction
+            self.analyze_var_declaration(node)
         else:
             self.errors.append(f"Statement inconnu : {node_type}")
 
@@ -1045,8 +1045,8 @@ class SemanticAnalyzer:
                 f"Ligne {node['line']}: Variable '{var_name}' déjà déclarée."
             )
         else:
-            # si tu veux un typage plus précis, il faut inspecter node["expression"]
-            self.symbols[var_name] = "number"  # par exemple
+            # Ex. on enregistre 'number' par défaut
+            self.symbols[var_name] = "number"
 
     def analyze_cursor_declaration(self, node):
         cursor_name = node["name"]
@@ -1056,7 +1056,6 @@ class SemanticAnalyzer:
             )
         else:
             self.symbols[cursor_name] = "cursor"
-        # Optionnel: vérifier arguments du constructeur
 
     def analyze_cursor_method(self, node):
         cursor_name = node["cursor_name"]
@@ -1069,26 +1068,25 @@ class SemanticAnalyzer:
 
         method = node["method"]
         args = node["arguments"]
-        if method == "moveTo":
-            if len(args) != 2:
-                self.errors.append(
-                    f"Ligne {node['line']}: La méthode 'moveTo' attend 2 arguments, reçu {len(args)}."
-                )
-        elif method == "rotate":
-            if len(args) != 1:
-                self.errors.append(
-                    f"Ligne {node['line']}: La méthode 'rotate' attend 1 argument, reçu {len(args)}."
-                )
-        elif method == "drawCircle":
-            if len(args) != 1:
-                self.errors.append(
-                    f"Ligne {node['line']}: La méthode 'drawCircle' attend 1 argument, reçu {len(args)}."
-                )
-        else:
+
+        valid_methods = {
+            "moveTo": 2,
+            "rotate": 1,
+            "drawCircle": 1,
+        }
+        if method not in valid_methods:
             self.errors.append(
                 f"Ligne {node['line']}: Méthode '{method}' inconnue pour un curseur."
             )
+            return
 
+        expected_args = valid_methods[method]
+        if len(args) != expected_args:
+            self.errors.append(
+                f"Ligne {node['line']}: La méthode '{method}' attend {expected_args} argument(s), reçu {len(args)}."
+            )
+
+    # -- ICI on remet les méthodes d'analyse au même niveau que les autres --
     def analyze_if_statement(self, node):
         self.analyze_expression(node["condition"])
         self.analyze_block(node["then_block"])
@@ -1102,8 +1100,6 @@ class SemanticAnalyzer:
     def analyze_expression_statement(self, node):
         self.analyze_expression(node["expression"])
 
-    # ... (etc. pour for, while, copy, animate, return, etc.)
-
     def analyze_expression(self, expr):
         node_type = expr["node_type"]
         if node_type == "binary_op":
@@ -1112,123 +1108,67 @@ class SemanticAnalyzer:
         elif node_type == "unary_op":
             self.analyze_expression(expr["expr"])
         elif node_type == "identifier":
-            # Vérifier qu'il est déclaré
             if expr["value"] not in self.symbols:
                 self.errors.append("Variable non déclarée: " + expr["value"])
-        elif node_type == "number":
-            pass
-        elif node_type == "string":
-            pass
-        elif node_type == "bool_literal":
+        elif node_type in ("number", "string", "bool_literal"):
             pass
         elif node_type == "call_expr":
-            # Gérer si tu as une logique d'appels de fonctions
+            # Gérer la sémantique d’un appel de fonction si besoin
             for arg in expr["arguments"]:
                 self.analyze_expression(arg)
         # etc.
-        # On peut renvoyer un type si on veut un typage plus strict
 
-    def analyze_for_statement(self, node): #Analyse la boucle for
-        """
-        Analyser un nœud "for_statement" :
-        - node["init"]
-        - node["condition"]
-        - node["increment"]
-        - node["body"]
-        """
-        # Analyser la partie init (var_declaration_no_semi, assignment, ou None)
+    def analyze_for_statement(self, node):
         init_node = node["init"]
         if init_node is not None:
             self.analyze_statement(init_node)
 
-        # Analyser la condition, si elle existe
         condition_node = node["condition"]
         if condition_node is not None:
             self.analyze_expression(condition_node)
 
-        # Analyser la partie incrément
         increment_node = node["increment"]
         if increment_node is not None:
             self.analyze_expression(increment_node)
 
-        # Analyser le bloc (body) du for
         body_node = node["body"]
         self.analyze_block(body_node)
-    
-    def analyze_while_statement(self, node): #Analyse boucle while
-        """
-        Analyser un nœud "while_statement" :
-        - node["condition"]
-        - node["body"]
-        """
-        # Vérifier la condition (node["condition"])
+
+    def analyze_while_statement(self, node):
         condition_node = node["condition"]
         if condition_node is not None:
             self.analyze_expression(condition_node)
 
-        # Analyser le body (node["body"]), qui est un block
         body_node = node["body"]
         self.analyze_block(body_node)
 
     def analyze_function_declaration(self, node):
-        """
-        Analyse un nœud de type 'function_declaration'.
-        On peut vérifier ici la cohérence du nom de la fonction, 
-        s'assurer qu'elle n'a pas déjà été déclarée, vérifier 
-        ses paramètres, etc.
-        """
-
         func_name = node["name"]
-        line_num = node["line"]
-
-        # Vérifier si elle existe déjà :
         if func_name in self.symbols:
             self.errors.append(
-                f"Ligne {line_num}: Fonction '{func_name}' déjà déclarée."
+                f"Ligne {node['line']}: Fonction '{func_name}' déjà déclarée."
             )
         else:
-            # On peut l'ajouter à la table des symboles. 
-            # Ici, j’exemple en la stockant comme un "function".
             self.symbols[func_name] = "function"
 
-        # Puis on analyse le corps de la fonction (c'est un block)
+        # Analyser le corps de la fonction
         body_block = node["body"]
         self.analyze_block(body_block)
+
     def analyze_return_statement(self, node):
-        """
-        Analyser un nœud 'return_statement'.
-        """
-        # Si node["expression"] n'est pas None, on l'analyse
         if node["expression"] is not None:
             self.analyze_expression(node["expression"])
 
     def analyze_copy_statement(self, node):
-        """
-        Analyser un nœud 'copy_statement'.
-        """
-        # node["source"] est une liste de 4 expressions
-        # node["destination"] est une liste de 2 expressions
         for expr in node["source"]:
             self.analyze_expression(expr)
         for expr in node["destination"]:
             self.analyze_expression(expr)
 
     def analyze_animate_statement(self, node):
-        """
-        Analyser un nœud 'animate_statement'.
-        """
-        # node["obj_or_expr1"] et node["expr2"] sont des expressions
         self.analyze_expression(node["obj_or_expr1"])
         self.analyze_expression(node["expr2"])
-        # node["body"] est un block => on peut réutiliser analyze_block
         self.analyze_block(node["body"])
-
-
-
-
-
-
-
 
 
 
@@ -1411,12 +1351,13 @@ correct_tokens = [
     {'type': 'NUMBER', 'value': 100.0, 'line': 20},
     {'type': 'DELIMITER', 'value': ';', 'line': 20},
     {'type': 'DELIMITER', 'value': '}', 'line': 21},
-
+"""
 # --------------------- INCORRECT TOKENS ---------------------
 # On force quelques erreurs sémantiques et syntaxiques :
 # 1) Erreur syntaxique: "myCursor" "." "rotate" "(" -> on oublie le ';'
 # 2) Erreur sémantique: on appelle "myCur.drawRect(2,3)" qui n'existe pas
 incorrect_tokens = [
+    
     # cursor myCur = var(100, 200); => Invalide, on a "var" au lieu de "cursor" interne
     {'type': 'KEYWORD', 'value': 'cursor', 'line': 1},
     {'type': 'IDENTIFIER', 'value': 'myCur', 'line': 1},
@@ -1435,8 +1376,8 @@ incorrect_tokens = [
     {'type': 'ASSIGN', 'value': '=', 'line': 2},
     {'type': 'NUMBER', 'value': 100.0, 'line': 2},
     # <-- on n'a pas mis le DELIMITER ';'
-
-    # myCur.drawRect(2,3); => sémantique : drawRect n’existe pas
+ 
+    # myCur.drawRect(2,3); => sémantique : drawRect n’existe pas Ping bien l'erreur quand le parsing il n'y a pas d'erreur de parsing
     {'type': 'IDENTIFIER', 'value': 'myCur', 'line': 3},
     {'type': 'ACCESS_OPERATOR', 'value': '.', 'line': 3},
     {'type': 'IDENTIFIER', 'value': 'drawRect', 'line': 3},
@@ -1446,6 +1387,7 @@ incorrect_tokens = [
     {'type': 'NUMBER', 'value': 3.0, 'line': 3},
     {'type': 'DELIMITER', 'value': ')', 'line': 3},
     {'type': 'DELIMITER', 'value': ';', 'line': 3},
+    
 
     # Mauvaise syntaxe: myCur rotate(30); => manque le '.'
     {'type': 'IDENTIFIER', 'value': 'myCur', 'line': 4},
@@ -1454,8 +1396,8 @@ incorrect_tokens = [
     {'type': 'NUMBER', 'value': 30.0, 'line': 4},
     {'type': 'DELIMITER', 'value': ')', 'line': 4},
     {'type': 'DELIMITER', 'value': ';', 'line': 4},
+
 ]
-"""
 def test_parser_and_semantic():
     print("Tokens fournis au parser :", correct_tokens)
 
@@ -1484,7 +1426,7 @@ def test_parser_and_semantic():
             print("-- Pas d'erreur sémantique, c'est bon !")
     except Exception as e:
         print(f"Erreur détectée pendant le traitement des tokens corrects : {e}")
-    """
+    
     print("\n========== TEST PARSER & SEMANTIC (INCORRECT) ==========")
     try:
         parser2 = DrawScriptParser(incorrect_tokens)
@@ -1496,8 +1438,12 @@ def test_parser_and_semantic():
             print(e)
         if not parse_errors_incorrect:
             print("-- Pas d'erreur de parsing sur incorrect ? (Surprenant)")
-        print("\n--- AST (incorrect) ---")
-        print(ast_incorrect)
+        
+        if ast_incorrect:
+            print("\n--- AST (incorrect) ---")
+            print(ast_incorrect)
+        else:
+            print("\n-- L'AST est vide, le parsing a complètement échoué --")
 
         analyzer2 = SemanticAnalyzer()
         print("Lancement de l'analyse sémantique pour les tokens incorrects...")
@@ -1506,11 +1452,11 @@ def test_parser_and_semantic():
         print("\nSemantic errors (incorrect tokens):")
         for e in semantic_errors_incorrect:
             print(e)
-        if not semantic_errors_incorrect:
+        if not semantic_errors_incorrect and ast_incorrect:
             print("-- Pas d'erreur sémantique sur incorrect ? (Surprenant)")
     except Exception as e:
         print(f"Erreur détectée pendant le traitement des tokens incorrects : {e}")
-"""
+
 if __name__ == "__main__":
     test_parser_and_semantic()
 
