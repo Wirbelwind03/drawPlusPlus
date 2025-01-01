@@ -994,7 +994,6 @@ class DrawScriptParser:
 #██████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████
 #██████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████
 #██████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████
-
 #███████████████████████████████████████████████████████████████████ ANALYSEUR SEMANTIQUE   ███████████████████████████████████████████████████████████████████████████████
 
 
@@ -1485,7 +1484,6 @@ def test_parser_and_semantic():
             print("-- Pas d'erreur sémantique, c'est bon !")
     except Exception as e:
         print(f"Erreur détectée pendant le traitement des tokens corrects : {e}")
-    
     """
     print("\n========== TEST PARSER & SEMANTIC (INCORRECT) ==========")
     try:
@@ -1512,8 +1510,7 @@ def test_parser_and_semantic():
             print("-- Pas d'erreur sémantique sur incorrect ? (Surprenant)")
     except Exception as e:
         print(f"Erreur détectée pendant le traitement des tokens incorrects : {e}")
-    """
-
+"""
 if __name__ == "__main__":
     test_parser_and_semantic()
 
