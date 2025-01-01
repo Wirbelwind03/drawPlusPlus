@@ -1,23 +1,28 @@
 import tkinter as tk
 from tkinter import PhotoImage
+from .gear import GearWindow
 
 class MainBar(tk.Frame):
+    def open_window(self):
+        # Create a new window when the gear button is pressed
+        new_window = GearWindow(self.master)
+
     def __init__(self, *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)
         self.grid(row=0, column=0, sticky="new")
 
-        # Creating a gap between icons by setting "minsize=100" every two column initializations
-        self.columnconfigure(0,weight=1)
+        # Create a gap between icons by setting "minsize=100" for each two column initializations
+        self.columnconfigure(0, weight=1)
         self.columnconfigure(1)
 
-        self.rowconfigure(0, minsize=30)
+        self.rowconfigure(0)
 
-        # Load images
-        gear_image = PhotoImage(file="Data/Assets/gear.png")  # Make sure the image exists
+        # Load the image
+        gear_image = PhotoImage(file="Data/Assets/gear.png")
         
         # Tool - Gear
-        gearButton = tk.Button(self, image=gear_image, height=50, width=50)
-        gearButton.image = gear_image  # Required to prevent the image from being collected by the garbage collector
+        gearButton = tk.Button(self, image=gear_image, height=50, width=50, command=self.open_window)
+        gearButton.image = gear_image
         gearButton.grid(row=0, column=1)
 
 # Main window
