@@ -1,5 +1,6 @@
 from DrawScript.Core.drawScriptTokenizer import DrawScriptTokenizer
 from DrawScript.Core.drawScriptParser import DrawScriptParser
+from DrawScript.Core.drawScriptInterpreter import DrawScriptInterpreter
 
 """ Exemple utilisation Tokenizer.py
 """
@@ -21,7 +22,7 @@ code = """/*
     var isAnimating = true;
 
     // 2. Déclaration d'une variable de type cursor
-    var myCursor : cursor = cursor(centerX, centerY);
+    Cursor cursor1 = Cursor(centerX, centerY);
 
     // 3. Fonction pour dessiner un cercle
     function drawCircle(x, y, r) {
@@ -105,10 +106,6 @@ code = """/*
 # Analyse de la chaîne et récupération des résultats
 tokens, errors = tokenizer.tokenize(code)
 
-parser = DrawScriptParser(tokens)
-parser.parse()
-
-
 # Affichage des résultats
 print("Tokens:")
 for token in tokens:
@@ -120,3 +117,9 @@ print(errors)
 
 """
 """
+
+parser = DrawScriptParser(tokens)
+ast_nodes, errors = parser.parse()
+
+interpreter = DrawScriptInterpreter(ast_nodes)
+interpreter.write_c()
