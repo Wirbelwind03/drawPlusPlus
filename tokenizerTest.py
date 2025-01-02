@@ -1,6 +1,6 @@
 from DrawScript.Core.drawScriptTokenizer import DrawScriptTokenizer
 from DrawScript.Core.drawScriptParser import DrawScriptParser
-from DrawScript.Core.drawScriptInterpreter import DrawScriptInterpreter
+from DrawScript.Core.drawScriptDeserializerC import DrawScriptDeserializerC
 
 """ Exemple utilisation Tokenizer.py
 """
@@ -121,5 +121,5 @@ print(errors)
 parser = DrawScriptParser(tokens)
 ast_nodes, errors = parser.parse()
 
-interpreter = DrawScriptInterpreter(ast_nodes)
+interpreter = DrawScriptDeserializerC(ast_nodes)
 interpreter.write_c()
