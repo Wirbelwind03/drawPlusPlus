@@ -63,7 +63,10 @@ class DrawScriptTokenizer:
             elif kind == 'COMMENT':
                 pass  # Ignorer les commentaires sur une ligne
             elif kind == 'NUMBER':
-                tokens.append({'type': kind, 'value': float(value), 'line': line_number})
+                number = float(value)
+                if float.is_integer(number):
+                    number = round(number)
+                tokens.append({'type': kind, 'value': number, 'line': line_number})
                 errors.append(0)
             elif kind == 'STRING':
                 # Enlever les guillemets de début et de fin
