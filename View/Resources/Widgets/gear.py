@@ -11,32 +11,23 @@ class GearWindow(tk.Toplevel):
         self.title("Fenêtre de Paramètres")
         self.geometry("600x270")
 
-        # Fonction pour enregistrer les paramètres dans un fichier JSON
-        def save_settings():
-            # Sauvegarder les paramètres dans un dictionnaire
-            settings = {
-                "font": font_var.get(),
-                "font_size": font_size_var.get(),
-                "dark_mode": dark_mode_var.get()
-            }
+        # Chemin du fichier JSON
+        json_file = "gear.json"
 
-            # Sauvegarder le dictionnaire dans un fichier JSON
-            with open(GearWindow.settings_file, "w") as file:
-                json.dump(settings, file)
-
-        # Charger les paramètres sauvegardés depuis le fichier JSON
+        # Fonction pour charger les paramètres depuis le fichier JSON
         def load_settings():
-            if os.path.exists(GearWindow.settings_file):
-                with open(GearWindow.settings_file, "r") as file:
+            # Vérifie si le fichier existe et n'est pas vide
+            if os.path.exists(json_file) and os.path.getsize(json_file) > 0:
+                with open(json_file, "r") as file:
                     settings = json.load(file)
-                    return settings
+                return settings
             else:
-                # Retourner des valeurs par défaut si le fichier n'existe pas
-                return {
-                    "font": "Helvetica",
-                    "font_size": 24,
-                    "dark_mode": False
-                }
+                print(f"Erreur dans le fichier JSON : {json_file} est introuvable, vide ou corrompu.")
+                
+        # Fonction pour sauvegarder les paramètres dans le fichier JSON
+        def save_settings(settings):
+            with open(json_file, "w") as file:
+                json.dump(settings, file, indent=4)
             
         # Charger les paramètres
         settings = load_settings()
@@ -47,7 +38,7 @@ class GearWindow(tk.Toplevel):
         dark_mode_default = settings.get("dark_mode", False)
 
         # Label principal
-        label = tk.Label(self, text="Paramètres de l'application", font=("Helvetica", "24", "bold"))
+        label = tk.Label(self, text="Paramètres de l'application")
         label.pack(pady=20)
 
         # Cadre pour les paramètres
