@@ -37,7 +37,7 @@ class DrawScriptTokenizer:
         # Définition des mots-clés du langage
         keywords = {
             'var', 'function', 'if', 'else', 'while', 'for',
-            'copy', 'animate', 'to', 'cursor', 'return', 'clear',
+            'copy', 'animate', 'to', 'Cursor', 'return',
         }
 
         # Initialisation des variables pour la tokenisation
