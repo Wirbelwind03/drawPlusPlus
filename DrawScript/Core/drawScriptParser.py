@@ -189,7 +189,7 @@ class DrawScriptParser:
         # Assigner le typage de la variable
         if expr["node_type"] == "number":
             # Voir si c'est un float ou un int
-            var_type = "float" if float.is_integer(expr["value"]) else "int" 
+            var_type = "int" if float.is_integer(expr["value"]) else "float" 
         elif expr["node_type"] == "bool_literal":
             var_type = "bool"
 
