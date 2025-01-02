@@ -6,4 +6,19 @@ Completer et verifier l'analyseur sémantique
 
 Faire  le traducteur en C à l'aide de l'AST 
 
+Liste Fonction draw ++:
 
+moveto a changer en : move(xouy, pixels)
+ajouter la fonctionalitée : cursor.setcolor( RGB ou une couleure (a choisir) )
+ajouter la fonctionalitée : cursor.setthickness( taille d'epaisseure en pixel )
+ajouter la fonctionalitée : cursor.up et cursor.down (pour poser ou lever le stylo)
+ajouter la fonctionalitée : cursor.rotate(degré) (vérifier l'existence de la methode )
+potentiellement ajouter la methode cursor.draw.circle/square etc ou alors cursor.drawcircle/drawsquare etc etc 
+potentiellement ajouter (peu de chances pour l'instant) une fonction animate mais heuu j'ai aucune idée de comment faire ça 
+peut etre ajouter des keywords dans le tokenizer ou peut etre aussi un autre type de token comme "METHOD" peut etre ? comme ça on definit mieux les tokens vis a vis des methodes de curseur
+
+Pour l'analyseur sémantique :
+verifier pour chaques methodes de curseur le bon nombre d'aguments
+verifier pour chaques methodes de curseur le bon type d'arguments 
+Verifier pour chacunes des variables si elles ont étés bien initialisées, pareil pour les curseurs
+Faire en sorte que l'analyseur sémantique donne un arbre AST comme le parseur, mais entièrement correct (ça va faciliter la traduction en C) 
