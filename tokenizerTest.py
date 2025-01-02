@@ -1,4 +1,5 @@
 from DrawScript.Core.drawScriptTokenizer import DrawScriptTokenizer
+from DrawScript.Core.drawScriptParser import DrawScriptParser
 
 """ Exemple utilisation Tokenizer.py
 """
@@ -103,6 +104,9 @@ code = """/*
 
 # Analyse de la chaîne et récupération des résultats
 tokens, errors = tokenizer.tokenize(code)
+
+parser = DrawScriptParser(tokens)
+parser.parse()
 
 
 # Affichage des résultats
