@@ -58,15 +58,10 @@ class DrawScriptTokenizer:
                 line_number += 1
             elif kind == 'WHITESPACE':
                 pass  # Ignorer les espaces blancs
-            elif kind == 'COMMENT':
-                pass  # Ignorer les commentaires sur une ligne
             elif kind == 'MULTILINE_COMMENT':
                 line_number += value.count('\n')  # Compter les nouvelles lignes dans les commentaires
-            elif kind == 'IDENTIFIER':
-                if value in keywords:
-                    kind = 'KEYWORD'  # Si l'identifiant est un mot-clé, changer son type
-                tokens.append({'type': kind, 'value': value, 'line': line_number})
-                errors.append(0)  # Pas d'erreur pour ce token
+            elif kind == 'COMMENT':
+                pass  # Ignorer les commentaires sur une ligne
             elif kind == 'NUMBER':
                 tokens.append({'type': kind, 'value': float(value), 'line': line_number})
                 errors.append(0)
@@ -74,6 +69,14 @@ class DrawScriptTokenizer:
                 # Enlever les guillemets de début et de fin
                 tokens.append({'type': kind, 'value': value[1:-1], 'line': line_number})
                 errors.append(0)
+            elif kind == 'BOOLEAN':
+                tokens.append({'type': kind, 'value': value, 'line': line_number})
+                errors.append(0)
+            elif kind == 'IDENTIFIER':
+                if value in keywords:
+                    kind = 'KEYWORD'  # Si l'identifiant est un mot-clé, changer son type
+                tokens.append({'type': kind, 'value': value, 'line': line_number})
+                errors.append(0)  # Pas d'erreur pour ce token
             elif kind in {'OPERATOR', 'DELIMITER', 'ASSIGN', 'ACCESS_OPERATOR'}:
                 tokens.append({'type': kind, 'value': value, 'line': line_number})
                 errors.append(0)

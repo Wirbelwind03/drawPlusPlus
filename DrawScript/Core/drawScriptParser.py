@@ -22,6 +22,7 @@ class DrawScriptParser:
             iterations += 1
 
             stmt = self.parse_statement()
+            print(stmt)
             if stmt is not None:
                 ast_nodes.append(stmt)
         return ast_nodes, self.errors
@@ -626,11 +627,11 @@ class DrawScriptParser:
 
         # 3) BOOLEAN (si tu as un token "BOOLEAN" => true/false)
         #    ou KEYWORD("true"/"false"), selon ton tokenizer
-        if self.match('KEYWORD', 'true'):
-            self.consume('KEYWORD', 'true')
+        if self.match('BOOLEAN', 'true'):
+            self.consume('BOOLEAN', 'true')
             return {"node_type": "bool_literal", "value": True}
-        if self.match('KEYWORD', 'false'):
-            self.consume('KEYWORD', 'false')
+        if self.match('BOOLEAN', 'false'):
+            self.consume('BOOLEAN', 'false')
             return {"node_type": "bool_literal", "value": False}
 
         # 4) STRING
