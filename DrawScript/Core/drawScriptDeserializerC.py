@@ -10,7 +10,7 @@ class DrawScriptDeserializerC:
         deserialize += "#include <stdbool.h>\n"
         deserialize += "#include <stdio.h>\n"
         deserialize += "\n"
-        deserialize += "int main(int argc, char *argv[]){\n"
+        deserialize += "int main(int argc, char *argv[])\n{\n"
         for ast_node in self.ast_nodes:
             deserialize += self.deserialize_node_type(ast_node)
         deserialize += "}\n"
@@ -59,14 +59,17 @@ class DrawScriptDeserializerC:
     def deserialize_if_statement(self, ast_node):
         deserialize = "\tif "
         deserialize += f'({self.deserialize_node_type(ast_node["condition"])})'
+        deserialize += "\n"
         deserialize += self.deserialize_block(ast_node["then_block"])
         deserialize += "\telse"
+        deserialize += "\n"
         deserialize += self.deserialize_block(ast_node["else_block"])
         return deserialize
     
     def deserialize_while_statement(self, ast_node):
         deserialize = "\twhile "
         deserialize += f'({self.deserialize_node_type(ast_node["condition"])})'
+        deserialize += "\n"
         deserialize += self.deserialize_block(ast_node["body"])
         return deserialize
     
