@@ -1,11 +1,17 @@
-class ParserError(Exception):
-    pass
+from config import DEBUG
+from DrawScript.Exceptions.parserError import ParserError
 
 class DrawScriptParser:
     def __init__(self, tokens):
         self.tokens = tokens
         self.current_token_index = 0
         self.errors = []
+
+    @property
+    def currentToken(self):
+        if (self.tokens == []):
+            return None
+        return self.tokens[self.current_token_index]
 
     def parse(self):
         """
@@ -22,6 +28,8 @@ class DrawScriptParser:
             iterations += 1
 
             stmt = self.parse_statement()
+            if DEBUG:
+                print(stmt)
             if stmt is not None:
                 ast_nodes.append(stmt)
         return ast_nodes, self.errors
@@ -113,7 +121,7 @@ class DrawScriptParser:
         if self.match('KEYWORD', 'var'):
             return self.parse_var_declaration()
 
-        if self.match('KEYWORD', 'cursor'):
+        if self.match('KEYWORD', 'Cursor'):
             return self.parse_cursor_declaration()
 
         if self.match('KEYWORD', 'if'):
@@ -178,6 +186,12 @@ class DrawScriptParser:
 
         # 5) Parse l'expression qui suit le '='
         expr = self.parse_expression()
+        # Assigner le typage de la variable
+        if expr["node_type"] == "number":
+            # Voir si c'est un float ou un int
+            var_type = "int" if isinstance(expr["value"], int) else "float" 
+        elif expr["node_type"] == "bool_literal":
+            var_type = "bool"
 
         # 6) On s'attend à un point-virgule final
         if not self.match('DELIMITER', ';'):
@@ -289,6 +303,8 @@ class DrawScriptParser:
         statements = []
         while not self.is_at_end() and not self.match('DELIMITER', '}'):
             stmt = self.parse_statement()
+            if DEBUG:
+                print(stmt)
             if stmt:
                 statements.append(stmt)
         self.consume('DELIMITER', '}')
@@ -626,12 +642,12 @@ class DrawScriptParser:
 
         # 3) BOOLEAN (si tu as un token "BOOLEAN" => true/false)
         #    ou KEYWORD("true"/"false"), selon ton tokenizer
-        if self.match('KEYWORD', 'true'):
-            self.consume('KEYWORD', 'true')
-            return {"node_type": "bool_literal", "value": True}
-        if self.match('KEYWORD', 'false'):
-            self.consume('KEYWORD', 'false')
-            return {"node_type": "bool_literal", "value": False}
+        if self.match('BOOLEAN', 'true'):
+            self.consume('BOOLEAN', 'true')
+            return {"node_type": "bool_literal", "value": "true"}
+        if self.match('BOOLEAN', 'false'):
+            self.consume('BOOLEAN', 'false')
+            return {"node_type": "bool_literal", "value": "false"}
 
         # 4) STRING
         if self.match('STRING'):
@@ -889,7 +905,7 @@ class DrawScriptParser:
         line_num = self.current_token()["line"]
         
         # 1) On consomme le mot-clé 'cursor'
-        self.consume('KEYWORD', 'cursor')
+        self.consume('KEYWORD', 'Cursor')
         
         # 2) On attend un identifiant (ex: myCursor)
         id_token = self.consume('IDENTIFIER')
@@ -899,9 +915,9 @@ class DrawScriptParser:
         self.consume('ASSIGN', '=')
         
         # 4) On attend le mot-clé 'cursor' pour appeler le "constructeur"
-        if not self.match('KEYWORD', 'cursor'):
+        if not self.match('KEYWORD', 'Cursor'):
             raise ParserError("Initialisation de curseur invalide : 'cursor(...)' attendu.")
-        self.consume('KEYWORD', 'cursor')
+        self.consume('KEYWORD', 'Cursor')
         
         # 5) On consomme '('
         self.consume('DELIMITER', '(')

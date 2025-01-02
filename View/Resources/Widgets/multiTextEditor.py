@@ -11,7 +11,7 @@ class MultiTextEditor(tk.Frame):
 
         # Add 4 tabs with text editors
         for i in range(1, 5):
-            self.add_editor_tab(f"Tab {i}")
+            self.add_editor_tab(f"Fenêtre {i}")
 
     def add_editor_tab(self, title):
 
