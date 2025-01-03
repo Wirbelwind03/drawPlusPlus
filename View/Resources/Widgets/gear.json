@@ -1,5 +1,6 @@
 {
-    "font": "Helvetica",
+    "font": "Times New Roman",
     "font_size": 24,
-    "dark_mode": false
+    "dark_mode": true,
+    "close_after_save": false
 }

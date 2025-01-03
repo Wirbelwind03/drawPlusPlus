@@ -5,14 +5,13 @@ import os
 
 
 class GearWindow(tk.Toplevel):
-    settings_file = os.path.join(os.path.dirname(__file__), "gear.json")  # Chemin du fichier JSON dans le même dossier que gear.py
     def __init__(self, master):
         super().__init__(master)
         self.title("Fenêtre de Paramètres")
-        self.geometry("600x270")
+        self.geometry("600x300")
 
         # Chemin du fichier JSON
-        json_file = "gear.json"
+        json_file = "View/Resources/Widgets/gear.json"
 
         # Fonction pour charger les paramètres depuis le fichier JSON
         def load_settings():
@@ -22,12 +21,23 @@ class GearWindow(tk.Toplevel):
                     settings = json.load(file)
                 return settings
             else:
-                print(f"Erreur dans le fichier JSON : {json_file} est introuvable, vide ou corrompu.")
+                print("Erreur dans le fichier JSON : gear.json est introuvable, vide ou corrompu.")
+                exit(1)
                 
         # Fonction pour sauvegarder les paramètres dans le fichier JSON
-        def save_settings(settings):
+        def save_settings(close_after_save):
+            # Récupérer les valeurs actuelles des widgets
+            settings = {
+                "font": font_var.get(),
+                "font_size": font_size_var.get(),
+                "dark_mode": dark_mode_var.get(),
+                "close_after_save": close_after_save  # Ajouter cette option dans les paramètres sauvegardés
+            }
             with open(json_file, "w") as file:
                 json.dump(settings, file, indent=4)
+            # Si l'utilisateur souhaite fermer la fenêtre après l'enregistrement
+            if close_after_save:
+                self.destroy()  # Ferme la fenêtre de paramètres
             
         # Charger les paramètres
         settings = load_settings()
@@ -36,6 +46,7 @@ class GearWindow(tk.Toplevel):
         font_default = settings.get("font", "Helvetica")
         font_size_default = settings.get("font_size", 24)
         dark_mode_default = settings.get("dark_mode", False)
+        close_after_save_default = settings.get("close_after_save", False)
 
         # Label principal
         label = tk.Label(self, text="Paramètres de l'application")
@@ -68,6 +79,11 @@ class GearWindow(tk.Toplevel):
         dark_mode_check = tk.Checkbutton(frame, text="Mode sombre", variable=dark_mode_var)
         dark_mode_check.grid(row=3, column=0, columnspan=2, sticky="w", padx=10, pady=5)
 
+        # Option pour fermer la fenêtre après l'enregistrement
+        close_after_save_var = tk.BooleanVar(value=close_after_save_default)
+        close_after_save_check = tk.Checkbutton(self, text="Fermer après l'enregistrement", variable=close_after_save_var)
+        close_after_save_check.pack(pady=10)
+
         # Bouton Enregistrer
-        save_button = tk.Button(self, text="Enregistrer", command=save_settings)
+        save_button = tk.Button(self, text="Enregistrer", command=lambda : save_settings(close_after_save_var.get()))
         save_button.pack(pady=10)
