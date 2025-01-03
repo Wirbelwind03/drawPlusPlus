@@ -18,6 +18,12 @@ class DrawScriptDeserializerC:
         f.write(deserialize)
         f.close()
 
+    def detect_expression_type(self, ast_node):
+        if ast_node["node_type"] == "binary_op" and ast_node["op"] == '/':
+            return "float"
+        elif ast_node["node_type"] == "binary_op":
+            return "float"
+
     def deserialize_function_declaration(self, ast_node):
         deserialize = f'void {ast_node["name"]}('
         for i in range(len(ast_node["params"])):
@@ -40,21 +46,19 @@ class DrawScriptDeserializerC:
         return deserialize
 
     def deserialize_var_declaration(self, ast_node):
-        deserialize = ""
+        type = ""
         if ast_node["type"] != None:
-            deserialize += f'{ast_node["type"]} ' 
-        deserialize += f'{ast_node["name"]} = '
-        deserialize += self.deserialize_node_type(ast_node["expression"])
-        return deserialize
+            type = f'{ast_node["type"]}'
+        expression = self.deserialize_node_type(ast_node["expression"])
+        # Add detect type if type == ""
+        if type == "" : type = self.detect_expression_type(ast_node["expression"])
+        return f'{type} {ast_node["name"]} = {expression}'
     
     def deserialize_binary_op(self, ast_node):
-        deserialize = ""
-        deserialize += self.deserialize_node_type(ast_node["left"])
-        deserialize += " "
-        deserialize += ast_node["op"]
-        deserialize += " "
-        deserialize += self.deserialize_node_type(ast_node["right"])
-        return deserialize
+        left = self.deserialize_node_type(ast_node["left"])
+        right = self.deserialize_node_type(ast_node["right"])
+        op = ast_node["op"]
+        return f"({left} {op} {right})"
     
     def deserialize_if_statement(self, ast_node):
         deserialize = "\tif "

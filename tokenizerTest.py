@@ -103,6 +103,10 @@ code = """/*
     // 12. Fin du script
     """
 
+codeTest ="""
+var offsetX = centerX + (radius * 3) * cos(angle + (i * (360 / numCircles)));
+"""
+
 # Analyse de la chaîne et récupération des résultats
 tokens, errors = tokenizer.tokenize(code)
 
