@@ -1,21 +1,27 @@
 class DrawScriptDeserializerC:
     def __init__(self, ast_nodes):
         self.ast_nodes = ast_nodes
+        self.line_test = 0
+        self.code = ""
 
     def write_c(self):
         f = open("main.c", "w")
         
-        deserialize = ""
-        deserialize += "#include <SDL2/SDL.h>\n"
-        deserialize += "#include <stdbool.h>\n"
-        deserialize += "#include <stdio.h>\n"
-        deserialize += "\n"
-        deserialize += "int main(int argc, char *argv[])\n{\n"
+        self.code += "#include <SDL2/SDL.h>\n"
+        self.code += "#include <stdbool.h>\n"
+        self.code += "#include <stdio.h>\n"
+        self.code += "\n"
+        self.line_test = len(self.code)
+        self.code += "int main(int argc, char *argv[])\n{\n"
         for ast_node in self.ast_nodes:
-            deserialize += self.deserialize_node_type(ast_node)
-        deserialize += "}\n"
+            if ast_node["node_type"] != "function_declaration":
+                self.code += self.deserialize_node_type(ast_node) 
+            else:
+                self.code = self.deserialize_node_type(ast_node) 
+            print(self.code)
+        self.code += "}\n"
 
-        f.write(deserialize)
+        f.write(self.code)
         f.close()
 
     def detect_expression_type(self, ast_node):
@@ -23,27 +29,50 @@ class DrawScriptDeserializerC:
             return "float"
         elif ast_node["node_type"] == "binary_op":
             return "float"
+        
+    def deserialize_node_type(self, ast_node):
+        if ast_node["node_type"] == "binary_op":
+            return self.deserialize_binary_op(ast_node)
+        elif ast_node["node_type"] == "call_expr":
+            return self.deserialize_call_expr(ast_node)
+        elif ast_node["node_type"] == "expression_statement":
+            return self.deserialize_expression_statement(ast_node)
+        elif ast_node["node_type"] == "identifier":
+            return ast_node["value"]
+        elif ast_node["node_type"] == "if_statement":
+            return self.deserialize_if_statement(ast_node)
+        elif ast_node["node_type"] == "number":
+            return str(ast_node["value"])
+        elif ast_node["node_type"] == "bool_literal":
+            return ast_node["value"]
+        elif ast_node["node_type"] == "for_statement":
+            return self.deserialize_for_statement(ast_node)
+        elif ast_node["node_type"] == "function_declaration":
+            return self.code[:self.line_test] + self.deserialize_function_declaration(ast_node) + self.code[self.line_test:]
+        elif ast_node["node_type"] == "var_declaration":
+            return self.deserialize_var_declaration(ast_node) + "\n"
+        elif ast_node["node_type"] == "while_statement":
+            return self.deserialize_while_statement(ast_node)
+        else:
+            print(ast_node["node_type"])
+
+        return ""
 
     def deserialize_function_declaration(self, ast_node):
-        deserialize = f'void {ast_node["name"]}('
+        params = ""
         for i in range(len(ast_node["params"])):
-            deserialize += f'{ast_node["params"][i]}'
+            params += f'{ast_node["params"][i]}'
             if i != len(ast_node["params"]) - 1:
-                deserialize += ","
-        deserialize += "){\n"
-        deserialize += "}\n"
-        return deserialize
+                params += ","
+        body = self.deserialize_block(ast_node["body"])
+        return f'void {ast_node["name"]}({params}){body}'
 
     def deserialize_for_statement(self, ast_node):
-        deserialize = "\tfor (int "
-        deserialize += self.deserialize_var_declaration(ast_node["init"])
-        deserialize += "; "
-        deserialize += self.deserialize_binary_op(ast_node["condition"])
-        deserialize += "; "
-        deserialize += self.deserialize_binary_op(ast_node["increment"])
-        deserialize += ")\n"
-        deserialize += self.deserialize_block(ast_node["body"])
-        return deserialize
+        init = self.deserialize_var_declaration(ast_node["init"])
+        condition = self.deserialize_binary_op(ast_node["condition"])
+        increment = self.deserialize_binary_op(ast_node["increment"])
+        body = self.deserialize_block(ast_node["body"])
+        return f'for (int {init} {condition}; {increment})\n{body}'
 
     def deserialize_var_declaration(self, ast_node):
         type = ""
@@ -52,7 +81,7 @@ class DrawScriptDeserializerC:
         expression = self.deserialize_node_type(ast_node["expression"])
         # Add detect type if type == ""
         if type == "" : type = self.detect_expression_type(ast_node["expression"])
-        return f'{type} {ast_node["name"]} = {expression}'
+        return f'{type} {ast_node["name"]} = {expression};'
     
     def deserialize_binary_op(self, ast_node):
         left = self.deserialize_node_type(ast_node["left"])
@@ -61,59 +90,19 @@ class DrawScriptDeserializerC:
         return f"({left} {op} {right})"
     
     def deserialize_if_statement(self, ast_node):
-        deserialize = "\tif "
-        deserialize += f'({self.deserialize_node_type(ast_node["condition"])})'
-        deserialize += "\n"
-        deserialize += self.deserialize_block(ast_node["then_block"])
-        deserialize += "\telse"
-        deserialize += "\n"
-        deserialize += self.deserialize_block(ast_node["else_block"])
-        return deserialize
+        condition = f'({self.deserialize_node_type(ast_node["condition"])})'
+        then_block = self.deserialize_block(ast_node["then_block"])
+        else_block = self.deserialize_block(ast_node["else_block"])
+        return f'if {condition} {then_block} else\n{else_block}'
     
     def deserialize_while_statement(self, ast_node):
-        deserialize = "\twhile "
-        deserialize += f'({self.deserialize_node_type(ast_node["condition"])})'
-        deserialize += "\n"
-        deserialize += self.deserialize_block(ast_node["body"])
-        return deserialize
-    
-    def deserialize_node_type(self, ast_node):
-        deserialize = ""
-        if ast_node["node_type"] == "binary_op":
-            deserialize += self.deserialize_binary_op(ast_node)
-        elif ast_node["node_type"] == "call_expr":
-            deserialize += self.deserialize_call_expr(ast_node)
-        elif ast_node["node_type"] == "expression_statement":
-            deserialize += self.deserialize_expression_statement(ast_node)
-        elif ast_node["node_type"] == "identifier":
-            deserialize += ast_node["value"]
-        elif ast_node["node_type"] == "if_statement":
-            deserialize += self.deserialize_if_statement(ast_node)
-        elif ast_node["node_type"] == "number":
-            deserialize += str(ast_node["value"])
-        elif ast_node["node_type"] == "bool_literal":
-            deserialize += ast_node["value"]
-        elif ast_node["node_type"] == "for_statement":
-            deserialize += self.deserialize_for_statement(ast_node)
-            pass
-        elif ast_node["node_type"] == "function_declaration":
-            #self.deserialize_function_declaration(ast_node)
-            pass
-        elif ast_node["node_type"] == "var_declaration":
-            deserialize += "\t"
-            deserialize += self.deserialize_var_declaration(ast_node)
-            deserialize += ";\n"
-        elif ast_node["node_type"] == "while_statement":
-            deserialize += self.deserialize_while_statement(ast_node)
-        else:
-            print(ast_node["node_type"])
-        return deserialize
-            
+        condition = self.deserialize_node_type(ast_node["condition"])
+        body = self.deserialize_block(ast_node["body"])
+        return f'while({condition})\n{body}'
+                
     def deserialize_block(self, ast_node):
-        deserialize = "\t{\n"
-        deserialize += self.deserialize_statements(ast_node)
-        deserialize += "\t}\n"
-        return deserialize
+        statements = self.deserialize_statements(ast_node)
+        return f'{{\n{statements}}}\n'
     
     def deserialize_statements(self, ast_node):
         deserialize = ""
@@ -123,16 +112,14 @@ class DrawScriptDeserializerC:
         return deserialize
     
     def deserialize_expression_statement(self, ast_node):
-        deserialize = "\t"
-        deserialize += self.deserialize_node_type(ast_node["expression"])
-        deserialize += ";\n"
-        return deserialize
+        expression = self.deserialize_node_type(ast_node["expression"])
+        return f'{expression};\n'
     
     def deserialize_call_expr(self, ast_node):
-        deserialize = f'{ast_node["callee"]}('
+        calle = ast_node["callee"]
+        arguments = ""
         for i in range(len(ast_node["arguments"])):
-            deserialize += self.deserialize_node_type(ast_node["arguments"][i])
+            arguments += self.deserialize_node_type(ast_node["arguments"][i])
             if i != len(ast_node["arguments"]) - 1:
-                deserialize += ", "
-        deserialize += ")"
-        return deserialize
+                arguments += ", "
+        return f'{calle}({arguments})'
