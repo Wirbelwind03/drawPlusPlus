@@ -16,7 +16,7 @@ int main(int argc, char *argv[]) {
     SDL_Renderer *renderer = CreateRenderer(window);
 
     // Variables principales
-    int centerX = 400, centerY = 400, radius = 50, numCircles = 5;
+    int centerX = 400, centerY = 400, radius = 50, numCircles = 5, gridX = 0;
     double angle = 0, speed = 0.05;
     bool running = true;
     SDL_Event event;
@@ -33,12 +33,19 @@ int main(int argc, char *argv[]) {
         drawCircle(renderer, offsetX, offsetY, radius);
     }
 
-    for (int gridX = 0; gridX <= SCREEN_WIDTH; gridX += 50) {
-        for (int gridY = 0; gridY <= SCREEN_HEIGHT; gridY += 50) {
+	while((gridX <= 600))
+	{
+		int gridY = 0;
+		while((gridY <= 600))
+		{
             SDL_SetRenderDrawColor(renderer, 0, 0, 255, 255); // Bleu
-            drawCircle(renderer, gridX, gridY, 5);
-        }
-    }
+			drawCircle(renderer, gridX, gridY, 5);
+			gridY = gridY + 50;
+		}
+		gridX = gridX + 50;
+	}
+    SDL_SetRenderDrawColor(renderer, 0, 0, 255, 255); // Bleu
+	drawCircle(renderer, 250, 250, 75);
 
     SDL_RenderPresent(renderer);
 
