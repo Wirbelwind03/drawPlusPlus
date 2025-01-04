@@ -14,7 +14,6 @@ class MainBar(tk.Frame):
         # Create a gap between icons by setting "minsize=100" for each two column initializations
         self.columnconfigure(0, weight=1)
         self.columnconfigure(1)
-
         self.rowconfigure(0)
 
         # Load the image
