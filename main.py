@@ -11,7 +11,8 @@ if __name__ == "__main__":
         default_settings = {
             "font": "Helvetica",
             "font_size": 24,
-            "dark_mode": False
+            "dark_mode": False,
+            "close_after_save": False
         }
 
         # Crée ou réécrit le fichier avec les valeurs par défaut

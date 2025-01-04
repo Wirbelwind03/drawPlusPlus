@@ -100,8 +100,15 @@ from DrawScript.Core.drawScriptDeserializerC import DrawScriptDeserializerC
     // 12. Fin du script
     """
 
+
 tokenizer = DrawScriptTokenizer()
 code = """myCursor.drawCircle(50); // Dessiner un cercle de rayon 50 à la position actuelle"""
+
+codeTest ="""
+var offsetX = centerX + (radius * 3) * cos(angle + (i * (360 / numCircles)));
+"""
+
+# Analyse de la chaîne et récupération des résultats
 tokens, errors = tokenizer.tokenize(code)
 
 parser = DrawScriptParser(tokens)

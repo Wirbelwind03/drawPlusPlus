@@ -14,7 +14,6 @@ class MainBar(tk.Frame):
         # Create a gap between icons by setting "minsize=100" for each two column initializations
         self.columnconfigure(0, weight=1)
         self.columnconfigure(1)
-
         self.rowconfigure(0)
 
         # Load the image
@@ -24,10 +23,3 @@ class MainBar(tk.Frame):
         gearButton = tk.Button(self, image=gear_image, height=50, width=50, command=self.open_window)
         gearButton.image = gear_image
         gearButton.grid(row=0, column=1)
-
-# Main window
-if __name__ == "__main__":
-    root = tk.Tk()
-    mainBar = MainBar(root)
-    mainBar.pack()
-    root.mainloop()
