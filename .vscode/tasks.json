@@ -6,13 +6,13 @@
         "type": "shell",
         "command": "gcc",
         "args": [
-          "-I", "${workspaceFolder}/DrawLibrary/SDL2/src/include",
-          "${workspaceFolder}/DrawLibrary/SDL2/main.c",
-          "-L", "${workspaceFolder}/DrawLibrary/SDL2/src/lib",
+          "-I", "${workspaceFolder}/DrawLibrary/SDL2/C/src/include",
+          "${workspaceFolder}/DrawLibrary/SDL2/C/main.c",
+          "-L", "${workspaceFolder}/DrawLibrary/SDL2/C/src/lib",
           "-lmingw32",
           "-lSDL2main",
           "-lSDL2",
-          "-o", "${workspaceFolder}/DrawLibrary/SDL2/main.exe",
+          "-o", "${workspaceFolder}/DrawLibrary/SDL2/C/main.exe",
         ],
         "group": {
           "kind": "build",
