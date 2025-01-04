@@ -31,6 +31,18 @@ code = """/*
         drawCircle(offsetX, offsetY, radius);
     }
 
+    // 7. Instruction copy-paste
+    copy(100, 100, 200, 200) to (400, 400);
+
+    // 8. Instruction conditionnelle if-else
+    if (radius > 40 && numCircles >= 5) {
+        // Dessiner un grand carré si la condition est vraie
+        drawSquare(centerX, centerY, radius * 2);
+    } else {
+        // Sinon, dessiner un triangle
+        drawTriangle(centerX, centerY, radius * 2);
+    }
+
     // 9. Boucle while imbriquée pour créer une grille
     var gridX = 0;
     while (gridX <= 600) {
@@ -44,11 +56,11 @@ code = """/*
     }
 
     // 10. Utilisation du curseur pour dessiner une forme géométrique
-    myCursor.moveTo(400, 300);      // Déplacer le curseur en traçant une ligne
-    myCursor.rotate(90);            // Tourner le curseur de 90 degrés
-    myCursor.drawLine(400, 400);    // Dessiner une ligne jusqu'au point (400, 400)
-    myCursor.drawCircle(50);        // Dessiner un cercle de rayon 50 à la position actuelle
-    myCursor.drawRectangle(100, 50);// Dessiner un rectangle de largeur 100 et hauteur 50
+    cursor1.move(400, 300);      // Déplacer le curseur en traçant une ligne
+    cursor1.rotate(90);            // Tourner le curseur de 90 degrés
+    cursor1.drawSegment(400, 400);    // Dessiner une ligne jusqu'au point (400, 400)
+    cursor1.drawCircle(50);        // Dessiner un cercle de rayon 50 à la position actuelle
+    cursor1.drawSquare(100, 50);// Dessiner un rectangle de largeur 100 et hauteur 50
 
     // 11. Appel de fonction
     drawCircle(250, 250, 75);
