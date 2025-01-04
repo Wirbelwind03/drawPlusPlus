@@ -24,58 +24,11 @@ code = """/*
     // 2. Déclaration d'une variable de type cursor
     Cursor cursor1 = Cursor(centerX, centerY);
 
-    // 3. Fonction pour dessiner un cercle
-    function drawCircle(x, y, r) {
-        // Appel à une fonction prédéfinie
-        circle(x, y, r);
-    }
-
-    // 4. Fonction pour dessiner une étoile
-    function drawStar(x, y, size) {
-        // Logique pour dessiner une étoile
-        polygon(x, y, size, 5, 2);
-    }
-
     // 5. Boucle for pour dessiner plusieurs cercles
     for (var i = 0; i < numCircles; i = i + 1) {
         var offsetX = centerX + (radius * 3) * cos(angle + (i * (360 / numCircles)));
         var offsetY = centerY + (radius * 3) * sin(angle + (i * (360 / numCircles)));
         drawCircle(offsetX, offsetY, radius);
-    }
-
-    // 6. Animation
-    animate(starObject, 10) {
-        while (isAnimating) {
-            // Mise à jour de l'angle
-            angle = angle + speed;
-
-            // Mise à jour de la position de l'étoile
-            var starX = centerX + (radius * 4) * cos(angle);
-            var starY = centerY + (radius * 4) * sin(angle);
-
-            // Effacer l'ancienne étoile
-            clear(starObject);
-
-            // Redessiner l'étoile à la nouvelle position
-            drawStar(starX, starY, radius);
-
-            // Vérification pour arrêter l'animation après un tour complet
-            if (angle >= 360) {
-                isAnimating = false;
-            }
-        }
-    }
-
-    // 7. Instruction copy-paste
-    copy(100, 100, 200, 200) to (400, 400);
-
-    // 8. Instruction conditionnelle if-else
-    if (radius > 40 && numCircles >= 5) {
-        // Dessiner un grand carré si la condition est vraie
-        drawSquare(centerX, centerY, radius * 2);
-    } else {
-        // Sinon, dessiner un triangle
-        drawTriangle(centerX, centerY, radius * 2);
     }
 
     // 9. Boucle while imbriquée pour créer une grille
@@ -102,10 +55,6 @@ code = """/*
 
     // 12. Fin du script
     """
-
-codeTest ="""
-var offsetX = centerX + (radius * 3) * cos(angle + (i * (360 / numCircles)));
-"""
 
 # Analyse de la chaîne et récupération des résultats
 tokens, errors = tokenizer.tokenize(code)
