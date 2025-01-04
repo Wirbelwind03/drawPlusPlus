@@ -1,10 +1,7 @@
 from DrawScript.Core.drawScriptTokenizer import DrawScriptTokenizer
-from DrawScript.Core.drawScriptParser import DrawScriptParser
+from DrawScript.Core.drawScriptParser import DrawScriptParser, SemanticAnalyzer
 from DrawScript.Core.drawScriptDeserializerC import DrawScriptDeserializerC
 
-""" Exemple utilisation Tokenizer.py
-"""
-tokenizer = DrawScriptTokenizer()
 
 code = """/*
     * Exemple complet de draw++ utilisant toutes les fonctionnalités
@@ -68,23 +65,31 @@ code = """/*
     // 12. Fin du script
     """
 
-# Analyse de la chaîne et récupération des résultats
+tokenizer = DrawScriptTokenizer()
 tokens, errors = tokenizer.tokenize(code)
 
-# Affichage des résultats
-print("Tokens:")
-for token in tokens:
-    print(token)
-"""
-print("\nErrors:")
-print(errors)
-"""
-
-"""
-"""
-
 parser = DrawScriptParser(tokens)
-ast_nodes, errors = parser.parse()
+ast_nodes, parse_errors = parser.parse()
 
-interpreter = DrawScriptDeserializerC(ast_nodes)
-interpreter.write_c()
+# -- Vérification: si le parseur a retourné des erreurs, on les affiche:
+if parse_errors:
+    print("=== Erreurs de parsing détectées ===")
+    for err in parse_errors:
+        # Chaque err est un dict: {"message": str(e), "line": line}
+        print(f"Ligne {err['line']}: {err['message']}")
+    print("Impossible de poursuivre l'analyse sémantique.")
+else:
+    print("Aucune erreur de parsing.")
+    # Si pas d'erreur de parsing, on effectue l'analyse sémantique
+    analyzer = SemanticAnalyzer()
+    semantic_errors = analyzer.analyze(ast_nodes)
+
+    if semantic_errors:
+        print("=== Erreurs sémantiques détectées ===")
+        for err in semantic_errors:
+            print(err)
+        print("Annulation de la génération du code C.")
+    else:
+        print("Aucune erreur sémantique, génération du code C en cours.")
+        interpreter = DrawScriptDeserializerC(ast_nodes)
+        interpreter.write_c()

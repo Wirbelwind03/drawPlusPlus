@@ -1,5 +1,6 @@
 {
-    "font": "Helvetica",
-    "font_size": 24,
-    "dark_mode": false
+    "font": "Verdana",
+    "font_size": 12,
+    "dark_mode": true,
+    "close_after_save": true
 }

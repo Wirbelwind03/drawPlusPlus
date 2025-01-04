@@ -1085,22 +1085,32 @@ class SemanticAnalyzer:
         method = node["method"]
         args = node["arguments"]
 
+        # Méthodes valides mises à jour
         valid_methods = {
-            "moveTo": 2,
+            "move": 2,           # Remplacement de "moveTo" par "move(xOuY, pixels)"
             "rotate": 1,
             "drawCircle": 1,
+            "drawSegment": 1,
+            "drawSquare": 1,
+            "drawPoint": 1,
+            "setColor": 1,       # Nouvelle méthode
+            "setThickness": 1    # Nouvelle méthode
         }
+
+        # Vérifie que la méthode appelée fait partie des méthodes valides
         if method not in valid_methods:
             self.errors.append(
                 f"Ligne {node['line']}: Méthode '{method}' inconnue pour un curseur."
             )
             return
 
+        # Vérifie que le nombre d’arguments correspond
         expected_args = valid_methods[method]
         if len(args) != expected_args:
             self.errors.append(
                 f"Ligne {node['line']}: La méthode '{method}' attend {expected_args} argument(s), reçu {len(args)}."
             )
+
 
     # -- ICI on remet les méthodes d'analyse au même niveau que les autres --
     def analyze_if_statement(self, node):
