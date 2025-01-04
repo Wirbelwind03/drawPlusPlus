@@ -21,8 +21,11 @@ class DrawScriptDeserializerC:
                 drawings +=  self.deserialize_node_type(ast_node) 
         code = code[:insert_drawings] + drawings + code[insert_drawings:]
         
+        f.close()
+
         w = open("main.c", "w")
         w.write(code)
+        w.close()
 
     def detect_expression_type(self, ast_node):
         if ast_node["node_type"] == "binary_op" and ast_node["op"] == '/':
