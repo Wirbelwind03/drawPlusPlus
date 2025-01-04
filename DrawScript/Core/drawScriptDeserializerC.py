@@ -1,8 +1,10 @@
+from DrawScript.Core.globals import GLOBAL_SYMBOLS_FUNCTIONS
+
 class DrawScriptDeserializerC:
     def __init__(self, ast_nodes):
         self.ast_nodes = ast_nodes
-        self.line_test = 0
         self.code = ""
+        self.current_color = [0, 0, 0, 255] # Default is black
 
     def write_c(self):
         f = open("body.c", "r")
@@ -32,6 +34,8 @@ class DrawScriptDeserializerC:
             return "float"
         elif ast_node["node_type"] == "binary_op":
             return "float"
+        
+        return ""
         
     def deserialize_node_type(self, ast_node):
         if ast_node["node_type"] == "binary_op":
@@ -119,10 +123,16 @@ class DrawScriptDeserializerC:
         return f'{expression};\n'
     
     def deserialize_call_expr(self, ast_node):
-        calle = ast_node["callee"]
-        arguments = ""
+        callee = ast_node["callee"]
+        
+        arguments = ""  if callee not in GLOBAL_SYMBOLS_FUNCTIONS else "renderer, "
         for i in range(len(ast_node["arguments"])):
             arguments += self.deserialize_node_type(ast_node["arguments"][i])
             if i != len(ast_node["arguments"]) - 1:
                 arguments += ", "
-        return f'{calle}({arguments})'
+
+        color = ""
+        if callee in GLOBAL_SYMBOLS_FUNCTIONS:
+            color = f"SDL_SetRenderDrawColor(renderer, {self.current_color[0]}, {self.current_color[1]}, {self.current_color[2]}, {self.current_color[3]});\n"
+
+        return f'{color}{callee}({arguments})'
