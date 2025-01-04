@@ -1089,6 +1089,9 @@ class SemanticAnalyzer:
             "moveTo": 2,
             "rotate": 1,
             "drawCircle": 1,
+            "drawSegment": 1,
+            "drawSquare": 1,
+            "drawPoint": 1
         }
         if method not in valid_methods:
             self.errors.append(

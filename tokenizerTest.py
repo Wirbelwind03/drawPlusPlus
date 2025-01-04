@@ -1,12 +1,9 @@
 from DrawScript.Core.drawScriptTokenizer import DrawScriptTokenizer
-from DrawScript.Core.drawScriptParser import DrawScriptParser
+from DrawScript.Core.drawScriptParser import DrawScriptParser, SemanticAnalyzer
 from DrawScript.Core.drawScriptDeserializerC import DrawScriptDeserializerC
 
-""" Exemple utilisation Tokenizer.py
-"""
-tokenizer = DrawScriptTokenizer()
 
-code = """/*
+"""code = /*
     * Exemple complet de draw++ utilisant toutes les fonctionnalités
     * Auteur : Votre Nom
     * Date : Date du jour
@@ -103,23 +100,22 @@ code = """/*
     // 12. Fin du script
     """
 
-# Analyse de la chaîne et récupération des résultats
+tokenizer = DrawScriptTokenizer()
+code = """myCursor.drawCircle(50); // Dessiner un cercle de rayon 50 à la position actuelle"""
 tokens, errors = tokenizer.tokenize(code)
 
-# Affichage des résultats
-print("Tokens:")
-for token in tokens:
-    print(token)
-"""
-print("\nErrors:")
-print(errors)
-"""
-
-"""
-"""
-
 parser = DrawScriptParser(tokens)
-ast_nodes, errors = parser.parse()
+ast_nodes, parse_errors = parser.parse()
 
-interpreter = DrawScriptDeserializerC(ast_nodes)
-interpreter.write_c()
+# Instanciation directe de SemanticAnalyzer()
+analyzer = SemanticAnalyzer()
+semantic_errors = analyzer.analyze(ast_nodes)
+
+for err in semantic_errors:
+    print(err)
+
+if not semantic_errors:
+    interpreter = DrawScriptDeserializerC(ast_nodes)
+    interpreter.write_c()
+else:
+    print("Erreurs sémantiques détectées, annulation de la génération du code C.")
