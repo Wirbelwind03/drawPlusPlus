@@ -1,6 +1,28 @@
 import re  # Bibliothèque pour les expressions régulières
-#from DrawScript.Core.drawScriptParser import DrawScriptParser
 from config import DEBUG
+
+# Définir les expressions régulières pour chaque type de jeton
+TOKEN_SPECIFICATION = [
+    ('NEWLINE',             r'\n'),                      # Nouvelle ligne
+    ('WHITESPACE',          r'[ \t]+'),                  # Espaces et tabulations
+    ('MULTILINE_COMMENT', r'/\*[\s\S]*?\*/'),           # Commentaire sur plusieurs lignes
+    ('COMMENT',             r'//.*'),                    # Commentaire sur une ligne
+    ('NUMBER', r'-?\d+(\.\d+)?|\.\d+'),                  # Nombres entiers ou décimaux (positifs et négatifs)
+    ('STRING',              r'"[^"\n]*"'),               # Chaînes de caractères entre guillemets (sans saut de ligne)
+    ('BOOLEAN',             r'\b(true|false)\b'),        # Booléens
+    ('IDENTIFIER',          r'[A-Za-z_]\w*'),            # Identifiants
+    ('ACCESS_OPERATOR',     r'\.'),                      # Opérateur d'accès (séparé des autres opérateurs)
+    ('OPERATOR',            r'\+|\-|\*|\/|\%|==|!=|<=|>=|<|>|&&|\|\||!'),  # Autres opérateurs
+    ('DELIMITER',           r'\(|\)|\{|\}|;|,|\:'),      # Délimiteurs
+    ('ASSIGN',              r'='),                       # Opérateur d'affectation
+    ('MISMATCH',            r'.'),                       # Caractère non reconnu
+]
+
+# Définition des mots-clés du langage
+KEYWORDS = [
+    'var', 'function', 'if', 'else', 'while', 'for',
+    'copy', 'animate', 'to', 'Cursor', 'return',
+]
 
 class DrawScriptTokenizer:
     def __init__(self):
@@ -13,32 +35,9 @@ class DrawScriptTokenizer:
         Elle retourne une liste de tokens et une liste d'erreurs correspondantes.
         """
 
-        # Définir les expressions régulières pour chaque type de jeton
-        token_specification = [
-            ('NEWLINE',             r'\n'),                      # Nouvelle ligne
-            ('WHITESPACE',          r'[ \t]+'),                  # Espaces et tabulations
-            ('MULTILINE_COMMENT', r'/\*[\s\S]*?\*/'),           # Commentaire sur plusieurs lignes
-            ('COMMENT',             r'//.*'),                    # Commentaire sur une ligne
-            ('NUMBER', r'-?\d+(\.\d+)?|\.\d+'),                  # Nombres entiers ou décimaux (positifs et négatifs)
-            ('STRING',              r'"[^"\n]*"'),               # Chaînes de caractères entre guillemets (sans saut de ligne)
-            ('BOOLEAN',             r'\b(true|false)\b'),        # Booléens
-            ('IDENTIFIER',          r'[A-Za-z_]\w*'),            # Identifiants
-            ('ACCESS_OPERATOR',     r'\.'),                      # Opérateur d'accès (séparé des autres opérateurs)
-            ('OPERATOR',            r'\+|\-|\*|\/|\%|==|!=|<=|>=|<|>|&&|\|\||!'),  # Autres opérateurs
-            ('DELIMITER',           r'\(|\)|\{|\}|;|,|\:'),      # Délimiteurs
-            ('ASSIGN',              r'='),                       # Opérateur d'affectation
-            ('MISMATCH',            r'.'),                       # Caractère non reconnu
-        ]
-
         # Compilation des expressions régulières en une seule expression
-        tok_regex = '|'.join('(?P<%s>%s)' % pair for pair in token_specification)
+        tok_regex = '|'.join('(?P<%s>%s)' % pair for pair in TOKEN_SPECIFICATION)
         get_token = re.compile(tok_regex, re.MULTILINE).match  # Utilisation de MULTILINE pour gérer les débuts de lignes correctement
-
-        # Définition des mots-clés du langage
-        keywords = {
-            'var', 'function', 'if', 'else', 'while', 'for',
-            'copy', 'animate', 'to', 'Cursor', 'return',
-        }
 
         # Initialisation des variables pour la tokenisation
         pos = 0          # Position actuelle dans le code
@@ -76,7 +75,7 @@ class DrawScriptTokenizer:
                 tokens.append({'type': kind, 'value': value, 'line': line_number})
                 errors.append(0)
             elif kind == 'IDENTIFIER':
-                if value in keywords:
+                if value in KEYWORDS:
                     kind = 'KEYWORD'  # Si l'identifiant est un mot-clé, changer son type
                 tokens.append({'type': kind, 'value': value, 'line': line_number})
                 errors.append(0)  # Pas d'erreur pour ce token
