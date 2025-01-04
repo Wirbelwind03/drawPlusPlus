@@ -5,24 +5,24 @@ class DrawScriptDeserializerC:
         self.code = ""
 
     def write_c(self):
-        f = open("main.c", "w")
-        
-        self.code += "#include <SDL2/SDL.h>\n"
-        self.code += "#include <stdbool.h>\n"
-        self.code += "#include <stdio.h>\n"
-        self.code += "\n"
-        self.line_test = len(self.code)
-        self.code += "int main(int argc, char *argv[])\n{\n"
+        f = open("body.c", "r")
+        code = f.read()
+        insert_variables = code.find("// INSERT VARIABLES")
+        variables = ""  
         for ast_node in self.ast_nodes:
-            if ast_node["node_type"] != "function_declaration":
-                self.code += self.deserialize_node_type(ast_node) 
-            else:
-                self.code = self.deserialize_node_type(ast_node) 
-            print(self.code)
-        self.code += "}\n"
+            if ast_node["node_type"] == "var_declaration":
+                variables +=  self.deserialize_node_type(ast_node) 
+        code = code[:insert_variables] + variables + code[insert_variables:]
 
-        f.write(self.code)
-        f.close()
+        insert_drawings = code.find("// INSERT DRAWINGS")
+        drawings = ""
+        for ast_node in self.ast_nodes:
+            if ast_node["node_type"] != "var_declaration":
+                drawings +=  self.deserialize_node_type(ast_node) 
+        code = code[:insert_drawings] + drawings + code[insert_drawings:]
+        
+        w = open("main.c", "w")
+        w.write(code)
 
     def detect_expression_type(self, ast_node):
         if ast_node["node_type"] == "binary_op" and ast_node["op"] == '/':
