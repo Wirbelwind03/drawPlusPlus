@@ -3,7 +3,7 @@ from DrawScript.Core.drawScriptParser import DrawScriptParser, SemanticAnalyzer
 from DrawScript.Core.drawScriptDeserializerC import DrawScriptDeserializerC
 
 
-"""code = /*
+code = """/*
     * Exemple complet de draw++ utilisant toutes les fonctionnalités
     * Auteur : Votre Nom
     * Date : Date du jour
@@ -100,29 +100,31 @@ from DrawScript.Core.drawScriptDeserializerC import DrawScriptDeserializerC
     // 12. Fin du script
     """
 
-
 tokenizer = DrawScriptTokenizer()
-code = """myCursor.drawCircle(50); // Dessiner un cercle de rayon 50 à la position actuelle"""
-
-codeTest ="""
-var offsetX = centerX + (radius * 3) * cos(angle + (i * (360 / numCircles)));
-"""
-
-# Analyse de la chaîne et récupération des résultats
 tokens, errors = tokenizer.tokenize(code)
 
 parser = DrawScriptParser(tokens)
 ast_nodes, parse_errors = parser.parse()
 
-# Instanciation directe de SemanticAnalyzer()
-analyzer = SemanticAnalyzer()
-semantic_errors = analyzer.analyze(ast_nodes)
-
-for err in semantic_errors:
-    print(err)
-
-if not semantic_errors:
-    interpreter = DrawScriptDeserializerC(ast_nodes)
-    interpreter.write_c()
+# -- Vérification: si le parseur a retourné des erreurs, on les affiche:
+if parse_errors:
+    print("=== Erreurs de parsing détectées ===")
+    for err in parse_errors:
+        # Chaque err est un dict: {"message": str(e), "line": line}
+        print(f"Ligne {err['line']}: {err['message']}")
+    print("Impossible de poursuivre l'analyse sémantique.")
 else:
-    print("Erreurs sémantiques détectées, annulation de la génération du code C.")
+    print("Aucune erreur de parsing.")
+    # Si pas d'erreur de parsing, on effectue l'analyse sémantique
+    analyzer = SemanticAnalyzer()
+    semantic_errors = analyzer.analyze(ast_nodes)
+
+    if semantic_errors:
+        print("=== Erreurs sémantiques détectées ===")
+        for err in semantic_errors:
+            print(err)
+        print("Annulation de la génération du code C.")
+    else:
+        print("Aucune erreur sémantique, génération du code C en cours.")
+        interpreter = DrawScriptDeserializerC(ast_nodes)
+        interpreter.write_c()
