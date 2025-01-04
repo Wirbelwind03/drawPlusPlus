@@ -17,14 +17,14 @@ class ToolBar(tk.Frame):
         self.rowconfigure(0, minsize=30)
 
         # Load images
-        mouse_image = PhotoImage(file="Data/Assets/mouse.png")  # Assurez-vous que l'image existe
+        mouse_image = PhotoImage(file="Data/Assets/mouse.png")
         rectangle_image = PhotoImage(file="Data/Assets/rectangle.png")
         rotation_image = PhotoImage(file="Data/Assets/rotation.png")
         trash_image = PhotoImage(file="Data/Assets/trash.png")
 
         # Tool 1 - Mouse
         mouseButton = tk.Button(self, image=mouse_image, height=80, width=80)
-        mouseButton.image = mouse_image  # Nécessaire pour empêcher l'image d'être collectée par le garbage collector
+        mouseButton.image = mouse_image
         mouseButton.grid(row=0, column=1)
 
         # Tool 2 - Rectangle de selection
@@ -41,10 +41,3 @@ class ToolBar(tk.Frame):
         trashButton= tk.Button(self, image=trash_image, height=80, width=80)
         trashButton.image = trash_image
         trashButton.grid(row=0, column=4)
-
-# Main window
-if __name__ == "__main__":
-    root = tk.Tk()
-    toolbar = ToolBar(root)
-    toolbar.pack()
-    root.mainloop()
