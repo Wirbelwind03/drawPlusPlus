@@ -17,6 +17,7 @@ int main(int argc, char *argv[]) {
     SDL_Renderer *renderer = CreateRenderer(window);
 
     // INSERT VARIABLES
+    int drawing_index = 1;
     bool running = true;
     SDL_Event event;
 
