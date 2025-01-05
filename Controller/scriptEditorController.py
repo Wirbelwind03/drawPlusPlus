@@ -60,8 +60,11 @@ class ScriptEditorController:
         # Retrieve the entire text content from the text editor starting at line 1, character 0, to the end
         code = self.textEditor.openedTab.get("1.0", tk.END)
 
+        # Temporarily enable editing
+        self.terminal.text_widget.config(state=tk.NORMAL)  
+
         # Clear the terminal widget before executing the code
-        self.terminal.delete("1.0", tk.END)
+        self.terminal.text_widget.delete("1.0", tk.END)
 
         # Remove all previously highlighted "error" tags from the text editor
         self.textEditor.openedTab.tag_remove("error", "1.0", tk.END)
@@ -81,6 +84,7 @@ class ScriptEditorController:
                 print("=== Erreurs de parsing détectées ===")
                 for err in parse_errors:
                     # Chaque err est un dict: {"message": str(e), "line": line}
+                    self.terminal.text_widget.insert(tk.END, f"Ligne {err['line']}: {err['message']}\n")
                     print(f"Ligne {err['line']}: {err['message']}")
                 print("Impossible de poursuivre l'analyse sémantique.")
                 raise Exception
@@ -93,6 +97,7 @@ class ScriptEditorController:
                 if semantic_errors:
                     print("=== Erreurs sémantiques détectées ===")
                     for err in semantic_errors:
+                        self.terminal.text_widget.insert(tk.END, err)
                         print(err)
                     print("Annulation de la génération du code C.")
                     raise Exception
@@ -102,14 +107,16 @@ class ScriptEditorController:
                     interpreter.write_c()
 
             # Indicate successful execution in the terminal
-            self.terminal.insert(tk.END, "Exécution réussie !\n")
+            self.terminal.text_widget.insert(tk.END, "Exécution réussie !\n")
 
         except Exception as e:
             # Display the error message in the terminal
-            self.terminal.insert(tk.END, str(e) + "\n")
+            self.terminal.text_widget.insert(tk.END, str(e) + "\n")
 
             # Highlight the line where the error occurred in the text editor
             #self.highlight_error(e, line_number)
+
+        self.terminal.text_widget.config(state=tk.DISABLED)  # Disable editing again
 
     # Fonction pour souligner la ligne contenant une erreur
     def highlight_error(self, error, line_number):
