@@ -25,8 +25,7 @@ class MultiTextEditor(tk.Frame):
 
         # Ajouter 18 onglets avec des éditeurs de texte
         self.editor_tabs = [] 
-        for i in range(1, 19):
-            self.add_editor_tab(f"Fenêtre {i}", font, font_size)
+        self.add_editor_tab(f"Fenêtre 1", font, font_size)
 
         # Vérifier les changements toutes les 500 ms
         self.check_for_changes()
