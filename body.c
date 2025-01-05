@@ -9,6 +9,12 @@
 // INSERT GLOBALS
 
 int main(int argc, char *argv[]) {
+    FILE *file = fopen("example.txt", "w");
+    if (file == NULL) {
+        printf("Error opening file!\n");
+        return 1;
+    }
+
     // Start SDL
     SDL_Start();
     SDL_Window *window = CreateWindow(SCREEN_WIDTH, SCREEN_HEIGHT);
@@ -43,6 +49,10 @@ int main(int argc, char *argv[]) {
     SDL_DestroyRenderer(renderer);
     SDL_DestroyWindow(window);
     SDL_Quit();
+
+    fclose(file);
+
+    printf("END");
 
     return 0;
 }
