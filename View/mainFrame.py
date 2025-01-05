@@ -34,7 +34,7 @@ class MainFrame(tk.Frame):
         self.grid(row=0, column=0, sticky="nsew")
         self.master.grid_rowconfigure(0, weight=1)
         self.master.grid_columnconfigure(0, weight=1)
-
+        
         # Add menu bar (this doesn't use grid or pack, it's set on master)
         self.menuBar = tk.Menu()
         self.master.config(menu=self.menuBar)
@@ -62,11 +62,10 @@ class MainFrame(tk.Frame):
         
         # Canvas on the right side, expands vertically and horizontally
         self.canvas = tk.Canvas(self, width=800, height=600)
-<<<<<<< HEAD
         self.canvas.grid(row=2, column=1, rowspan=2, sticky="nsew", padx=10, pady=10)
 
         # Terminal at the bottom, non-editable, fixed size, with customized style
-        self.terminal = Terminal(self, height=10, wrap="word", bg=self.background_color_terminal, fg=self.text_color, font=(self.font, self.font_size))
+        self.terminal = Terminal(self, height=10)
         self.terminal.grid(row=3, column=0, sticky="sew", padx=10, pady=10)
 
         # Planifier la vérification des changements dans 500 ms
@@ -117,14 +116,9 @@ class MainFrame(tk.Frame):
 
         # Planifier la vérification suivante dans 500 ms
         self.after(500, self.check_for_changes)
-=======
         self.canvas.grid(row=2, column=1, rowspan=2, sticky="nsew", padx=10, pady=10)  # Right side, expands in all directions
         
         # Terminal at the bottom
         self.terminal = Terminal(self)
-<<<<<<< HEAD
         self.terminal.grid(row=3, column=0, sticky="sew", padx=10, pady=10)
->>>>>>> 831207dfd5369527ce091e8e22af9589f70d6f99
-=======
         self.terminal.grid(row=3, column=0, sticky="sew", padx=10, pady=10)
->>>>>>> 831207dfd5369527ce091e8e22af9589f70d6f99

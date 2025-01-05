@@ -11,8 +11,6 @@ class MultiTextEditor(tk.Frame):
         self.notebook = ttk.Notebook(self)
         self.notebook.pack(fill="both", expand=True)
 
-<<<<<<< HEAD
-<<<<<<< HEAD
         # Initialiser la variable pour suivre la date de modification
         self.last_modified_time = None
 
@@ -32,16 +30,7 @@ class MultiTextEditor(tk.Frame):
 
         # Vérifier les changements toutes les 500 ms
         self.check_for_changes()
-=======
-=======
->>>>>>> 831207dfd5369527ce091e8e22af9589f70d6f99
-        # Ajouter un premier onglet qui contient un éditeur de texte
-        self.editor_tabs = []
-        self.add_editor_tab(f"Fenêtre {1}")
-
-        # Lancer la surveillance du fichier JSON
-        self.monitor_settings()
-
+    
     @property
     def openedTab(self) -> tk.Text:
         current_tab_index = self.notebook.index("current")  # Get the index of the current tab
@@ -53,8 +42,7 @@ class MultiTextEditor(tk.Frame):
         if os.path.exists(self.json_file):
             return os.path.getmtime(self.json_file)
         return None
->>>>>>> 831207dfd5369527ce091e8e22af9589f70d6f99
-
+    
     def load_settings(self):
         json_file = "View/Resources/Widgets/gear.json"
         if os.path.exists(json_file) and os.path.getsize(json_file) > 0:
