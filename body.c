@@ -6,9 +6,6 @@
 #include "utils.h"
 #include "shapes.h"
 
-#define SCREEN_WIDTH 816
-#define SCREEN_HEIGHT 623
-
 // INSERT GLOBALS
 
 int main(int argc, char *argv[]) {
