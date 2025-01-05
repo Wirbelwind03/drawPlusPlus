@@ -1,4 +1,4 @@
-from DrawScript.Core.globals import GLOBAL_SYMBOLS_FUNCTIONS, GLOBAL_SYMBOLS_CURSOR_FUNCTIONS
+from DrawScript.Core.globals import GLOBAL_SYMBOLS_FUNCTIONS, GLOBAL_SYMBOLS_CURSOR_FUNCTIONS, GLOBAL_SYMBOLS_VARIABLES
 
 class SemanticAnalyzer:
     def __init__(self):
@@ -109,7 +109,7 @@ class SemanticAnalyzer:
         elif node_type == "unary_op":
             self.analyze_expression(expr["expr"])
         elif node_type == "identifier":
-            if expr["value"] not in self.symbols:
+            if expr["value"] not in self.symbols and expr["value"] not in GLOBAL_SYMBOLS_VARIABLES:
                 self.errors.append("Variable non déclarée: " + expr["value"])
         elif node_type in ("number", "string", "bool_literal"):
             pass
