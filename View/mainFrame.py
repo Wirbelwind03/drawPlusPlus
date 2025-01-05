@@ -65,5 +65,5 @@ class MainFrame(tk.Frame):
         self.canvas.grid(row=2, column=1, rowspan=2, sticky="nsew", padx=10, pady=10)  # Right side, expands in all directions
         
         # Terminal at the bottom
-        self.terminal = Terminal(self, height=10, wrap="word", bg="lightgrey", fg="black")
+        self.terminal = Terminal(self)
         self.terminal.grid(row=3, column=0, sticky="sew", padx=10, pady=10)
