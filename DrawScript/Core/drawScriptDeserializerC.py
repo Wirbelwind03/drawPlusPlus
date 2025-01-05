@@ -1,4 +1,4 @@
-from DrawScript.Core.globals import GLOBAL_SYMBOLS_FUNCTIONS
+from DrawScript.Core.globals import GLOBAL_SYMBOLS_FUNCTIONS, GLOBAL_SYMBOLS_CURSOR_FUNCTIONS
 
 class DrawScriptDeserializerC:
     def __init__(self, ast_nodes):
@@ -40,6 +40,12 @@ class DrawScriptDeserializerC:
     def deserialize_node_type(self, ast_node):
         if ast_node["node_type"] == "binary_op":
             return self.deserialize_binary_op(ast_node)
+        elif ast_node["node_type"] == "bool_literal":
+            return ast_node["value"]
+        elif ast_node["node_type"] == "cursor_declaration":
+            return self.deserialize_cursor_declaration(ast_node)
+        elif ast_node["node_type"] == "cursor_method":
+            return self.deserialize_cursor_method(ast_node)
         elif ast_node["node_type"] == "call_expr":
             return self.deserialize_call_expr(ast_node)
         elif ast_node["node_type"] == "expression_statement":
@@ -50,8 +56,6 @@ class DrawScriptDeserializerC:
             return self.deserialize_if_statement(ast_node)
         elif ast_node["node_type"] == "number":
             return str(ast_node["value"])
-        elif ast_node["node_type"] == "bool_literal":
-            return ast_node["value"]
         elif ast_node["node_type"] == "for_statement":
             return self.deserialize_for_statement(ast_node)
         elif ast_node["node_type"] == "function_declaration":
@@ -62,6 +66,27 @@ class DrawScriptDeserializerC:
             return self.deserialize_while_statement(ast_node)
         else:
             print(ast_node["node_type"])
+
+        return ""
+    
+    def deserialize_cursor_declaration(self, ast_node):
+        constructor_args = ast_node["constructor_args"]
+        return f'Cursor* {ast_node["name"]} = Cursor_Constructor({constructor_args[0]["value"]}, {constructor_args[1]["value"]});\n'
+
+    def deserialize_cursor_method(self, ast_node):
+        cursor_name = ast_node["cursor_name"]
+        method = ast_node["method"]
+        arguments = ast_node["arguments"]
+        if method == "move":
+            return f'Cursor_Move({cursor_name}, {arguments[0]["value"]}, {arguments[1]["value"]});\n'
+        elif method == "rotate":
+            return f'Cursor_Rotate({cursor_name}, {arguments[0]["value"]});\n'
+        elif method == "drawCircle":
+            return f'Cursor_DrawCircle({cursor_name}, renderer, {arguments[0]["value"]});\n'
+        elif method == "drawSquare":
+            return f'Cursor_DrawRectangle({cursor_name}, renderer, {arguments[0]["value"]}, {arguments[1]["value"]});\n'
+        elif method == "drawSegment":
+            return f'Cursor_DrawSegment({cursor_name}, renderer, {arguments[0]["value"]}, {arguments[1]["value"]});\n'
 
         return ""
 
@@ -125,14 +150,16 @@ class DrawScriptDeserializerC:
     def deserialize_call_expr(self, ast_node):
         callee = ast_node["callee"]
         
-        arguments = ""  if callee not in GLOBAL_SYMBOLS_FUNCTIONS else "renderer, "
+        arguments = ""
         for i in range(len(ast_node["arguments"])):
             arguments += self.deserialize_node_type(ast_node["arguments"][i])
             if i != len(ast_node["arguments"]) - 1:
                 arguments += ", "
 
-        color = ""
         if callee in GLOBAL_SYMBOLS_FUNCTIONS:
-            color = f"SDL_SetRenderDrawColor(renderer, {self.current_color[0]}, {self.current_color[1]}, {self.current_color[2]}, {self.current_color[3]});\n"
+            if callee == "drawCircle":
+                return f'circleRGBA(renderer, {arguments}, {self.current_color[0]}, {self.current_color[1]}, {self.current_color[2]}, {self.current_color[3]})'
+            else:
+                print(callee)
 
-        return f'{color}{callee}({arguments})'
+        return f'{callee}({arguments})'
