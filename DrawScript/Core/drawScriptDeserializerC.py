@@ -1,6 +1,6 @@
 from Controller.canvasController import CanvasController
 
-from DrawScript.Core.globals import GLOBAL_SYMBOLS_FUNCTIONS, GLOBAL_SYMBOLS_CURSOR_FUNCTIONS
+from DrawScript.Core.globals import GLOBAL_SYMBOLS_FUNCTIONS, GLOBAL_SYMBOLS_CURSOR_FUNCTIONS, GLOBAL_SYMBOLS_VARIABLES
 
 class DrawScriptDeserializerC:
     def __init__(self, ast_nodes, canvasController : CanvasController = None):
@@ -59,6 +59,8 @@ class DrawScriptDeserializerC:
         elif ast_node["node_type"] == "expression_statement":
             return self.deserialize_expression_statement(ast_node)
         elif ast_node["node_type"] == "identifier":
+            if ast_node["value"] in GLOBAL_SYMBOLS_VARIABLES:
+                return GLOBAL_SYMBOLS_VARIABLES[ast_node["value"]]
             return ast_node["value"]
         elif ast_node["node_type"] == "if_statement":
             return self.deserialize_if_statement(ast_node)
