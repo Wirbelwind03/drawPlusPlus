@@ -20,13 +20,18 @@ class MultiTextEditor(tk.Frame):
         self.notebook = ttk.Notebook(self)
         self.notebook.pack(fill="both", expand=True)
 
-        # Ajouter 18 onglets avec des éditeurs de texte
+        # Ajouter un premier onglet qui contient un éditeur de texte
         self.editor_tabs = []
-        for i in range(1, 19):
-            self.add_editor_tab(f"Fenêtre {i}")
+        self.add_editor_tab(f"Fenêtre {1}")
 
         # Lancer la surveillance du fichier JSON
         self.monitor_settings()
+
+    @property
+    def openedTab(self) -> tk.Text:
+        current_tab_index = self.notebook.index("current")  # Get the index of the current tab
+        current_text_widget = self.editor_tabs[current_tab_index]  # Get the corresponding Text widget
+        return current_text_widget
 
     def get_file_modification_time(self):
         """Retourne la date de modification du fichier JSON ou None si le fichier n'existe pas."""
