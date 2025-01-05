@@ -59,3 +59,34 @@ void saveScreenshot(SDL_Renderer *renderer, const char *filename) {
 
     SDL_FreeSurface(surface);
 }
+
+void savePartialScreenshot(SDL_Renderer *renderer, const char *filename, int x, int y, int width, int height) {
+    // Create a rectangle for the region of interest
+    SDL_Rect region = {x, y, width, height};
+
+    // Create a surface for the region
+    SDL_Surface *sshot = SDL_CreateRGBSurfaceWithFormat(0, width, height, 32, SDL_PIXELFORMAT_RGBA32);
+    if (!sshot) {
+        fprintf(stderr, "Failed to create surface: %s\n", SDL_GetError());
+        return;
+    }
+
+    // Read pixels from the specified region
+    if (SDL_RenderReadPixels(renderer, &region, SDL_PIXELFORMAT_RGBA32, sshot->pixels, sshot->pitch) != 0) {
+        fprintf(stderr, "Failed to read pixels: %s\n", SDL_GetError());
+        SDL_FreeSurface(sshot);
+        return;
+    }
+
+    // Save the surface to a BMP file
+    if (SDL_SaveBMP(sshot, filename) != 0) {
+        fprintf(stderr, "Failed to save screenshot: %s\n", SDL_GetError());
+    }
+
+    SDL_FreeSurface(sshot);
+}
+
+void ClearCanvas(SDL_Renderer *renderer, int r, int g, int b, int a){
+    SDL_SetRenderDrawColor(renderer, r, g, b, a);
+    SDL_RenderClear(renderer);
+}

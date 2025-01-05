@@ -5,6 +5,10 @@
 
 void saveScreenshot(SDL_Renderer *renderer, const char *filename);
 
+void savePartialScreenshot(SDL_Renderer *renderer, const char *filename, int x, int y, int width, int height);
+
+void ClearCanvas(SDL_Renderer *renderer, int r, int g, int b, int a);
+
 int SDL_Start();
 
 SDL_Window* CreateWindow();
