@@ -25,6 +25,7 @@ float speed = 0.05;
 bool isAnimating = true;
 int gridX = 0;
 // INSERT VARIABLES
+    int drawing_index = 1;
     bool running = true;
     SDL_Event event;
 
