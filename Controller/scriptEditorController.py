@@ -1,4 +1,6 @@
 import tkinter as tk
+import subprocess
+import os
 from tkinter import filedialog
 
 from Controller.canvasController import CanvasController
@@ -103,11 +105,46 @@ class ScriptEditorController:
                     raise Exception
                 else:
                     print("Aucune erreur sémantique, génération du code C en cours.")
-                    interpreter = DrawScriptDeserializerC(ast_nodes)
+                    interpreter = DrawScriptDeserializerC(ast_nodes, self.CC)
                     interpreter.write_c()
 
-            # Indicate successful execution in the terminal
-            self.terminal.text_widget.insert(tk.END, "Exécution réussie !\n")
+                    # Indicate successful execution in the terminal
+                    self.terminal.text_widget.insert(tk.END, "Exécution réussie !\n")
+
+                    # Get the directory where the code is ran
+                    current_directory = os.getcwd()
+
+                    gcc_command = [
+                        "gcc",
+                        f"-I{current_directory}/DrawLibrary/C/SDL2/src/include",
+                        f"-I{current_directory}/DrawLibrary/C/SDL2_gfx",
+                        f"-I{current_directory}/DrawLibrary/C/Utils",
+                        f"{current_directory}/DrawLibrary/C/SDL2/main.c",
+                        f"{current_directory}/DrawLibrary/C/Utils/shapes.c",
+                        f"{current_directory}/DrawLibrary/C/Utils/cursor.c",
+                        f"{current_directory}/DrawLibrary/C/Utils/utils.c",
+                        f"{current_directory}/DrawLibrary/C/SDL2_gfx/SDL2_gfxPrimitives.c",
+                        f"{current_directory}/DrawLibrary/C/SDL2_gfx/SDL2_rotozoom.c",
+                        f"-L{current_directory}/DrawLibrary/C/SDL2/src/lib",
+                        "-lmingw32",
+                        "-lSDL2main",
+                        "-lSDL2",
+                        f"-o{current_directory}/DrawLibrary/C/SDL2/main.exe",
+                    ]
+
+                    # Compile the C code
+                    try:
+                        subprocess.run(gcc_command, check=True)
+                        print("Build successful!")
+                    except subprocess.CalledProcessError as e:
+                        print(f"Build failed: {e}")
+
+                    # Run the C code
+                    try:
+                        subprocess.run(f"{current_directory}/DrawLibrary/C/SDL2/main.exe", check=True)  # This will run the exe and wait for it to finish
+                        print(f"Successfully launched {current_directory}/DrawLibrary/C/SDL2/main.exe")
+                    except subprocess.CalledProcessError as e:
+                        print(f"Failed to launch {current_directory}/DrawLibrary/C/SDL2/main.exe: {e}")
 
         except Exception as e:
             # Display the error message in the terminal
