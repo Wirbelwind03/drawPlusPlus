@@ -6,14 +6,12 @@
 #include "utils.h"
 #include "shapes.h"
 
-// Constantes globales
-#define SCREEN_WIDTH 800
-#define SCREEN_HEIGHT 800
+// INSERT GLOBALS
 
 int main(int argc, char *argv[]) {
     // Start SDL
     SDL_Start();
-    SDL_Window *window = CreateWindow();
+    SDL_Window *window = CreateWindow(SCREEN_WIDTH, SCREEN_HEIGHT);
     SDL_Renderer *renderer = CreateRenderer(window);
 
     // INSERT VARIABLES
