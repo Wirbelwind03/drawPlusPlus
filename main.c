@@ -8,7 +8,7 @@
 #include "utils.h"
 #include "shapes.h"
 
-#define SCREEN_WIDTH 1008
+#define SCREEN_WIDTH 940
 #define SCREEN_HEIGHT 839
 
 int main(int argc, char *argv[]) {
@@ -52,10 +52,10 @@ drawing_index++;
 savePartialScreenshot(renderer, filename, offsetX - radius, offsetY - radius, radius * 2 + 1, radius * 2 + 1);
 ClearCanvas(renderer, 255, 255, 255, 255);
 }
-while((gridX <= 600))
+while((gridX <= SCREEN_WIDTH))
 {
 int gridY = 0;
-while((gridY <= 600))
+while((gridY <= SCREEN_HEIGHT))
 {
 circleRGBA(renderer, gridX, gridY, 5, 0, 0, 0, 255);
 fprintf(file, "%d,%d\n", (int)gridX, (int)gridY);

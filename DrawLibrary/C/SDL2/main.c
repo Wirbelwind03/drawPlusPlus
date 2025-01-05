@@ -7,8 +7,8 @@
 #include "utils.h"
 #include "shapes.h"
 
-#define SCREEN_WIDTH 800
-#define SCREEN_HEIGHT 600
+#define SCREEN_WIDTH 940
+#define SCREEN_HEIGHT 839
 
 int main(int argc, char *argv[]) {
     FILE *file = fopen("Data/Outputs/drawing_positions.txt", "w");
@@ -52,10 +52,10 @@ int main(int argc, char *argv[]) {
         ClearCanvas(renderer, 255, 255, 255, 255);
     }
     
-    while((gridX <= 600))
+    while((gridX <= SCREEN_WIDTH + 50))
     {
         int gridY = 0;
-        while((gridY <= 600))
+        while((gridY <= SCREEN_HEIGHT + 50))
         {
             circleRGBA(renderer, gridX, gridY, 5, 0, 0, 0, 255);
             fprintf(file, "%d,%d\n", (int)gridX, (int)gridY);
