@@ -1,4 +1,4 @@
-from DrawScript.Core.globals import GLOBAL_SYMBOLS_FUNCTIONS
+from DrawScript.Core.globals import GLOBAL_SYMBOLS_FUNCTIONS, GLOBAL_SYMBOLS_CURSOR_FUNCTIONS
 
 class SemanticAnalyzer:
     def __init__(self):
@@ -72,27 +72,15 @@ class SemanticAnalyzer:
         method = node["method"]
         args = node["arguments"]
 
-        # Méthodes valides mises à jour
-        valid_methods = {
-            "move": 2,           # Remplacement de "moveTo" par "move(xOuY, pixels)"
-            "rotate": 1,         # rotate(degrees)
-            "drawCircle": 1,     # drawCircle(radius)
-            "drawSegment": 2,    # drawSegment(x1, y1)
-            "drawSquare": 2,     # drawSquare(x1, y1)
-            "drawPoint": 0,      # drawPoint()
-            "setColor": 1,       # Nouvelle méthode
-            "setThickness": 1    # Nouvelle méthode
-        }
-
         # Vérifie que la méthode appelée fait partie des méthodes valides
-        if method not in valid_methods:
+        if method not in GLOBAL_SYMBOLS_CURSOR_FUNCTIONS:
             self.errors.append(
                 f"Ligne {node['line']}: Méthode '{method}' inconnue pour un curseur."
             )
             return
 
         # Vérifie que le nombre d’arguments correspond
-        expected_args = valid_methods[method]
+        expected_args = GLOBAL_SYMBOLS_CURSOR_FUNCTIONS[method]
         if len(args) != expected_args:
             self.errors.append(
                 f"Ligne {node['line']}: La méthode '{method}' attend {expected_args} argument(s), reçu {len(args)}."
