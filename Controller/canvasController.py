@@ -24,7 +24,7 @@ class CanvasController:
         The key are the ID given through the draw functions of tk.Canvas, and the value is the CanvasImage itself.
     """
 
-    def __init__(self, canvas: tk.Canvas, toolManager: ToolManager, DCC: DebugCanvasController):
+    def __init__(self, canvas: tk.Canvas, toolManager: ToolManager, DCC: DebugCanvasController = None):
         """
         Constructs a new CanvasImagesManager to the canvas.
 
@@ -101,7 +101,7 @@ class CanvasController:
         # Assign the id to the CanvasImage
         newCanvasImage.id = imageId
 
-        if DEBUG:
+        if DEBUG and self.DCC != None:
             self.DCC.addCanvasID(newCanvasImage)
             self.DCC.drawCanvasImageDebugInfos(newCanvasImage)
 
