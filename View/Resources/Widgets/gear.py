@@ -1,8 +1,8 @@
 import tkinter as tk
 from tkinter import ttk
+from .multiTextEditor import *
 import json
 import os
-
 
 class GearWindow(tk.Toplevel):
     def __init__(self, master):
@@ -35,11 +35,8 @@ class GearWindow(tk.Toplevel):
             }
             with open(json_file, "w") as file:
                 json.dump(settings, file, indent=4)
-                        # Mettre à jour le texte avec les nouvelles valeurs de police et de taille
-            # Si l'utilisateur souhaite fermer la fenêtre après l'enregistrement
             if close_after_save:
                 self.destroy()  # Ferme la fenêtre de paramètres
-            update_text(font_var.get(), font_size_var.get())
 
         # Charger les paramètres
         settings = load_settings()
@@ -49,9 +46,6 @@ class GearWindow(tk.Toplevel):
         font_size = settings.get("font_size", 24)
         dark_mode = settings.get("dark_mode", False)
         close_after_save = settings.get("close_after_save", False)
-
-        def update_text(new_font,new_font_size):
-            example_text.config(font=(new_font, new_font_size))
 
         # Label principal
         label = tk.Label(self, text="Settings", font = ("Helvetica","20","bold"))
