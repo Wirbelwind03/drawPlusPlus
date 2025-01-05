@@ -27,12 +27,12 @@ int main(int argc, char *argv[]) {
     float speed = 0.05;
     bool isAnimating = true;
     int gridX = 0;
+    int drawing_index = 1;
     bool running = true;
     SDL_Event event;
 
     // Dessin initial
-    SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255); // Transparent
-    SDL_RenderClear(renderer);
+    ClearCanvas(renderer, 255, 255, 255, 255);
 
     Cursor* cursor1 = Cursor_Constructor(centerX, centerY);
     for (int  i = 0; (i < numCircles); (i = (i + 1)))
@@ -40,6 +40,18 @@ int main(int argc, char *argv[]) {
         float offsetX = (centerX + ((radius * 3) * cos((angle + (i * (360 / numCircles))))));
         float offsetY = (centerY + ((radius * 3) * sin((angle + (i * (360 / numCircles))))));
         circleRGBA(renderer, offsetX, offsetY, radius, 0, 0, 0, 255);
+
+        // Determine the bounding box for the circle
+        int x = offsetX - radius;
+        int y = offsetY - radius;
+        int width = radius * 2;
+        int height = radius * 2;
+
+        char filename[50];
+        snprintf(filename, sizeof(filename), "drawing_%d.bmp", drawing_index);
+        drawing_index++;
+        savePartialScreenshot(renderer, filename, x, y, width + 1, height + 1);
+        ClearCanvas(renderer, 255, 255, 255, 255);
     }
 
 	while((gridX <= 600))
@@ -48,21 +60,32 @@ int main(int argc, char *argv[]) {
 		while((gridY <= 600))
 		{
             circleRGBA(renderer, gridX, gridY, 5, 0, 0, 255, 255);
+            char filename[50];
+            snprintf(filename, sizeof(filename), "drawing_%d.bmp", drawing_index);
+            drawing_index++;
+            savePartialScreenshot(renderer, filename, gridX - 5, gridY - 5, 5 * 2 + 1, 5 * 2 + 1);
+            ClearCanvas(renderer, 255, 255, 255, 255);
 			gridY = gridY + 50;
 		}
 		gridX = gridX + 50;
 	}
+
+
     Cursor_Move(cursor1, 400, 300);
     Cursor_Rotate(cursor1, 90);
     Cursor_DrawSegment(cursor1, renderer, 600, 600);
     Cursor_DrawCircle(cursor1, renderer, 50);
+
+
     Cursor_DrawRectangle(cursor1, renderer, 100, 50);
+    
     circleRGBA(renderer, 250, 250, 75, 0, 0, 255, 255);
+    // Sauvegarder une capture d'écran
+    saveScreenshot(renderer, "drawing6.bmp");
 
     SDL_RenderPresent(renderer);
 
-    // Sauvegarder une capture d'écran
-    saveScreenshot(renderer, "screenshot.bmp");
+
 
     // Boucle principale
     while (running) {
