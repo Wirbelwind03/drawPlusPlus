@@ -3,11 +3,13 @@ from tkinter import filedialog
 
 from Controller.canvasController import CanvasController
 
-from DrawScript.Core.drawScriptParser import DrawScriptParser
 from DrawScript.Core.drawScriptTokenizer import DrawScriptTokenizer
+from DrawScript.Core.drawScriptParser import DrawScriptParser
+from DrawScript.Core.drawScriptSemanticAnalyzer import SemanticAnalyzer
+from DrawScript.Core.drawScriptDeserializerC import DrawScriptDeserializerC
 
 from View.Resources.Widgets.terminal import Terminal
-from View.Resources.Widgets.textEditor import TextEditor
+from View.Resources.Widgets.multiTextEditor import MultiTextEditor
 
 class ScriptEditorController:
     """
@@ -32,7 +34,7 @@ class ScriptEditorController:
         Since this controller erase the canvas when the script is run, it's needed here
     """
 
-    def __init__(self, textEditor: TextEditor, terminal: Terminal, CC: CanvasController) -> None:
+    def __init__(self, textEditor: MultiTextEditor, terminal: Terminal, CC: CanvasController) -> None:
         """
             Constructs a new ScriptEditorController.
 
@@ -56,26 +58,48 @@ class ScriptEditorController:
 
     def executeCode(self):
         # Retrieve the entire text content from the text editor starting at line 1, character 0, to the end
-        code = self.textEditor.text.get("1.0", tk.END)
+        code = self.textEditor.openedTab.get("1.0", tk.END)
 
         # Clear the terminal widget before executing the code
         self.terminal.delete("1.0", tk.END)
 
         # Remove all previously highlighted "error" tags from the text editor
-        self.textEditor.text.tag_remove("error", "1.0", tk.END)
+        self.textEditor.openedTab.tag_remove("error", "1.0", tk.END)
 
         try:
             # Clear all elements on the canvas to remove any previous drawings
             self.CC.deleteAll()
 
-            # Mettre ici tout ce qui par rapport à l'éxecution du code
-            # C'est à dire par exemple, tout fonction ou classe lié au parser ou ce qui est nécessaire pour son fonctionnement,
+            tokenizer = DrawScriptTokenizer()
+            tokens, errors = tokenizer.tokenize(code)
 
-            # Tokenize the whole code, aka identity which word is a var, a whitespace, a comment, etc.
-            (tokens, errors) = self.tokenizer.tokenize(code)
-            # Parse the tokens
             parser = DrawScriptParser(tokens)
-            parser.parse()
+            ast_nodes, parse_errors = parser.parse()
+
+            # -- Vérification: si le parseur a retourné des erreurs, on les affiche:
+            if parse_errors:
+                print("=== Erreurs de parsing détectées ===")
+                for err in parse_errors:
+                    # Chaque err est un dict: {"message": str(e), "line": line}
+                    print(f"Ligne {err['line']}: {err['message']}")
+                print("Impossible de poursuivre l'analyse sémantique.")
+                raise Exception
+            else:
+                print("Aucune erreur de parsing.")
+                # Si pas d'erreur de parsing, on effectue l'analyse sémantique
+                analyzer = SemanticAnalyzer()
+                semantic_errors = analyzer.analyze(ast_nodes)
+
+                if semantic_errors:
+                    print("=== Erreurs sémantiques détectées ===")
+                    for err in semantic_errors:
+                        print(err)
+                    print("Annulation de la génération du code C.")
+                    raise Exception
+                else:
+                    print("Aucune erreur sémantique, génération du code C en cours.")
+                    interpreter = DrawScriptDeserializerC(ast_nodes)
+                    interpreter.write_c()
 
             # Indicate successful execution in the terminal
             self.terminal.insert(tk.END, "Exécution réussie !\n")
