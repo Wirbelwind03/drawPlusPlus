@@ -65,11 +65,11 @@ class MainFrame(tk.Frame):
         self.canvas.grid(row=2, column=1, rowspan=2, sticky="nsew", padx=10, pady=10)
 
         # Terminal at the bottom, non-editable, fixed size, with customized style
-        self.terminal = Terminal(self, height=10)
+        self.terminal = Terminal(self)
         self.terminal.grid(row=3, column=0, sticky="sew", padx=10, pady=10)
 
         # Planifier la vérification des changements dans 500 ms
-        self.check_for_changes()
+        # self.check_for_changes()
 
     def load_settings(self):
         """
