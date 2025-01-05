@@ -107,14 +107,20 @@ class DrawScriptParser:
         """
         Parse un statement en fonction du token courant
         """
+        # 1) On mémorise la ligne de début du statement.
+        start_line = self.current_token()['line'] if not self.is_at_end() else -1
+        
         try:
             return self._parse_statement_internal()
         except ParserError as e:
-            # On stocke l'erreur et on sync
-            line = self.current_token()['line'] if not self.is_at_end() else -1
-            self.errors.append({"message": str(e), "line": line})
+            # 2) En cas d'erreur, on utilise start_line, pas la ligne courante
+            self.errors.append({
+                "message": str(e),
+                "line": start_line
+            })
             self.synchronize()
             return None
+
 
     def _parse_statement_internal(self):
         

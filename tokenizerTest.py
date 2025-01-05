@@ -18,7 +18,7 @@ var radius = 50;
 var numCircles = 5;
 var angle = 0;
 var speed = 0.05;
-var isAnimating = true;
+var isAnimating = true
 
 // 2. Déclaration d'une variable de type cursor
 Cursor cursor1 = Cursor(centerX, centerY);
