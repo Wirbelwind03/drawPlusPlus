@@ -13,9 +13,15 @@
 #define SCREEN_HEIGHT 800
 
 int main(int argc, char *argv[]) {
+    FILE *file = fopen("example.txt", "w");
+    if (file == NULL) {
+        printf("Error opening file!\n");
+        return 1;
+    }
+
     // Initialisation de SDL
     SDL_Start();
-    SDL_Window *window = CreateWindow();
+    SDL_Window *window = CreateWindow(SCREEN_WIDTH, SCREEN_HEIGHT);
     SDL_Renderer *renderer = CreateRenderer(window);
 
     // Variables principales
@@ -27,6 +33,8 @@ int main(int argc, char *argv[]) {
     float speed = 0.05;
     bool isAnimating = true;
     int gridX = 0;
+
+    char filename[255];
     int drawing_index = 1;
     bool running = true;
     SDL_Event event;
@@ -40,6 +48,7 @@ int main(int argc, char *argv[]) {
         float offsetX = (centerX + ((radius * 3) * cos((angle + (i * (360 / numCircles))))));
         float offsetY = (centerY + ((radius * 3) * sin((angle + (i * (360 / numCircles))))));
         circleRGBA(renderer, offsetX, offsetY, radius, 0, 0, 0, 255);
+        fprintf(file, "%d,%d\n", (int)offsetX, (int)offsetY);
 
         // Determine the bounding box for the circle
         int x = offsetX - radius;
@@ -47,10 +56,9 @@ int main(int argc, char *argv[]) {
         int width = radius * 2;
         int height = radius * 2;
 
-        char filename[50];
         snprintf(filename, sizeof(filename), "drawing_%d.bmp", drawing_index);
         drawing_index++;
-        savePartialScreenshot(renderer, filename, x, y, width + 1, height + 1);
+        //savePartialScreenshot(renderer, filename, x, y, width + 1, height + 1);
         ClearCanvas(renderer, 255, 255, 255, 255);
     }
 
@@ -60,32 +68,29 @@ int main(int argc, char *argv[]) {
 		while((gridY <= 600))
 		{
             circleRGBA(renderer, gridX, gridY, 5, 0, 0, 255, 255);
-            char filename[50];
+            fprintf(file, "%d,%d\n", (int)gridX, (int)gridY);
+
             snprintf(filename, sizeof(filename), "drawing_%d.bmp", drawing_index);
             drawing_index++;
-            savePartialScreenshot(renderer, filename, gridX - 5, gridY - 5, 5 * 2 + 1, 5 * 2 + 1);
+            //savePartialScreenshot(renderer, filename, gridX - 5, gridY - 5, 5 * 2 + 1, 5 * 2 + 1);
             ClearCanvas(renderer, 255, 255, 255, 255);
 			gridY = gridY + 50;
 		}
 		gridX = gridX + 50;
 	}
 
-
     Cursor_Move(cursor1, 400, 300);
     Cursor_Rotate(cursor1, 90);
+    
     Cursor_DrawSegment(cursor1, renderer, 600, 600);
+    
     Cursor_DrawCircle(cursor1, renderer, 50);
-
 
     Cursor_DrawRectangle(cursor1, renderer, 100, 50);
     
     circleRGBA(renderer, 250, 250, 75, 0, 0, 255, 255);
-    // Sauvegarder une capture d'écran
-    saveScreenshot(renderer, "drawing6.bmp");
 
     SDL_RenderPresent(renderer);
-
-
 
     // Boucle principale
     while (running) {
@@ -102,6 +107,10 @@ int main(int argc, char *argv[]) {
     SDL_DestroyRenderer(renderer);
     SDL_DestroyWindow(window);
     SDL_Quit();
+
+    fclose(file);
+
+    printf("END");
 
     return 0;
 }
