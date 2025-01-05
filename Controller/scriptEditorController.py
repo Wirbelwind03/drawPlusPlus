@@ -5,6 +5,8 @@ from tkinter import filedialog
 
 from Controller.canvasController import CanvasController
 
+from DrawLibrary.Graphics.canvasImage import CanvasImage
+
 from DrawScript.Core.drawScriptTokenizer import DrawScriptTokenizer
 from DrawScript.Core.drawScriptParser import DrawScriptParser
 from DrawScript.Core.drawScriptSemanticAnalyzer import SemanticAnalyzer
@@ -139,12 +141,27 @@ class ScriptEditorController:
                     except subprocess.CalledProcessError as e:
                         print(f"Build failed: {e}")
 
+                    output_folder = f'{current_directory}/Data/Outputs'
+                    for filename in os.listdir(output_folder):
+                        file_path = os.path.join(output_folder, filename)
+                        if os.path.isfile(file_path):
+                            os.remove(file_path)
+
                     # Run the C code
                     try:
                         subprocess.run(f"{current_directory}/DrawLibrary/C/SDL2/main.exe", check=True)  # This will run the exe and wait for it to finish
                         print(f"Successfully launched {current_directory}/DrawLibrary/C/SDL2/main.exe")
                     except subprocess.CalledProcessError as e:
                         print(f"Failed to launch {current_directory}/DrawLibrary/C/SDL2/main.exe: {e}")
+
+                    with open(f'{current_directory}/Data/Outputs/drawing_positions.txt', "r") as file:
+                        lines = file.readlines()
+
+                    for i in range(len(lines)):
+                        line = lines[i]
+                        image = CanvasImage.fromPath(f'{output_folder}/drawing_{i + 1}.bmp')
+                        x, y = line.strip().split(',')
+                        self.CC.drawImage(image, int(x), int(y))
 
         except Exception as e:
             # Display the error message in the terminal
