@@ -52,7 +52,7 @@ class MainController:
         #
         self.DCC = DebugCanvasController(self.view.canvas)
         # Attach the canvas controller to the main controller
-        self.CC = CanvasController(self.view.canvas, canvasToolManager, self.DCC)
+        self.CC = CanvasController(self.view.canvas, canvasToolManager)
         # Attach the selection rectangle canvas controller to the canvas
         # It's used to control the selection rectangle when it's on the canvas
         self.SRCC: SelectionRectangleCanvasController = SelectionRectangleCanvasController(self.CC)
@@ -67,6 +67,4 @@ class MainController:
         self.MBC = MenuBarController(self.view.menuBar, self.SEC)
     
     def start(self):
-        circleImage = CanvasImage.fromPath("Data/Assets/pencil.png")
-
-        self.CC.drawImage(circleImage, 256, 256, 128, 256)
+        pass
