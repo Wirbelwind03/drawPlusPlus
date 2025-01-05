@@ -52,10 +52,10 @@ int main(int argc, char *argv[]) {
         ClearCanvas(renderer, 255, 255, 255, 255);
     }
     
-    while((gridX <= SCREEN_WIDTH + 50))
+    while((gridX <= SCREEN_WIDTH))
     {
         int gridY = 0;
-        while((gridY <= SCREEN_HEIGHT + 50))
+        while((gridY <= SCREEN_HEIGHT))
         {
             circleRGBA(renderer, gridX, gridY, 5, 0, 0, 0, 255);
             fprintf(file, "%d,%d\n", (int)gridX, (int)gridY);
