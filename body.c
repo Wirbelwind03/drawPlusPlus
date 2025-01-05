@@ -1,15 +1,16 @@
 #include <SDL2/SDL.h>
+#include <SDL2_gfxPrimitives.h>
 #include <math.h>
 #include <stdbool.h>
 #include <stdio.h>
+
 #include "cursor.h"
 #include "utils.h"
 #include "shapes.h"
 
 // INSERT GLOBALS
-
 int main(int argc, char *argv[]) {
-    FILE *file = fopen("example.txt", "w");
+    FILE *file = fopen("Data/Outputs/drawing_positions.txt", "w");
     if (file == NULL) {
         printf("Error opening file!\n");
         return 1;
@@ -20,7 +21,8 @@ int main(int argc, char *argv[]) {
     SDL_Window *window = CreateWindow(SCREEN_WIDTH, SCREEN_HEIGHT);
     SDL_Renderer *renderer = CreateRenderer(window);
 
-    // INSERT VARIABLES
+// INSERT VARIABLES
+    char filename[255];
     int drawing_index = 1;
     bool running = true;
     SDL_Event event;
@@ -28,8 +30,7 @@ int main(int argc, char *argv[]) {
     SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255); // Transparent
     SDL_RenderClear(renderer);
 
-    // INSERT DRAWINGS
-
+// INSERT DRAWINGS
     SDL_RenderPresent(renderer);
 
     // Boucle principale
@@ -40,7 +41,7 @@ int main(int argc, char *argv[]) {
             }
         }
 
-        // INSERT ANIMATIONS
+// INSERT ANIMATIONS
 
         SDL_Delay(16);
     }
