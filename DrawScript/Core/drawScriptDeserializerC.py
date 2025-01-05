@@ -1,14 +1,25 @@
+from Controller.canvasController import CanvasController
+
 from DrawScript.Core.globals import GLOBAL_SYMBOLS_FUNCTIONS, GLOBAL_SYMBOLS_CURSOR_FUNCTIONS
 
 class DrawScriptDeserializerC:
-    def __init__(self, ast_nodes):
+    def __init__(self, ast_nodes, canvasController : CanvasController = None):
         self.ast_nodes = ast_nodes
         self.code = ""
         self.current_color = [0, 0, 0, 255] # Default is black
+        self.CC = canvasController
 
     def write_c(self):
         f = open("body.c", "r")
         code = f.read()
+
+        insert_globals = code.find("// INSERT GLOBALS")
+        if self.CC != None:
+            globals = f'#define SCREEN_WIDTH {self.CC.view.winfo_width()}\n#define SCREEN_HEIGHT {self.CC.view.winfo_height()}\n\n'
+        else:
+            globals = f'#define SCREEN_WIDTH 800\n#define SCREEN_HEIGHT 600\n\n'
+        code = code[:insert_globals] + globals + code[insert_globals:]
+
         insert_variables = code.find("// INSERT VARIABLES")
         variables = ""  
         for ast_node in self.ast_nodes:
