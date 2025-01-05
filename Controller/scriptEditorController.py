@@ -159,27 +159,27 @@ class ScriptEditorController:
     def highlight_error(self, error, line_number):
         error_message = str(error)
         # On extrait le numéro de ligne de l'erreur
-        self.textEditor.text.tag_add("error", f"{line_number}.0", f"{line_number}.end")
-        self.textEditor.text.tag_config("error", background="red")  # Configurer le surlignement
+        self.textEditor.openedTab.tag_add("error", f"{line_number}.0", f"{line_number}.end")
+        self.textEditor.openedTab.tag_config("error", background="red")  # Configurer le surlignement
 
     # Fonction pour charger un fichier
     def load_file(self):
         file_path = filedialog.askopenfilename(filetypes=[("Text Files", "*.txt")])
         if file_path:
             with open(file_path, "r") as file:
-                self.textEditor.text.delete("1.0", tk.END)
-                self.textEditor.text.insert(tk.END, file.read())
+                self.textEditor.openedTab.delete("1.0", tk.END)
+                self.textEditor.openedTab.insert(tk.END, file.read())
 
     # Fonction pour sauvegarder le fichier
     def save_file(self):
         file_path = filedialog.asksaveasfilename(defaultextension=".txt", filetypes=[("Text Files", "*.txt")])
         if file_path:
             with open(file_path, "w") as file:
-                file.write(self.textEditor.text.get("1.0", tk.END))
+                file.write(self.textEditor.openedTab.get("1.0", tk.END))
 
     # Fonction de création de fichier (pour l'instant vide)
     def create_new_file(self):
-        self.textEditor.text.delete("1.0", tk.END)
+        self.textEditor.openedTab.delete("1.0", tk.END)
 
 """ 
     Mettre ici les fonctions liés à l'éditeur de texte et au terminal
