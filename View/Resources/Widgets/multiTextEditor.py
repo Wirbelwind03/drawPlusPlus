@@ -7,57 +7,41 @@ class MultiTextEditor(tk.Frame):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        # Chemin du fichier JSON
-        self.json_file = "View/Resources/Widgets/gear.json"
-
-        # Dernière date de modification connue
-        self.last_modified_time = self.get_file_modification_time()
-
-        # Charger les paramètres
-        self.settings = self.load_settings()
-
         # Créer un widget Notebook
         self.notebook = ttk.Notebook(self)
         self.notebook.pack(fill="both", expand=True)
 
+        # Initialiser la variable pour suivre la date de modification
+        self.last_modified_time = None
+
+        settings = self.load_settings()
+        font = settings.get("font", "Helvetica")
+        font_size = settings.get("font_size", 24)
+
+        # Charger les paramètres initiaux pour le mode sombre et la police
+        dark_mode = settings.get("dark_mode", False)
+        self.background_color = "#2E2E2E" if dark_mode else "#636363"
+        self.text_color = "white" if dark_mode else "black"
+
         # Ajouter 18 onglets avec des éditeurs de texte
-        self.editor_tabs = []
+        self.editor_tabs = [] 
         for i in range(1, 19):
-            self.add_editor_tab(f"Fenêtre {i}")
+            self.add_editor_tab(f"Fenêtre {i}", font, font_size)
 
-        # Lancer la surveillance du fichier JSON
-        self.monitor_settings()
-
-    def get_file_modification_time(self):
-        """Retourne la date de modification du fichier JSON ou None si le fichier n'existe pas."""
-        if os.path.exists(self.json_file):
-            return os.path.getmtime(self.json_file)
-        return None
+        # Vérifier les changements toutes les 500 ms
+        self.check_for_changes()
 
     def load_settings(self):
-        """
-        Charge les paramètres depuis le fichier gear.json.
-        Retourne les paramètres ou des valeurs par défaut.
-        """
-        try:
-            if os.path.exists(self.json_file) and os.path.getsize(self.json_file) > 0:
-                with open(self.json_file, "r") as file:
-                    return json.load(file)
-            else:
-                print("Fichier gear.json introuvable ou vide. Chargement des valeurs par défaut.")
-        except json.JSONDecodeError:
-            print("Erreur : gear.json est corrompu. Chargement des valeurs par défaut.")
-        return {"font": "Helvetica", "font_size": 12, "dark_mode": False}
+        json_file = "View/Resources/Widgets/gear.json"
+        if os.path.exists(json_file) and os.path.getsize(json_file) > 0:
+            with open(json_file, "r") as file:
+                settings = json.load(file)
+            return settings
+        else:
+            print("Erreur dans le fichier JSON : gear.json est introuvable, vide ou corrompu.")
+            exit(1)
 
-    def apply_settings(self):
-        """Applique les paramètres à tous les éditeurs ouverts sans modifier la taille de la zone de texte."""
-        font = self.settings.get("font", "Helvetica")
-        font_size = self.settings.get("font_size", 12)
-        for text in self.editor_tabs:
-            text.tag_configure("custom_font", font=(font, font_size))
-            text.tag_add("custom_font", "1.0", "end")
-
-    def add_editor_tab(self, title):
+    def add_editor_tab(self, title, font, font_size):
         """
         Crée un nouvel onglet avec un éditeur de texte.
         """
@@ -67,15 +51,11 @@ class MultiTextEditor(tk.Frame):
         frame.grid_columnconfigure(0, weight=1)
 
         # Créer un widget Text avec barre de défilement
-        text = tk.Text(frame, wrap="word")
+        text = tk.Text(frame, wrap="word", bg=self.background_color, fg=self.text_color)
         vsb = tk.Scrollbar(frame, orient="vertical", command=text.yview, width=20)
         text.configure(yscrollcommand=vsb.set)
-
-        # Appliquer le style initial avec un tag
-        font = self.settings.get("font", "Helvetica")
-        font_size = self.settings.get("font_size", 12)
+        
         text.tag_configure("custom_font", font=(font, font_size))
-        text.tag_add("custom_font", "1.0", "end")
 
         # Appliquer dynamiquement le style pour tout texte nouvellement tapé
         def on_key(event):
@@ -93,24 +73,27 @@ class MultiTextEditor(tk.Frame):
         # Ajouter l'onglet au Notebook
         self.notebook.add(frame, text=title)
 
-    def monitor_settings(self):
-        """
-        Surveille les modifications du fichier JSON.
-        Si une modification est détectée, recharge les paramètres et les applique.
-        """
-        current_modified_time = self.get_file_modification_time()
-        if current_modified_time and current_modified_time != self.last_modified_time:
-            self.last_modified_time = current_modified_time
-            self.settings = self.load_settings()
-            self.apply_settings()
-            print("Paramètres rechargés depuis gear.json")
+    def check_for_changes(self):
+        json_file = "View/Resources/Widgets/gear.json"
 
-        # Relancer la surveillance après un délai
-        self.after(1000, self.monitor_settings)  # Vérifie toutes les secondes
+        # Vérifier si le fichier existe et si la date de modification a changé
+        if os.path.exists(json_file):
+            current_modified_time = os.path.getmtime(json_file)
+            
+            if self.last_modified_time is None or current_modified_time != self.last_modified_time:
+                self.last_modified_time = current_modified_time
 
-# Main window
-if __name__ == "__main__":
-    root = tk.Tk()
-    textEditor = MultiTextEditor(root)
-    textEditor.pack(fill="both", expand=True)
-    root.mainloop()
+                settings = self.load_settings()
+                dark_mode = settings.get("dark_mode", False)
+                background_color = "black" if dark_mode else "white"
+                text_color = "white" if dark_mode else "black"
+                font = settings.get("font", "Helvetica")
+                font_size = settings.get("font_size", 24)
+
+                for editor in self.editor_tabs:
+                    editor.config(bg=background_color,fg=text_color)
+                    editor.tag_configure("custom_font", font=(font, font_size))  
+
+
+        # Planifier la vérification suivante dans 500 ms
+        self.after(500, self.check_for_changes)

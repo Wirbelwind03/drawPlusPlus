@@ -6,7 +6,8 @@ class Terminal(scrolledtext.ScrolledText):
         super().__init__(*args, **kwargs)
 
         # Enlarged scroll bar
-        self.vsb = self.vbar 
+        self.vsb = self.vbar
         self.vsb.config(width=20)
 
+        # Désactiver l'édition du terminal
         self.config(state=tk.DISABLED)
