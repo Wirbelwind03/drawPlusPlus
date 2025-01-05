@@ -159,18 +159,24 @@ class DrawScriptDeserializerC:
         return f'{expression};\n'
     
     def deserialize_call_expr(self, ast_node):
+        deserialized = ""
+
         callee = ast_node["callee"]
         
-        arguments = ""
+        arguments = ast_node["arguments"]
+        arguments_deserialized = ""
         for i in range(len(ast_node["arguments"])):
-            arguments += self.deserialize_node_type(ast_node["arguments"][i])
+            arguments_deserialized += self.deserialize_node_type(ast_node["arguments"][i])
             if i != len(ast_node["arguments"]) - 1:
-                arguments += ", "
+                arguments_deserialized += ", "
+
+        deserialized = f'{callee}({arguments_deserialized})'
 
         if callee in GLOBAL_SYMBOLS_FUNCTIONS:
             if callee == "drawCircle":
-                return f'circleRGBA(renderer, {arguments}, {self.current_color[0]}, {self.current_color[1]}, {self.current_color[2]}, {self.current_color[3]})'
+                deserialized = f'circleRGBA(renderer, {arguments_deserialized}, {self.current_color[0]}, {self.current_color[1]}, {self.current_color[2]}, {self.current_color[3]});\n'
+                deserialized += f'fprintf(file, "%d,%d\\n", (int){arguments[0]["value"]}, (int){arguments[1]["value"]})'
             else:
                 print(callee)
 
-        return f'{callee}({arguments})'
+        return deserialized
