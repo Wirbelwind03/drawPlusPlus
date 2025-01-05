@@ -1,9 +1,6 @@
 #include <stdio.h>
 #include "utils.h"
 
-#define SCREEN_WIDTH 800
-#define SCREEN_HEIGHT 800
-
 int SDL_Start(){
     // Initialisation de SDL
     if (SDL_Init(SDL_INIT_VIDEO) != 0) {
@@ -13,9 +10,9 @@ int SDL_Start(){
     return 0;
 }
 
-SDL_Window* CreateWindow(){
+SDL_Window* CreateWindow(int screen_width, int screen_height){
     SDL_Window *window = SDL_CreateWindow(
-    "Exemple SDL2", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, SCREEN_WIDTH, SCREEN_HEIGHT, SDL_WINDOW_SHOWN);
+    "Exemple SDL2", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, screen_width, screen_height, SDL_WINDOW_SHOWN);
     if (!window) {
         printf("Erreur SDL_CreateWindow : %s\n", SDL_GetError());
         SDL_Quit();
@@ -36,8 +33,8 @@ SDL_Renderer* CreateRenderer(SDL_Window* window){
 }
 
 // Fonction pour capturer et sauvegarder l'écran comme une image
-void saveScreenshot(SDL_Renderer *renderer, const char *filename) {
-    SDL_Surface *surface = SDL_CreateRGBSurfaceWithFormat(0, SCREEN_WIDTH, SCREEN_HEIGHT, 32, SDL_PIXELFORMAT_RGBA32);
+void saveScreenshot(SDL_Renderer *renderer, int screen_width, int screen_height, const char *filename) {
+    SDL_Surface *surface = SDL_CreateRGBSurfaceWithFormat(0, screen_width, screen_height, 32, SDL_PIXELFORMAT_RGBA32);
     if (!surface) {
         printf("Erreur SDL_CreateRGBSurfaceWithFormat: %s\n", SDL_GetError());
         return;
