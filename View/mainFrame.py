@@ -122,5 +122,9 @@ class MainFrame(tk.Frame):
         
         # Terminal at the bottom
         self.terminal = Terminal(self)
+<<<<<<< HEAD
+        self.terminal.grid(row=3, column=0, sticky="sew", padx=10, pady=10)
+>>>>>>> 831207dfd5369527ce091e8e22af9589f70d6f99
+=======
         self.terminal.grid(row=3, column=0, sticky="sew", padx=10, pady=10)
 >>>>>>> 831207dfd5369527ce091e8e22af9589f70d6f99

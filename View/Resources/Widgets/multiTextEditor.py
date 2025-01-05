@@ -12,6 +12,7 @@ class MultiTextEditor(tk.Frame):
         self.notebook.pack(fill="both", expand=True)
 
 <<<<<<< HEAD
+<<<<<<< HEAD
         # Initialiser la variable pour suivre la date de modification
         self.last_modified_time = None
 
@@ -32,6 +33,8 @@ class MultiTextEditor(tk.Frame):
         # Vérifier les changements toutes les 500 ms
         self.check_for_changes()
 =======
+=======
+>>>>>>> 831207dfd5369527ce091e8e22af9589f70d6f99
         # Ajouter un premier onglet qui contient un éditeur de texte
         self.editor_tabs = []
         self.add_editor_tab(f"Fenêtre {1}")
