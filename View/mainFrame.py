@@ -16,19 +16,11 @@ class MainFrame(tk.Frame):
     def __init__(self, *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)
 
-        # Charger les paramètres une seule fois
-        self.settings = self.load_settings()
-
         # Initialiser la variable pour suivre la date de modification
         self.last_modified_time = None
 
-        # Charger les paramètres initiaux pour le mode sombre et la police
-        self.dark_mode = self.settings.get("dark_mode", False)
-        self.background_color = "#2E2E2E" if self.dark_mode else "#636363"
-        self.background_color_terminal = "black" if self.dark_mode else "white"
-        self.text_color = "white" if self.dark_mode else "black"
-        self.font = self.settings.get("font", "Helvetica")
-        self.font_size = self.settings.get("font_size", 24)
+        settings = self.load_settings()
+        self.dark_mode = settings.get("dark_mode", False)
 
         # Use grid for the main frame layout
         self.grid(row=0, column=0, sticky="nsew")
@@ -49,11 +41,11 @@ class MainFrame(tk.Frame):
         self.grid_rowconfigure(3, weight=0)
 
         # Menu Bar at the top
-        self.mainBar = MainBar(self, bg=self.background_color)  # Background color for the mainBar
+        self.mainBar = MainBar(self)  # Background color for the mainBar
         self.mainBar.grid(row=0, column=1, sticky="new", padx=10, pady=10)
 
         # Create and grid the widgets
-        self.toolBar = ToolBar(self, bg=self.background_color)  # Background color for the toolBar
+        self.toolBar = ToolBar(self)  # Background color for the toolBar
         self.toolBar.grid(row=1, column=1, sticky="new", padx=10, pady=10)
 
         # TextEditor on the left side, expands vertically
@@ -97,19 +89,15 @@ class MainFrame(tk.Frame):
 
                 # Recharger les paramètres et mettre à jour la couleur de fond si nécessaire
                 settings = self.load_settings()
-                new_dark_mode = settings.get("dark_mode", False)
 
-                if new_dark_mode != self.dark_mode:
-                    self.dark_mode = new_dark_mode
-                    self.background_color = "#2E2E2E" if self.dark_mode else "#636363"
-                    self.font = settings.get("font", "Helvetica")
-                    self.font_size = settings.get("font_size", 24)
+                self.dark_mode = settings.get("dark_mode", False)
+                self.background_color = "#2E2E2E" if self.dark_mode else "#636363"
 
-                    # Mettre à jour les couleurs des widgets
-                    self.config(bg=self.background_color)
-                    self.mainBar.config(bg=self.background_color)
-                    self.toolBar.config(bg=self.background_color)
-                    self.menuBar.config(bg=self.background_color)
+                # Mettre à jour les couleurs des widgets
+                self.config(bg=self.background_color)
+                self.mainBar.config(bg=self.background_color)
+                self.toolBar.config(bg=self.background_color)
+                self.menuBar.config(bg=self.background_color)
 
         # Planifier la vérification suivante dans 500 ms
         self.after(500, self.check_for_changes)
