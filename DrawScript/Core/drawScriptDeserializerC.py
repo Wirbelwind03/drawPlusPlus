@@ -187,7 +187,7 @@ class DrawScriptDeserializerC:
     def saveDrawing(self, x, y, width, height):
         deserialized = ""
 
-        deserialized += f'snprintf(filename, sizeof(filename), "drawing_%d.bmp", drawing_index);\n'
+        deserialized += f'snprintf(filename, sizeof(filename), "Data/Outputs/drawing_%d.bmp", drawing_index);\n'
         deserialized += f'drawing_index++;\n'
         deserialized += f'savePartialScreenshot(renderer, filename, {x}, {y}, {width}, {height});\n'
         deserialized += f'ClearCanvas(renderer, 255, 255, 255, 255)'
