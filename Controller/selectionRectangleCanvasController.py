@@ -225,7 +225,7 @@ class SelectionRectangleCanvasController:
             # Render the selection rectangle to the new position
             self.render()
 
-        if DEBUG:
+        if DEBUG and self.CC.DCC != None:
             if self.selectionRectangle.attachedImage:
                 self.CC.DCC.drawCanvasImageDebugInfos(self.selectionRectangle.attachedImage)
 
@@ -251,7 +251,7 @@ class SelectionRectangleCanvasController:
         # Render the selection rectangle to the new position
         self.render()
 
-        if DEBUG:
+        if DEBUG and self.CC.DCC != None:
             self.CC.DCC.drawCanvasImageDebugInfos(self.selectionRectangle.attachedImage)
 
     #endregion Event

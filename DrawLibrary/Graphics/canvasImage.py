@@ -232,4 +232,19 @@ class CanvasImage(CanvasEntity):
 
         self.image.paste(canvasImage.image, (x, y))
 
+    def removeWhiteBackground(self) -> None:
+        self.image.convert("RGBA")
+
+        datas = self.image.getdata()
+    
+        newData = []
+    
+        for item in datas:
+            if item[0] == 255 and item[1] == 255 and item[2] == 255:
+                newData.append((255, 255, 255, 0))
+            else:
+                newData.append(item)
+    
+        self.image.putdata(newData)
+
     #endregion Public Methods

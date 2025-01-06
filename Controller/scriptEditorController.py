@@ -121,10 +121,10 @@ class ScriptEditorController:
                         f"-I{current_directory}/DrawLibrary/C/SDL2/src/include",
                         f"-I{current_directory}/DrawLibrary/C/SDL2_gfx",
                         f"-I{current_directory}/DrawLibrary/C/Utils",
-                        f"{current_directory}/DrawLibrary/C/SDL2/main.c",
                         f"{current_directory}/DrawLibrary/C/Utils/shapes.c",
                         f"{current_directory}/DrawLibrary/C/Utils/cursor.c",
                         f"{current_directory}/DrawLibrary/C/Utils/utils.c",
+                        f"{current_directory}/main.c",
                         f"{current_directory}/DrawLibrary/C/SDL2_gfx/SDL2_gfxPrimitives.c",
                         f"{current_directory}/DrawLibrary/C/SDL2_gfx/SDL2_rotozoom.c",
                         f"-L{current_directory}/DrawLibrary/C/SDL2/src/lib",
@@ -157,9 +157,10 @@ class ScriptEditorController:
                     with open(f'{current_directory}/Data/Outputs/drawing_positions.txt', "r") as file:
                         lines = file.readlines()
 
-                    for i in range(len(lines)):
+                    for i in range(1, len(lines) - 1):
                         line = lines[i]
-                        image = CanvasImage.fromPath(f'{output_folder}/drawing_{i + 1}.bmp')
+                        image = CanvasImage.fromPath(f'{output_folder}/drawing_{i}.bmp')
+                        image.removeWhiteBackground()
                         x, y = line.strip().split(',')
                         self.CC.drawImage(image, int(x), int(y))
 
