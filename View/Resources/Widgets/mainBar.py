@@ -3,12 +3,10 @@ from tkinter import PhotoImage
 from .gear import GearWindow
 
 class MainBar(tk.Frame):
-    def open_window(self):
-        # Create a new window when the gear button is pressed
-        new_window = GearWindow(self.master)
-
     def __init__(self, *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)
+        self.settingsWindow = None
+
         self.grid(row=0, column=0, sticky="new")
 
         # Create a gap between icons by setting "minsize=100" for each two column initializations
@@ -20,6 +18,6 @@ class MainBar(tk.Frame):
         gear_image = PhotoImage(file="Data/Assets/gear.png")
         
         # Tool - Gear
-        gearButton = tk.Button(self, image=gear_image, height=50, width=50, command=self.open_window)
-        gearButton.image = gear_image
-        gearButton.grid(row=0, column=1)
+        self.openSettingsButton = tk.Button(self, image=gear_image, height=50, width=50)
+        self.openSettingsButton.image = gear_image
+        self.openSettingsButton.grid(row=0, column=1)
