@@ -22,6 +22,8 @@ class SemanticAnalyzer:
             self.analyze_for_statement(node)
         elif node_type == "while_statement":
             self.analyze_while_statement(node)
+        elif node_type == "do_while_statement":
+            self.analyze_do_while_statement(node)
         elif node_type == "function_declaration":
             self.analyze_function_declaration(node)
         elif node_type == "return_statement":
@@ -149,6 +151,11 @@ class SemanticAnalyzer:
 
         body_node = node["body"]
         self.analyze_block(body_node)
+
+    def analyze_do_while_statement(self, node):
+        self.analyze_block(node["body"])
+        
+        self.analyze_expression(node["condition"])
 
     def analyze_function_declaration(self, node):
         func_name = node["name"]
