@@ -69,7 +69,7 @@ class MainFrame(tk.Frame):
         self.terminal.grid(row=3, column=0, sticky="sew", padx=10, pady=10)
 
         # Planifier la vérification des changements dans 500 ms
-        self.check_for_changes()
+        #self.check_for_changes()
 
     def load_settings(self):
         """
