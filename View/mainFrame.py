@@ -69,7 +69,7 @@ class MainFrame(tk.Frame):
         self.terminal.grid(row=3, column=0, sticky="sew", padx=10, pady=10)
 
         # Planifier la vérification des changements dans 500 ms
-        # self.check_for_changes()
+        self.check_for_changes()
 
     def load_settings(self):
         """
@@ -96,29 +96,20 @@ class MainFrame(tk.Frame):
                 self.last_modified_time = current_modified_time
 
                 # Recharger les paramètres et mettre à jour la couleur de fond si nécessaire
-                new_settings = self.load_settings()
-                new_dark_mode = new_settings.get("dark_mode", False)
+                settings = self.load_settings()
+                new_dark_mode = settings.get("dark_mode", False)
 
                 if new_dark_mode != self.dark_mode:
                     self.dark_mode = new_dark_mode
                     self.background_color = "#2E2E2E" if self.dark_mode else "#636363"
-                    self.background_color_terminal = "black" if self.dark_mode else "white"
-                    self.text_color = "white" if self.dark_mode else "black"
-                    self.font = new_settings.get("font", "Helvetica")
-                    self.font_size = new_settings.get("font_size", 24)
+                    self.font = settings.get("font", "Helvetica")
+                    self.font_size = settings.get("font_size", 24)
 
                     # Mettre à jour les couleurs des widgets
                     self.config(bg=self.background_color)
                     self.mainBar.config(bg=self.background_color)
                     self.toolBar.config(bg=self.background_color)
                     self.menuBar.config(bg=self.background_color)
-                    self.terminal.config(bg=self.background_color_terminal, fg=self.text_color, font=(self.font, self.font_size))
 
         # Planifier la vérification suivante dans 500 ms
         self.after(500, self.check_for_changes)
-        self.canvas.grid(row=2, column=1, rowspan=2, sticky="nsew", padx=10, pady=10)  # Right side, expands in all directions
-        
-        # Terminal at the bottom
-        self.terminal = Terminal(self)
-        self.terminal.grid(row=3, column=0, sticky="sew", padx=10, pady=10)
-        self.terminal.grid(row=3, column=0, sticky="sew", padx=10, pady=10)

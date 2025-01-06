@@ -1,12 +1,14 @@
 import tkinter as tk
 from tkinter import scrolledtext
+import os
+import json
 
 class Terminal(tk.Frame):
     def __init__(self, parent, *args, **kwargs):
         super().__init__(parent, *args, **kwargs)
 
         # Create the Text widget
-        self.text_widget = tk.Text(self, height=10, wrap="word", bg="lightgrey", fg="black", state=tk.DISABLED)
+        self.text_widget = tk.Text(self, height=10)
         
         # Create a vertical scrollbar
         self.vsb = tk.Scrollbar(self, orient=tk.VERTICAL, command=self.text_widget.yview)
@@ -22,3 +24,54 @@ class Terminal(tk.Frame):
         # Configure grid to expand
         self.grid_rowconfigure(0, weight=1)
         self.grid_columnconfigure(0, weight=1)
+
+        # Initialiser la variable pour suivre la date de modification
+        self.last_modified_time = None
+
+        settings = self.load_settings()
+        font = settings.get("font", "Helvetica")
+        font_size = settings.get("font_size", 24)
+
+        # Charger les paramètres initiaux pour le mode sombre et la police
+        dark_mode = settings.get("dark_mode", False)
+        self.background_color = "#2E2E2E" if dark_mode else "#636363"
+        self.text_color = "white" if dark_mode else "black"
+
+        self.text_widget.tag_configure("custom_font", font=(font, font_size))
+
+        # Vérifier les changements toutes les 500 ms
+        self.check_for_changes()
+
+    def load_settings(self):
+        json_file = "View/Resources/Widgets/gear.json"
+        if os.path.exists(json_file) and os.path.getsize(json_file) > 0:
+            with open(json_file, "r") as file:
+                settings = json.load(file)
+            return settings
+        else:
+            print("Erreur dans le fichier JSON : gear.json est introuvable, vide ou corrompu.")
+            exit(1)
+
+    def check_for_changes(self):
+        json_file = "View/Resources/Widgets/gear.json"
+
+        # Vérifier si le fichier existe et si la date de modification a changé
+        if os.path.exists(json_file):
+            current_modified_time = os.path.getmtime(json_file)
+            
+            if self.last_modified_time is None or current_modified_time != self.last_modified_time:
+                self.last_modified_time = current_modified_time
+
+                settings = self.load_settings()
+                dark_mode = settings.get("dark_mode", False)
+                background_color = "black" if dark_mode else "white"
+                text_color = "white" if dark_mode else "black"
+                font = settings.get("font", "Helvetica")
+                font_size = settings.get("font_size", 14)
+
+                self.text_widget.config(bg=background_color, fg=text_color)
+                self.text_widget.tag_configure("custom_font", font=(font, font_size))  
+
+
+        # Planifier la vérification suivante dans 500 ms
+        self.after(500, self.check_for_changes)
