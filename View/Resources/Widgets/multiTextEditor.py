@@ -91,7 +91,7 @@ class MultiTextEditor(tk.Frame):
                 self.font_size = settings.get("font_size", 24)
 
                 for editor in self.editor_tabs:
-                    editor.config(bg=self.background_color,fg=self.text_color)
+                    editor.config(bg=self.background_color,fg=self.text_color, insertbackground=self.text_color)
                     editor.tag_configure("custom_font", font=(self.font, self.font_size))  
 
 
