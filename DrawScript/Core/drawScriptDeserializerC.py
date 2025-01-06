@@ -72,6 +72,9 @@ class DrawScriptDeserializerC:
             return self.deserialize_var_declaration(ast_node) + "\n"
         elif ast_node["node_type"] == "while_statement":
             return self.deserialize_while_statement(ast_node)
+        elif ast_node["node_type"] == "do_while_statement":
+            return self.deserialize_do_while_statement(ast_node)
+
         else:
             print(ast_node["node_type"])
 
@@ -144,6 +147,12 @@ class DrawScriptDeserializerC:
         condition = self.deserialize_node_type(ast_node["condition"])
         body = self.deserialize_block(ast_node["body"])
         return f'while({condition})\n{body}'
+
+    def deserialize_do_while_statement(self, ast_node):
+        condition = self.deserialize_node_type(ast_node["condition"])
+        body = self.deserialize_block(ast_node["body"])
+        # Ajout d'un point-virgule final
+        return f'do\n{body} while({condition});\n'
                 
     def deserialize_block(self, ast_node):
         statements = self.deserialize_statements(ast_node)

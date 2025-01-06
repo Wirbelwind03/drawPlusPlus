@@ -21,7 +21,7 @@ TOKEN_SPECIFICATION = [
 # Définition des mots-clés du langage
 KEYWORDS = [
     'var', 'function', 'if', 'else', 'while', 'for',
-    'copy', 'animate', 'to', 'Cursor', 'return',
+    'copy', 'animate', 'to', 'Cursor', 'return', 'do',
 ]
 
 class DrawScriptTokenizer:

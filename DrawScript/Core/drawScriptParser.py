@@ -6,6 +6,8 @@ class DrawScriptParser:
         self.tokens = tokens
         self.current_token_index = 0
         self.errors = []
+        self.context_stack = []
+
 
     @property
     def currentToken(self):
@@ -23,8 +25,28 @@ class DrawScriptParser:
         max_iterations = len(self.tokens) + 1000  # Ajouter une limite
         iterations = 0
         while not self.is_at_end():
+            # On a un "garde fou" sur le nombre d'itérations
             if iterations > max_iterations:
-                raise RuntimeError("Boucle infinie détectée dans `parse`")
+                if self.context_stack:
+                    last_ctx = self.context_stack[-1]
+                    msg = (
+                        f"La structure '{last_ctx['type']}' commencée à la ligne {last_ctx['line']} "
+                        f"n'est pas correctement fermée (accolade manquante ?)."
+                    )
+                    # On enregistre l’erreur dans self.errors
+                    self.errors.append({
+                        "message": msg,
+                        "line": last_ctx['line']
+                    })
+                    # Puis on quitte la boucle parse
+                    break
+                else:
+                    # Même chose, on ajoute un message plus générique
+                    self.errors.append({
+                        "message": "Boucle infinie détectée ou code invalide",
+                        "line": -1
+                    })
+                    break            
             iterations += 1
 
             stmt = self.parse_statement()
@@ -102,23 +124,43 @@ class DrawScriptParser:
                 return
             self.advance()
 
+    def pushContext(self, ctx_type, line):
+        """
+        Empile un nouveau contexte (ex: 'for', 'while', 'block', etc.)
+        line = numéro de ligne où débute la structure
+        """
+        self.context_stack.append({"type": ctx_type, "line": line})
+
+    def popContext(self):
+        """
+        Dépile le dernier contexte. 
+        À appeler quand on termine la structure correspondante.
+        """
+        if self.context_stack:
+            self.context_stack.pop()
+
+
     # ----------------- Parsing statements -------------------
     def parse_statement(self):
-        """
-        Parse un statement en fonction du token courant
-        """
-        # 1) On mémorise la ligne de début du statement.
         start_line = self.current_token()['line'] if not self.is_at_end() else -1
-        
+        start_index = self.current_token_index  # <-- On mémorise l'index de départ
+
         try:
             return self._parse_statement_internal()
         except ParserError as e:
-            # 2) En cas d'erreur, on utilise start_line, pas la ligne courante
+            # On enregistre l'erreur
             self.errors.append({
                 "message": str(e),
                 "line": start_line
             })
+            # On appelle la synchronisation
             self.synchronize()
+
+            # Si on n'a pas avancé du tout, on avance d'un token
+            # pour éviter de retomber en boucle sur la même erreur
+            if self.current_token_index == start_index and not self.is_at_end():
+                self.advance()
+
             return None
 
 
@@ -138,6 +180,9 @@ class DrawScriptParser:
 
         if self.match('KEYWORD', 'while'):
             return self.parse_while_statement()
+
+        if self.match('KEYWORD', 'do'):
+            return self.parse_do_while_statement()
 
         if self.match('KEYWORD', 'function'):
             return self.parse_function_declaration()
@@ -214,13 +259,11 @@ class DrawScriptParser:
 
 
     def parse_if_statement(self):
-        """
-        if "(" EXPRESSION ")" BLOCK [ "else" BLOCK ]
-        """
-        # On récupère la ligne du token 'if'
         line_num = self.current_token()["line"]
-        self.consume('KEYWORD', 'if')
+        
+        self.pushContext("if", line_num)
 
+        self.consume('KEYWORD', 'if')
         self.consume('DELIMITER', '(')
         condition = self.parse_expression()
         self.consume('DELIMITER', ')')
@@ -231,6 +274,9 @@ class DrawScriptParser:
             self.consume('KEYWORD', 'else')
             else_block = self.parse_block()
 
+        # fin du if
+        self.popContext()
+
         return {
             "node_type": "if_statement",
             "condition": condition,
@@ -240,20 +286,27 @@ class DrawScriptParser:
         }
 
 
+
     def parse_for_statement(self):
         line_num = self.current_token()["line"]
+        
+        # Empiler "for"
+        self.pushContext("for", line_num)
+
         self.consume('KEYWORD', 'for')
         self.consume('DELIMITER', '(')
         init_node = self.parse_for_init()
         self.consume('DELIMITER', ';')
-        # parse expression (condition)
         condition_node = self.parse_expression()
         self.consume('DELIMITER', ';')
-        # parse l'incrément (on passe par une assignation en premier donc c'est bon)
         increment_node = self.parse_expression()
         self.consume('DELIMITER', ')')
-        # parse le block { ... }
+
         body_node = self.parse_block()
+
+        # On arrive ici => on a bien parse le 'for' + block => on dépile
+        self.popContext()
+
         return {
             "node_type": "for_statement",
             "init": init_node,
@@ -263,13 +316,19 @@ class DrawScriptParser:
             "line": line_num
         }
 
+
     def parse_while_statement(self):
         line_num = self.current_token()["line"]
+        
+        self.pushContext("while", line_num)
+
         self.consume('KEYWORD', 'while')
         self.consume('DELIMITER', '(')
         condition_node = self.parse_expression()
         self.consume('DELIMITER', ')')
         body_node = self.parse_block()
+
+        self.popContext()
 
         return {
             "node_type": "while_statement",
@@ -279,24 +338,50 @@ class DrawScriptParser:
         }
 
 
+    def parse_do_while_statement(self):
+        line_num = self.current_token()["line"]
+        
+        self.pushContext("do-while", line_num)
+
+        self.consume('KEYWORD', 'do')
+        body_node = self.parse_block()
+        self.consume('KEYWORD', 'while')
+        self.consume('DELIMITER', '(')
+        condition_node = self.parse_expression()
+        self.consume('DELIMITER', ')')
+        self.consume('DELIMITER', ';')
+
+        self.popContext()
+
+        return {
+            "node_type": "do_while_statement",
+            "condition": condition_node,
+            "body": body_node,
+            "line": line_num
+        }
+
+
     def parse_function_declaration(self):
         line_num = self.current_token()["line"]
+        self.pushContext("function", line_num)
+
         self.consume('KEYWORD', 'function')
         func_name = self.consume('IDENTIFIER')
         self.consume('DELIMITER', '(')
-        # parse paramètres (optionnels)
-        param_list = []
-        if not self.match('DELIMITER', ')'):
-            param_list = self.parse_parameter_list()
+        # etc.
         self.consume('DELIMITER', ')')
         func_body = self.parse_block()
+
+        self.popContext()
+
         return {
             "node_type": "function_declaration",
             "name": func_name["value"],
-            "params": param_list,
+            "params": ...,
             "body": func_body,
             "line": line_num
         }
+
 
 
 
@@ -305,6 +390,8 @@ class DrawScriptParser:
 
     def parse_block(self):
         line_num = self.current_token()["line"]
+        
+        self.pushContext("block", line_num)
         self.consume('DELIMITER', '{')
         statements = []
         while not self.is_at_end() and not self.match('DELIMITER', '}'):
@@ -314,6 +401,8 @@ class DrawScriptParser:
             if stmt:
                 statements.append(stmt)
         self.consume('DELIMITER', '}')
+        # On a trouvé la '}', on peut dépiler le contexte
+        self.popContext()
         return {
             "node_type": "block",
             "statements": statements,
