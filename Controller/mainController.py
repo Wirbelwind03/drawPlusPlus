@@ -1,6 +1,7 @@
 import tkinter as tk
 
 from tkinter import filedialog
+from tkinter import font
 
 from DrawScript.Core.drawScriptParser import DrawScriptParser
 
@@ -11,12 +12,14 @@ from Controller.debugCanvasController import DebugCanvasController
 from Controller.scriptEditorController import ScriptEditorController
 from Controller.menuBarController import MenuBarController
 from Controller.selectionRectangleCanvasController import SelectionRectangleCanvasController
+from Controller.settingsController import SettingsWindowController
 
 from DrawLibrary.Graphics.canvasImage import CanvasImage
 
 from Model.toolManager import ToolManager
 
 from View.mainFrame import MainFrame
+from View.Resources.Widgets.gear import GearWindow
 
 class MainController:
     """
@@ -47,6 +50,8 @@ class MainController:
         """
         self.view = view
 
+        self.SC = None
+
         # Create a tool manager for the canvas controller
         canvasToolManager = ToolManager()
         #
@@ -65,6 +70,22 @@ class MainController:
         self.SEC = ScriptEditorController(self.view.textEditor, self.view.terminal, self.CC)
         # Attach the menu bar controller to the main controller
         self.MBC = MenuBarController(self.view.menuBar, self.SEC)
+
+        self.view.mainBar.openSettingsButton.configure(command=self.open_settings_window)
     
     def start(self):
         pass
+
+    def open_settings_window(self):
+        # Create a new window when the gear button is pressed
+        settingsWindow = GearWindow(self.view)
+        # Bind the "<Destroy>" event to detect when the window is closed
+        settingsWindow.bind("<Destroy>", self.on_settings_window_closed)
+        self.SC = SettingsWindowController(settingsWindow, "View/Resources/Widgets/gear.json")
+
+    def on_settings_window_closed(self, event):
+        """
+        Callback triggered when the gearWindow is destroyed.
+        """
+        if event.widget == self.SC.gearWindow:  # Ensure it's the gearWindow that triggered the event
+            self.SC = None  # Optionally clean up the reference
