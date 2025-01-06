@@ -41,7 +41,5 @@ int main(int argc, char *argv[]) {
 
     fclose(file);
 
-    printf("END");
-
     return 0;
 }
