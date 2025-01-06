@@ -69,7 +69,7 @@ class MainFrame(tk.Frame):
         self.terminal.grid(row=3, column=0, sticky="sew", padx=10, pady=10)
 
         # Planifier la vérification des changements dans 500 ms
-        # self.check_for_changes()
+        self.check_for_changes()
 
     def load_settings(self):
         """
@@ -112,7 +112,6 @@ class MainFrame(tk.Frame):
                     self.mainBar.config(bg=self.background_color)
                     self.toolBar.config(bg=self.background_color)
                     self.menuBar.config(bg=self.background_color)
-                    self.terminal.config(bg=self.background_color_terminal, fg=self.text_color, font=(self.font, self.font_size))
 
         # Planifier la vérification suivante dans 500 ms
         self.after(500, self.check_for_changes)
