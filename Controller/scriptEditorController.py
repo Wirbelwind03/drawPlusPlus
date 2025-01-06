@@ -157,9 +157,9 @@ class ScriptEditorController:
                     with open(f'{current_directory}/Data/Outputs/drawing_positions.txt', "r") as file:
                         lines = file.readlines()
 
-                    for i in range(1, len(lines) - 1):
+                    for i in range(0, len(lines)):
                         line = lines[i]
-                        image = CanvasImage.fromPath(f'{output_folder}/drawing_{i}.bmp')
+                        image = CanvasImage.fromPath(f'{output_folder}/drawing_{i + 1}.bmp')
                         image.removeWhiteBackground()
                         x, y = line.strip().split(',')
                         self.CC.drawImage(image, int(x), int(y))
