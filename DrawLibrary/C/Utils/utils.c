@@ -12,7 +12,7 @@ int SDL_Start(){
 
 SDL_Window* CreateWindow(int screen_width, int screen_height){
     SDL_Window *window = SDL_CreateWindow(
-    "Exemple SDL2", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, screen_width, screen_height, SDL_WINDOW_SHOWN);
+    "Exemple SDL2", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, screen_width, screen_height, SDL_WINDOW_HIDDEN);
     if (!window) {
         printf("Erreur SDL_CreateWindow : %s\n", SDL_GetError());
         SDL_Quit();

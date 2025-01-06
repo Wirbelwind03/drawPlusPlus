@@ -24,7 +24,6 @@ int main(int argc, char *argv[]) {
 // INSERT VARIABLES
     char filename[255];
     int drawing_index = 1;
-    bool running = true;
     SDL_Event event;
 
     SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255); // Transparent
@@ -33,18 +32,7 @@ int main(int argc, char *argv[]) {
 // INSERT DRAWINGS
     SDL_RenderPresent(renderer);
 
-    // Boucle principale
-    while (running) {
-        while (SDL_PollEvent(&event)) {
-            if (event.type == SDL_QUIT) {
-                running = false;
-            }
-        }
-
 // INSERT ANIMATIONS
-
-        SDL_Delay(16);
-    }
 
     // Clean
     SDL_DestroyRenderer(renderer);
