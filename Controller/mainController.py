@@ -81,7 +81,8 @@ class MainController:
         settingsWindow = GearWindow(self.view)
         # Bind the "<Destroy>" event to detect when the window is closed
         settingsWindow.bind("<Destroy>", self.on_settings_window_closed)
-        self.SC = SettingsWindowController(settingsWindow, "View/Resources/Widgets/gear.json")
+        self.SC = SettingsWindowController("View/Resources/Widgets/gear.json")
+        self.SC.attach(settingsWindow)
 
     def on_settings_window_closed(self, event):
         """

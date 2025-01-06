@@ -4,13 +4,14 @@ import tkinter as tk
 from View.Resources.Widgets.gear import GearWindow
 
 class SettingsWindowController:
-    def __init__(self, settingsWindow: GearWindow, json_file):
-        self.gearWindow = settingsWindow
-        self.settings = None
+    def __init__(self, json_file):
+        self.gearWindow = None
+        self.settingsJsonPath = json_file
+        self.settings = self.load_settings(self.settingsJsonPath)
 
-        self.load_settings(json_file)
-
-        self.gearWindow.save_button.configure(command=lambda : self.save_settings(json_file))
+    def attach(self, gearWindow: GearWindow):
+        self.gearWindow = gearWindow
+        self.gearWindow.save_button.configure(command=lambda : self.save_settings(self.settingsJsonPath))
         
    # Fonction pour charger les paramètres depuis le fichier JSON
     def load_settings(self, json_file):
