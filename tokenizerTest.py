@@ -60,6 +60,11 @@ cursor1.drawSquare(100, 50);// Dessiner un rectangle de largeur 100 et hauteur 5
 drawCircle(250, 250, 75);
 
 // 12. Fin du script
+var dox = 10;
+var doy = 20;
+do {
+    var x = x + 1;
+} while (x < 10);
 """
 
 tokenizer = DrawScriptTokenizer()
