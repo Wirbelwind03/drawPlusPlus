@@ -144,7 +144,7 @@ class ScriptEditorController:
                     output_folder = f'{current_directory}/Data/Outputs'
                     for filename in os.listdir(output_folder):
                         file_path = os.path.join(output_folder, filename)
-                        if os.path.isfile(file_path):
+                        if os.path.isfile(file_path) and filename != ".gitignore":
                             os.remove(file_path)
 
                     # Run the C code
