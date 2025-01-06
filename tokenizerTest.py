@@ -62,8 +62,9 @@ drawCircle(250, 250, 75);
 // 12. Fin du script
 var dox = 10;
 var doy = 20;
+var x = 0;
 do {
-    var x = x + 1;
+    x = x + 1;
 } while (x < 10);
 """
 
