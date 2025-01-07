@@ -1,7 +1,5 @@
 import tkinter as tk
 import os
-import json
-
 from .mainFrame import *
 from Controller.mainController import MainController
 
@@ -10,14 +8,14 @@ class Window(tk.Tk):
         super().__init__(*args, **kwargs)
 
         # Set window to full screen
-        width = self.winfo_screenwidth()
-        height = self.winfo_screenheight()
+        width = self.winfo_screenwidth() - 256
+        height = self.winfo_screenheight() - 256
         # Setting window size
         self.geometry(f"{width}x{height}")
 
         self.title("draw++ IDE")
 
-        self.main_frame = MainFrame(self, bg="#2E2E2E")
+        self.main_frame = MainFrame(self, bg="#f0f0f0")
 
         # Attacher le contrôleur à l'UI
         self.controller = MainController(self.main_frame)
