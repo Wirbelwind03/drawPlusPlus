@@ -4,6 +4,7 @@ from .Resources.Widgets.terminal import Terminal
 from .Resources.Widgets.multiTextEditor import MultiTextEditor
 from .Resources.Widgets.toolBar import ToolBar
 from .Resources.Widgets.mainBar import MainBar
+from .Resources.Widgets.canvas import Canvas
 
 from View.theme import Theme
 
@@ -21,7 +22,7 @@ class MainFrame(tk.Frame):
         self.master.grid_columnconfigure(0, weight=1)
         
         # Add menu bar (this doesn't use grid or pack, it's set on master)
-        self.menuBar = tk.Menu()
+        self.menuBar = tk.Menu(self, background="blue")
         self.master.config(menu=self.menuBar)
 
         # Configure rows and columns for grid layout in MainFrame
@@ -46,11 +47,11 @@ class MainFrame(tk.Frame):
         self.textEditor.grid(row=0, column=0, rowspan=3, sticky="nsew", padx=10, pady=10)
         
         # Canvas on the right side, expands vertically and horizontally
-        self.canvas = tk.Canvas(self, bg="white", width=800, height=600)
+        self.canvas = Canvas(self, bg="white", highlightthickness=1, width=800, height=600)
         self.canvas.grid(row=2, column=1, rowspan=2, sticky="nsew", padx=10, pady=10)
 
         # Terminal at the bottom, non-editable, fixed size, with customized style
-        self.terminal = Terminal(self)
+        self.terminal = Terminal(self, highlightthickness=1)
         self.terminal.grid(row=3, column=0, sticky="sew", padx=10, pady=10)
 
     def refresh_widgets(self, settings):
