@@ -184,7 +184,8 @@ class ScriptEditorController:
         file_path = filedialog.askopenfilename(filetypes=[("Text Files", "*.txt")])
         if file_path:
             with open(file_path, "r") as file:
-                self.textEditor.openedTab.delete("1.0", tk.END)
+                self.textEditor.add_editor_tab(f'Fenêtre {len(self.textEditor.editor_tabs) + 1}')
+                self.textEditor.notebook.select(len(self.textEditor.editor_tabs) - 1)
                 self.textEditor.openedTab.insert(tk.END, file.read())
 
     # Fonction pour sauvegarder le fichier
@@ -196,14 +197,8 @@ class ScriptEditorController:
 
     # Fonction de création de fichier (pour l'instant vide)
     def create_new_file(self):
-        self.textEditor.openedTab.delete("1.0", tk.END)
-
-""" 
-    Mettre ici les fonctions liés à l'éditeur de texte et au terminal
-    Cela peut etre par exemple des opérations liés au fichiers qui est communiqué à l'éditeur de texte
-    Si vous avez besoin de communiqué avec un autre widget (bon il y a pas vraiment de widget pour prendre exemple
-    mais genre avec la barre d'outils), il faudra crée un controller et l'ajoutée comme attribut
-    C'est le cas avec le CanvasController, lorsqu'on execute le code, cela efface le canvas, et le
-    CanvasController gère tout ce qui est par rapport au Canvas.
-    Le seul controller à ne pas mettre comme attribut est le MainController
-"""
+        # "+ 1" because the new tab has not been added yet
+        self.textEditor.add_editor_tab(f'Fenêtre {len(self.textEditor.editor_tabs) + 1}')
+        # Select the new tab
+        # "- 1" because the new tab has been added
+        self.textEditor.notebook.select(len(self.textEditor.editor_tabs) - 1)
