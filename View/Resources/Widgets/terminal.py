@@ -22,3 +22,8 @@ class Terminal(tk.Frame):
         # Configure grid to expand
         self.grid_rowconfigure(0, weight=1)
         self.grid_columnconfigure(0, weight=1)
+
+    def refresh(self, settings):
+        self.text_widget.configure(font=(settings["font"], settings["font_size"]))
+        if settings["dark_mode"]:
+            self.text_widget.configure(bg="#636363")
