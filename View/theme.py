@@ -17,3 +17,7 @@ class Theme:
     @staticmethod
     def FontColor(settings):
         return "white" if settings["dark_mode"] else "black"
+    
+    @staticmethod
+    def HighLightBackgroundColor(settings):
+        return "#1f1f1f" if settings["dark_mode"] else "white"
