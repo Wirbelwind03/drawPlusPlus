@@ -95,14 +95,17 @@ class DrawScriptDeserializerC:
         elif method == "rotate":
             deserialized += f'Cursor_Rotate({cursor_name}, {arguments[0]["value"]});\n'
         elif method == "drawCircle":
-            deserialized += f'Cursor_DrawCircle({cursor_name}, renderer, {arguments[0]["value"]});\n'
+            radius = arguments[0]["value"]
+            deserialized += f'Cursor_DrawCircle({cursor_name}, renderer, {radius});\n'
             deserialized += f'fprintf(file, "%d,%d\\n", (int){cursor_name}->x, (int){cursor_name}->y);\n'
+            deserialized += self.saveDrawing(f'(int){cursor_name}->x - {radius}', f'(int){cursor_name}->y - {radius}', f'{radius} * 2 + 1', f'{radius} * 2 + 1')
+            deserialized += ";\n"
         elif method == "drawSquare":
             deserialized += f'Cursor_DrawRectangle({cursor_name}, renderer, {arguments[0]["value"]}, {arguments[1]["value"]});\n'
-            deserialized += f'fprintf(file, "%d,%d\\n", (int){cursor_name}->x, (int){cursor_name}->y);\n'
+            #deserialized += f'fprintf(file, "%d,%d\\n", (int){cursor_name}->x, (int){cursor_name}->y);\n'
         elif method == "drawSegment":
             deserialized += f'Cursor_DrawSegment({cursor_name}, renderer, {arguments[0]["value"]}, {arguments[1]["value"]});\n'
-            deserialized += f'fprintf(file, "%d,%d\\n", (int){cursor_name}->x, (int){cursor_name}->y);\n'
+            #deserialized += f'fprintf(file, "%d,%d\\n", (int){cursor_name}->x, (int){cursor_name}->y);\n'
 
         return deserialized
 
