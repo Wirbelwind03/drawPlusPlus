@@ -54,6 +54,9 @@ class MultiTextEditor(tk.Frame):
         self.notebook.add(frame, text=title)
 
     def refresh(self, settings):
+        # style = ttk.Style()
+        # style.configure('TNotebook.Tab', background=Theme.MainBackgroundColor(settings))
+        # style.map('TNotebook.Tab', background=[('selected', 'blue')], foreground=[('selected', 'white')])  # Selected tab
         for text in self.editor_tabs:
             text.configure(font=(settings["font"], settings["font_size"]))
             text.configure(bg=Theme.BackgroundColor(settings))
