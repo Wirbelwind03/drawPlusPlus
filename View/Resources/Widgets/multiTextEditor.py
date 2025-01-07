@@ -1,7 +1,5 @@
 import tkinter as tk
 from tkinter import ttk
-import os
-import json
 
 class MultiTextEditor(tk.Frame):
     def __init__(self, *args, **kwargs):
@@ -52,3 +50,11 @@ class MultiTextEditor(tk.Frame):
 
         # Ajouter l'onglet au Notebook
         self.notebook.add(frame, text=title)
+
+    def refresh(self, settings):
+        for text in self.editor_tabs:
+            text.configure(font=(settings["font"], settings["font_size"]))
+            if settings["dark_mode"]:
+                text.configure(bg="#636363")
+                text.configure(insertbackground="white")
+                text.tag_configure("custom_font", foreground="white")
