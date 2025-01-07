@@ -65,6 +65,7 @@ class SettingsWindowController:
         with open(self.settingsJsonPath, "w") as file:
             json.dump(self.settings, file, indent=4)
 
-        self.gearWindow.destroy()
+        if self.gearWindow != None:
+            self.gearWindow.destroy()
 
     
