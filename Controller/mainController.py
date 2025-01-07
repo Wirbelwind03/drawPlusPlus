@@ -11,8 +11,9 @@ from Controller.canvasController import CanvasController
 from Controller.debugCanvasController import DebugCanvasController
 from Controller.scriptEditorController import ScriptEditorController
 from Controller.menuBarController import MenuBarController
+from Controller.mainBarController import MainBarController
 from Controller.selectionRectangleCanvasController import SelectionRectangleCanvasController
-from Controller.settingsController import SettingsWindowController
+from Controller.settingsWindowController import SettingsWindowController
 
 from DrawLibrary.Graphics.canvasImage import CanvasImage
 
@@ -50,7 +51,7 @@ class MainController:
         """
         self.view = view
 
-        self.SC = None
+        self.SC = SettingsWindowController("appSettings.json")
 
         # Create a tool manager for the canvas controller
         canvasToolManager = ToolManager()
@@ -70,23 +71,17 @@ class MainController:
         self.SEC = ScriptEditorController(self.view.textEditor, self.view.terminal, self.CC)
         # Attach the menu bar controller to the main controller
         self.MBC = MenuBarController(self.view.menuBar, self.SEC)
+        self.MainBarController = MainBarController(self.view.mainBar, self.SC)
+        self.MainBarController.set_event_setting_window_close(self.refresh_widgets)
 
-        self.view.mainBar.openSettingsButton.configure(command=self.open_settings_window)
-    
+        # Refresh the widget to apply the settings
+        self.refresh_widgets()
+
     def start(self):
         pass
 
-    def open_settings_window(self):
-        # Create a new window when the gear button is pressed
-        settingsWindow = GearWindow(self.view)
-        # Bind the "<Destroy>" event to detect when the window is closed
-        settingsWindow.bind("<Destroy>", self.on_settings_window_closed)
-        self.SC = SettingsWindowController("View/Resources/Widgets/gear.json")
-        self.SC.attach(settingsWindow)
+    def refresh_widgets(self):
+        if self.SC.settings == None: return
 
-    def on_settings_window_closed(self, event):
-        """
-        Callback triggered when the gearWindow is destroyed.
-        """
-        if event.widget == self.SC.gearWindow:  # Ensure it's the gearWindow that triggered the event
-            self.SC = None  # Optionally clean up the reference
+        # Apply the settings to the widgets
+        self.view.textEditor.refresh(self.SC.settings)
