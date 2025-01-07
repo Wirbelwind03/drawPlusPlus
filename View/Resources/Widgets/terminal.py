@@ -1,6 +1,8 @@
 import tkinter as tk
 from tkinter import scrolledtext
 
+from View.theme import Theme
+
 class Terminal(tk.Frame):
     def __init__(self, parent, *args, **kwargs):
         super().__init__(parent, *args, **kwargs)
@@ -25,5 +27,4 @@ class Terminal(tk.Frame):
 
     def refresh(self, settings):
         self.text_widget.configure(font=(settings["font"], settings["font_size"]))
-        if settings["dark_mode"]:
-            self.text_widget.configure(bg="#636363")
+        self.text_widget.configure(bg=Theme.BackgroundColor(settings))

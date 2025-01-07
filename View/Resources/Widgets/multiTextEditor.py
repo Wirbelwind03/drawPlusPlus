@@ -1,6 +1,8 @@
 import tkinter as tk
 from tkinter import ttk
 
+from View.theme import Theme
+
 class MultiTextEditor(tk.Frame):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -54,7 +56,6 @@ class MultiTextEditor(tk.Frame):
     def refresh(self, settings):
         for text in self.editor_tabs:
             text.configure(font=(settings["font"], settings["font_size"]))
-            if settings["dark_mode"]:
-                text.configure(bg="#636363")
-                text.configure(insertbackground="white")
-                text.tag_configure("custom_font", foreground="white")
+            text.configure(bg=Theme.BackgroundColor(settings))
+            text.configure(insertbackground=Theme.InsertBackgroundColor(settings))
+            text.tag_configure("custom_font", foreground=Theme.FontColor(settings))
