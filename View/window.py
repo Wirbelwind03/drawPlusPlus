@@ -15,7 +15,7 @@ class Window(tk.Tk):
 
         self.title("draw++ IDE")
 
-        self.main_frame = MainFrame(self, bg="#f0f0f0")
+        self.main_frame = MainFrame(self)
 
         # Attacher le contrôleur à l'UI
         self.controller = MainController(self.main_frame)
