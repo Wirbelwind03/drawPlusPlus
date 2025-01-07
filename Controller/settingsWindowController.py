@@ -35,7 +35,6 @@ class SettingsWindowController:
                 "font": "Helvetica",
                 "font_size": 12,
                 "dark_mode": False,
-                "close_after_save": False
             }
 
             # Crée ou réécrit le fichier avec les valeurs par défaut
@@ -47,7 +46,6 @@ class SettingsWindowController:
             self.gearWindow.vars["Font"].set(value=self.settings.get("font"))
             self.gearWindow.vars["FontSize"].set(value=self.settings.get("font_size"))
             self.gearWindow.vars["DarkMode"].set(value=self.settings.get("dark_mode"))
-            self.gearWindow.vars["SaveBeforeClose"].set(value=self.settings.get("close_after_save"))
 
         return self.settings
 
@@ -59,7 +57,6 @@ class SettingsWindowController:
             "font": self.gearWindow.vars["Font"].get(),
             "font_size": self.gearWindow.vars["FontSize"].get(),
             "dark_mode": self.gearWindow.vars["DarkMode"].get(),
-            "close_after_save": self.gearWindow.vars["SaveBeforeClose"].get()  # Ajouter cette option dans les paramètres sauvegardés
         }
 
         with open(self.settingsJsonPath, "w") as file:
