@@ -1,7 +1,7 @@
 import os, json
 import tkinter as tk
 
-from View.Resources.Widgets.gear import GearWindow
+from View.Resources.Widgets.gear import SettingsWindow
 
 class SettingsWindowController:
     def __init__(self, json_file):
@@ -9,7 +9,7 @@ class SettingsWindowController:
         self.settingsJsonPath = json_file
         self.settings = self.load_settings()
 
-    def attach(self, gearWindow: GearWindow):
+    def attach(self, gearWindow: SettingsWindow):
         """
         Attach a view for the SettingsWindowController.
         Used to configure the events of the button
