@@ -3,7 +3,7 @@ import tkinter as tk
 from Controller.settingsWindowController import SettingsWindowController
 
 from View.Resources.Widgets.mainBar import MainBar
-from View.Resources.Widgets.gear import GearWindow
+from View.Resources.Widgets.gear import SettingsWindow
 
 class MainBarController:
     def __init__(self, view: MainBar, SC: SettingsWindowController) -> None:
@@ -19,7 +19,7 @@ class MainBarController:
 
     def open_settings_window(self):
         # Create a new window when the gear button is pressed
-        settingsWindow = GearWindow(self.view)
+        settingsWindow = SettingsWindow(self.view)
         # Bind the "<Destroy>" event to detect when the window is closed
         settingsWindow.bind("<Destroy>", self.on_settings_window_closed)
         self.SC.attach(settingsWindow)
