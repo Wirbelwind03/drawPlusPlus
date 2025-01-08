@@ -82,4 +82,6 @@ class MainController:
         if self.SC.settings == None: return
 
         # Apply the settings to the widgets
+        self.view.refresh_widgets(self.SC.settings)
         self.view.textEditor.refresh(self.SC.settings)
+        self.view.terminal.refresh(self.SC.settings)

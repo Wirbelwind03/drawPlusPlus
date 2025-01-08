@@ -1,6 +1,8 @@
 import tkinter as tk
 from tkinter import ttk
 
+from View.theme import Theme
+
 class MultiTextEditor(tk.Frame):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -52,9 +54,11 @@ class MultiTextEditor(tk.Frame):
         self.notebook.add(frame, text=title)
 
     def refresh(self, settings):
+        # style = ttk.Style()
+        # style.configure('TNotebook.Tab', background=Theme.MainBackgroundColor(settings))
+        # style.map('TNotebook.Tab', background=[('selected', 'blue')], foreground=[('selected', 'white')])  # Selected tab
         for text in self.editor_tabs:
             text.configure(font=(settings["font"], settings["font_size"]))
-            if settings["dark_mode"]:
-                text.configure(bg="#636363")
-                text.configure(insertbackground="white")
-                text.tag_configure("custom_font", foreground="white")
+            text.configure(bg=Theme.BackgroundColor(settings))
+            text.configure(insertbackground=Theme.InsertBackgroundColor(settings))
+            text.tag_configure("custom_font", foreground=Theme.FontColor(settings))

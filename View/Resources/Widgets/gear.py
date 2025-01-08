@@ -45,11 +45,6 @@ class SettingsWindow(tk.Toplevel):
         self.example_text = tk.Label(self, text="Example Text")
         self.example_text.pack(pady=10, anchor='center')  # Centrer le texte
 
-        # Option pour fermer la fenêtre après l'enregistrement
-        self.vars["SaveBeforeClose"] = tk.BooleanVar()
-        self.close_after_save_check = tk.Checkbutton(self, text="Fermer après l'enregistrement", variable=self.vars["SaveBeforeClose"])
-        self.close_after_save_check.pack(pady=10)
-
         # Bouton Enregistrer
         self.save_button = tk.Button(self, text="Enregistrer")
         self.save_button.pack(pady=10)
