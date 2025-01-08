@@ -2,7 +2,7 @@ import tkinter as tk
 from tkinter import ttk
 from .multiTextEditor import *
 
-class GearWindow(tk.Toplevel):
+class SettingsWindow(tk.Toplevel):
     def __init__(self, master):
         super().__init__(master)
         self.vars = {}
