@@ -32,14 +32,9 @@ class SelectionRectangle(AABB):
         The action the user is going to do with the selection rectangle
     """
 
-    def __init__(self, *args, cornerSize: int=10, cornerCanvasSize: int=5, **kwargs) -> None:
+    def __init__(self, *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)
-        
-        self.cornerSize: int = cornerSize
-        self.cornerCanvasSize: int = cornerCanvasSize
-
-        self.selectedCornerIndex: int = None
-        
+                
         self.canvasIdRectangle: int = -1
         self.canvasIdCorners: list[int] = []
         self.attachedImage: CanvasImage = None
@@ -47,7 +42,7 @@ class SelectionRectangle(AABB):
         self.action: SelectionRectangleAction = SelectionRectangleAction.NONE
 
     @classmethod
-    def fromCoordinates(cls, x1: int, y1: int, x2: int, y2: int, cornerSize: int=10, cornerCanvasSize: int=5) -> 'SelectionRectangle':
+    def fromCoordinates(cls, x1: int, y1: int, x2: int, y2: int) -> 'SelectionRectangle':
         """
         Create a SelectionRectangle from start and end coordinates
         The function also take the corner size as argument
@@ -62,10 +57,6 @@ class SelectionRectangle(AABB):
             The x end coordinate of the rectangle
         y2 : int
             The y end coordinate of the rectangle
-        cornerSize : int
-            The size of the corner, where the program is going to detect collision
-        cornerCanvasSize : int
-            The size of the corner rendered on the canvas
 
         Returns
         --------
@@ -73,8 +64,6 @@ class SelectionRectangle(AABB):
             The new SelectionRectangle created from the arguments
         """
         instance: 'SelectionRectangle' =  super().fromCoordinates(x1, y1, x2, y2)
-        instance.cornerSize = cornerSize
-        instance.cornerCanvasSize = cornerCanvasSize
         return instance
     
     #endregion Constructor
@@ -194,13 +183,6 @@ class SelectionRectangle(AABB):
         if self.attachedImage:
             self.attachedImage.bbox.bottomRight = newValue
 
-    @property
-    def cornersBbox(self):
-        self._cornersBbox = []
-        for i in range(len(self.corners)):
-            self._cornersBbox.append(AABB.fromCoordinates(self.corners[i].x - 5, self.corners[i].y - 5, self.corners[i].x + 5, self.corners[i].y + 5))
-        return self._cornersBbox
-
     #endregion
 
     def __repr__(self) -> str:
@@ -228,75 +210,6 @@ class SelectionRectangle(AABB):
             newMax.y = self.max.y
         self.min = newMin
         self.max = newMax
-
-    def isInsideCorners(self, coords: Vector2) -> bool:
-        """
-        Check if a coordinates is inside the corners BBOX of the selection rectangle
-
-        Parameters
-        -----------
-        coords : Vector2
-            The coords that is going to be checked for every corner
-
-        Return
-        -----------
-        bool
-            Boolean if the coords are inside the corners BBOX
-        """
-        for i in range(len(self.cornersBbox)):
-            corner = self.cornersBbox[i]
-            if corner.isInside(coords):
-                self.selectedCornerIndex = i
-                return True
-        self.selectedCornerIndex = -1
-        return False
-    
-    def isOutsideCorners(self, coords: Vector2) -> bool:
-        """
-        Check if a coordinates is outside the corners BBOX of the selection rectangle
-
-        Parameters
-        -----------
-        coords : Vector2
-            The coords that is going to be checked for every corner
-
-        Return
-        -----------
-        bool
-            Boolean if the coords are outside the corners BBOX
-        """
-        for i in range(len(self.cornersBbox)):
-            corner = self.cornersBbox[i]
-            if corner.isInside(coords):
-                self.selectedCornerIndex = i
-                return False
-        self.selectedCornerIndex = -1
-        return True
-
-    def getSelectedCorner(self, coords: Vector2) -> int:
-        for i in range(len(self.cornersBbox)):
-            corner = self.cornersBbox[i]
-            if corner.isInside(coords):
-                return i
-        return -1
-
-    def isOutside(self, other) -> bool:
-        """
-        Check if a coordinates is outside the corners BBOX and the selection rectangle
-
-        Parameters
-        -----------
-        coords : Vector2
-            The coords that is going to be checked
-
-        Return
-        -----------
-        bool
-            Boolean if the coords are outside the corners BBOX and the selection rectangle
-        """
-        if super().isOutside(other) and self.isOutsideCorners(other):
-            return True
-        return False
 
     def checkBounds(self) -> bool:
         if (self.topLeft.x >= self.topRight.x

@@ -5,7 +5,6 @@ from config import DEBUG
 
 from Controller.canvasController import CanvasController
 
-from DrawLibrary.Core.Shapes.rectangle import RectangleCorners
 from DrawLibrary.Core.Math.vector2 import Vector2
 from DrawLibrary.Core.Collision.aabb import AABB
 from DrawLibrary.Graphics.canvasImage import CanvasImage
@@ -84,28 +83,18 @@ class SelectionRectangleCanvasController:
         """
         # Draw the main frame of the selection rectangle
         self.selectionRectangle.canvasIdRectangle = self.CC.view.create_rectangle(self.selectionRectangle.x, self.selectionRectangle.y, self.selectionRectangle.x + self.selectionRectangle.width, self.selectionRectangle.y + self.selectionRectangle.height, outline="black", width=2, dash=(2, 2))
-        
-        # Draw the selection corners of the selection rectangle
-        for corner in self.selectionRectangle.cornersBbox:
-            self.selectionRectangle.canvasIdCorners.append(self.CC.view.create_rectangle(corner.x, corner.y, corner.x + corner.width, corner.y + corner.height, outline="black", width=2))
-
+    
     def erase(self) -> None:
         """
         Erase all the drawn shapes tied to the selection rectangle on the canvas.
         """
         self.CC.view.delete(self.selectionRectangle.canvasIdRectangle)
-        for canvasCorner in self.selectionRectangle.canvasIdCorners:
-            self.CC.view.delete(canvasCorner)
 
     def render(self) -> None:
         sr = self.selectionRectangle
 
         self.CC.view.coords(sr.canvasIdRectangle, sr.topLeft.x, sr.topLeft.y, sr.bottomRight.x,  sr.bottomRight.y)
         
-        # Render the corners to the new position
-        for i in range(len(self.selectionRectangle.canvasIdCorners)):
-            self.CC.view.moveto(self.selectionRectangle.canvasIdCorners[i], self.selectionRectangle.cornersBbox[i].min.x, self.selectionRectangle.cornersBbox[i].min.y)
-
         # Render the image to the new position
         if self.selectionRectangle.attachedImage:
             self.CC.view.coords(self.selectionRectangle.attachedImage.id, self.selectionRectangle.center.x, self.selectionRectangle.center.y)
@@ -148,11 +137,8 @@ class SelectionRectangleCanvasController:
         """
         mouseCoords = Vector2(event.x, event.y)
         
-        # Check if the mouse is inside the corners bbox
-        if self.selectionRectangle.isInsideCorners(mouseCoords):
-            self.setAction(SelectionRectangleAction.RESIZE)
         # Check if the mouse is inside the selection rectangle    
-        elif self.selectionRectangle.isInside(mouseCoords):
+        if self.selectionRectangle.isInside(mouseCoords):
             # If it is, change that the action we want to do is moving the selection rectangle
             self.setAction(SelectionRectangleAction.MOVE)
         else:
@@ -177,10 +163,6 @@ class SelectionRectangleCanvasController:
             self.startGapOffset: Vector2 = mouseCoords - self.selectionRectangle.min
             self.endGapOffset: Vector2 = mouseCoords - self.selectionRectangle.max
 
-        elif self.getAction() == SelectionRectangleAction.RESIZE and self.selectionRectangle.selectedCornerIndex != -1:
-            self.startGapOffset: Vector2 = mouseCoords - self.selectionRectangle.min
-            self.endGapOffset: Vector2 = mouseCoords - self.selectionRectangle.max
-
     def on_mouse_drag(self, event):
         """
         A event for when the user drag the selection rectangle
@@ -198,29 +180,6 @@ class SelectionRectangleCanvasController:
         if self.getAction() == SelectionRectangleAction.MOVE:
             # Update the selection rectangle coordinates
             self.selectionRectangle.setCoords(mouseCoords - self.startGapOffset, mouseCoords - self.endGapOffset)
-            
-            # Render the selection rectangle to the new position
-            self.render()
-
-        elif self.getAction() == SelectionRectangleAction.RESIZE:
-            corners = {
-                0: "topLeft",
-                1: "topRight",
-                2: "bottomLeft",
-                3: "bottomRight",
-            }
-
-            selected_corner = corners.get(self.selectionRectangle.selectedCornerIndex)
-            # Set new coordinates for the corner that has been clicked
-            if selected_corner:
-                setattr(self.selectionRectangle, selected_corner, mouseCoords)
-
-            # Check if a side boundary doesn't surpass another
-            # If there is, then stop the resize
-            if (self.selectionRectangle.checkBounds()):
-                return
-            
-            self.CC.resizeImage(self.selectionRectangle.attachedImage, self.selectionRectangle.width, self.selectionRectangle.height)
             
             # Render the selection rectangle to the new position
             self.render()
