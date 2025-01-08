@@ -2,6 +2,7 @@ import tkinter as tk
 import subprocess
 import os
 from tkinter import filedialog
+from pathlib import Path
 
 from Controller.canvasController import CanvasController
 
@@ -192,7 +193,7 @@ class ScriptEditorController:
         file_path = filedialog.askopenfilename(filetypes=[("Text Files", "*.txt")])
         if file_path:
             with open(file_path, "r") as file:
-                self.textEditor.add_editor_tab(f'Fenêtre {len(self.textEditor.editor_tabs) + 1}')
+                self.textEditor.add_editor_tab(Path(file_path).stem)
                 self.textEditor.notebook.select(len(self.textEditor.editor_tabs) - 1)
                 self.textEditor.openedTab.insert(tk.END, file.read())
                 if self.refresh_widgets_event:
