@@ -1,10 +1,5 @@
 import tkinter as tk
 
-from tkinter import filedialog
-from tkinter import font
-
-from DrawScript.Core.drawScriptParser import DrawScriptParser
-
 from Controller.Tools.selectionTool import SelectionTool
 from Controller.Tools.selectionRectangleTool import SelectionRectangleTool
 from Controller.canvasController import CanvasController
@@ -20,11 +15,13 @@ from DrawLibrary.Graphics.canvasImage import CanvasImage
 from Model.toolManager import ToolManager
 
 from View.mainFrame import MainFrame
-from View.Resources.Widgets.gear import GearWindow
 
 class MainController:
     """
-    The controller where everything is handled, hence why the name "mainController"
+    The main controller act the as the central exchanger of all informations that is communicated in the application.
+    It's used to ensure smooth communications between the different components (views and models).
+    Each controller is used to handle a specific part of the application, like the canvas, the text editor, the terminal, etc.
+    The main controller regroup every of those controller, to allow them to work together
 
     Attributes
     -----------
@@ -69,6 +66,7 @@ class MainController:
         canvasToolManager.setActiveTool("SELECTION_TOOL")
         # Attach the script editor controller to the main controller
         self.SEC = ScriptEditorController(self.view.textEditor, self.view.terminal, self.CC)
+        self.SEC.set_event_refresh_widgets(self.refresh_widgets)
         # Attach the menu bar controller to the main controller
         self.MBC = MenuBarController(self.view.menuBar, self.SEC)
         self.MainBarController = MainBarController(self.view.mainBar, self.SC)
