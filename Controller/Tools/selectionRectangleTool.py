@@ -7,8 +7,8 @@ from config import DEBUG
 from DrawLibrary.Core.Math.vector2 import Vector2
 from DrawLibrary.Graphics.canvasImage import CanvasImage
 
-from Controller.canvasController import CanvasController
 from Controller.selectionRectangleCanvasController import SelectionRectangleCanvasController
+from Controller.toolBarController import ToolBarController
 
 from Model.selectionRectangle import SelectionRectangleAction, SelectionRectangle
 
@@ -26,9 +26,10 @@ class SelectionRectangleTool:
         The ID of the selection rectangle drawn on the canvas, when the user is still resizing it
     """
 
-    def __init__(self, srcc: SelectionRectangleCanvasController):
+    def __init__(self, srcc: SelectionRectangleCanvasController, TBC : ToolBarController):
         # Connect the selection rectangle controller to the tool
         self.SRCC = srcc
+        self.TBC = TBC
         
         self.__debugBbox = -1
 
@@ -124,6 +125,7 @@ class SelectionRectangleTool:
         # Update the rectangle as the mouse is dragged
         self.SRCC.CC.view.coords(self.__tempCanvasSelectionRectangle, self.__tempStartCoordinates.x, self.__tempStartCoordinates.y, mouseCoords.x, mouseCoords.y)
 
+        
     def on_button_release(self, event):
         """
         A event for when the left click is released on the canvas
@@ -148,8 +150,11 @@ class SelectionRectangleTool:
         if self.__tempStartCoordinates == mouseCoords:
             return
 
-        self.SRCC.setSelectionRectangle(SelectionRectangle.fromCoordinates(self.__tempStartCoordinates.x, self.__tempStartCoordinates.y, mouseCoords.x, mouseCoords.y, 10))
+        self.SRCC.setSelectionRectangle(SelectionRectangle.fromCoordinates(self.__tempStartCoordinates.x, self.__tempStartCoordinates.y, mouseCoords.x, mouseCoords.y))
         self.SRCC.create()
+
+        self.TBC.view.selectionRectangleWidth.set(self.SRCC.selectionRectangle.width)
+        self.TBC.view.selectionRectangleHeight.set(self.SRCC.selectionRectangle.height)
 
     def on_delete(self, event):
         if self.SRCC.hasSelectionRectangle():
