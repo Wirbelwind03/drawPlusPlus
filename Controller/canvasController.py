@@ -13,7 +13,8 @@ from Model.toolManager import ToolManager
 
 class CanvasController:
     """
-    A class to manage the CanvasImage in a canvas.
+    The canvas controller is used to communication infos given to the canvas, and opposite.
+
 
     Attributes
     -----------
@@ -101,6 +102,7 @@ class CanvasController:
         # Assign the id to the CanvasImage
         newCanvasImage.id = imageId
 
+        # Draw debug informations of the canvas Image
         if DEBUG and self.DCC != None:
             self.DCC.addCanvasID(newCanvasImage)
             self.DCC.drawCanvasImageDebugInfos(newCanvasImage)
