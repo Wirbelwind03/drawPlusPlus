@@ -211,3 +211,5 @@ class ScriptEditorController:
         # Select the new tab
         # "- 1" because the new tab has been added
         self.textEditor.notebook.select(len(self.textEditor.editor_tabs) - 1)
+        if self.refresh_widgets_event:
+            self.refresh_widgets_event()
