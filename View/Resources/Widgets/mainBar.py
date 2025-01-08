@@ -1,6 +1,6 @@
 import tkinter as tk
 from tkinter import PhotoImage
-from .gear import GearWindow
+from .gear import SettingsWindow
 
 class MainBar(tk.Frame):
     def __init__(self, *args, **kwargs) -> None:
