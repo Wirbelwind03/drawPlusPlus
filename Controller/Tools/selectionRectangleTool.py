@@ -225,7 +225,7 @@ class SelectionRectangleTool:
             if not isBlank:
                 blankCanvasImage = self.SRCC.CC.drawImage(blankCanvasImage, self.selectionRectangle.min.x, self.selectionRectangle.min.y, self.selectionRectangle.width, self.selectionRectangle.height)
                 self.selectionRectangle.attachedImage = blankCanvasImage
-                self.SRCC.handle_clipboard_activation(True)
+                self.SRCC.handle_clipboard_paste_activation(True)
 
     def on_control_v(self, event):
         self.SRCC.clipBoardPaste()
