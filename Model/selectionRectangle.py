@@ -36,7 +36,6 @@ class SelectionRectangle(AABB):
         super().__init__(*args, **kwargs)
                 
         self.canvasIdRectangle: int = -1
-        self.canvasIdCorners: list[int] = []
         self.attachedImage: CanvasImage = None
 
         self.action: SelectionRectangleAction = SelectionRectangleAction.NONE
