@@ -49,12 +49,10 @@ class Window(tk.Tk):
                 self.last_modified_time = current_modified_time
 
                 # If so, the new colors are applied to all IDE if there is a change
-                new_settings = self.load_settings()
-                new_dark_mode = new_settings.get("dark_mode", False)
-                if new_dark_mode != self.dark_mode:
-                    self.dark_mode = new_dark_mode
-                    self.background_color = "#2E2E2E" if self.dark_mode else "#636363"
-                    self.main_frame.config(bg=self.background_color)
+                settings = self.load_settings()
+                dark_mode = settings.get("dark_mode", False)
+                background_color = "#2E2E2E" if dark_mode else "#636363"
+                self.main_frame.config(bg=background_color)
 
         # Schedule next check in 500ms
         self.after(500, self.check_for_changes)
