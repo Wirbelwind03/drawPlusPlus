@@ -152,6 +152,10 @@ class SelectionRectangleCanvasController:
         self.TBC.view.pasteButton.configure(image=image, command=command)
         self.TBC.view.pasteButton.image = image
 
+    def clipBoardPaste(self):
+        if self.selectionRectangle.attachedImage:
+            self.CC.drawImage(self.selectionRectangle.attachedImage, self.selectionRectangle.min.x, self.selectionRectangle.min.y)
+
     #endregion Public Methods
 
     def on_selection_rectangle_dimension_change(self, *args):
@@ -261,9 +265,5 @@ class SelectionRectangleCanvasController:
 
         if DEBUG and self.CC.DCC != None:
             self.CC.DCC.drawCanvasImageDebugInfos(self.selectionRectangle.attachedImage)
-
-    def clipBoardPaste(self):
-        if self.selectionRectangle.attachedImage:
-            self.CC.drawImage(self.selectionRectangle.attachedImage, self.selectionRectangle.min.x, self.selectionRectangle.min.y)
 
     #endregion Event
