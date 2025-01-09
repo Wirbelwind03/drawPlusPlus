@@ -13,6 +13,11 @@ from Model.canvasEntities import CanvasEntities
 from Model.selectionRectangle import SelectionRectangle
 from Model.selectionRectangle import SelectionRectangleAction
 
+class GapOffset:
+    def __init__(self):
+        self.start = Vector2(0, 0)
+        self.end = Vector2(0, 0)
+
 class SelectionRectangleCanvasController:
     """
     A class to manage the selection rectangle in the Canvas
@@ -27,8 +32,8 @@ class SelectionRectangleCanvasController:
         # Connect the controller to the canvas
         self.CC = CC
         self.selectionRectangle: SelectionRectangle = None
-        self.startGapOffset: int = 0
-        self.endGapOffset: int = 0
+
+        self.__gapOffset = GapOffset()
 
     #region Public Methods
 
@@ -160,8 +165,8 @@ class SelectionRectangleCanvasController:
         if self.getAction() == SelectionRectangleAction.MOVE:
             # Get the gap between the cursor and the min and max of the AABB
             # So the user can move the rectangle by clicking anywhere inside
-            self.startGapOffset: Vector2 = mouseCoords - self.selectionRectangle.min
-            self.endGapOffset: Vector2 = mouseCoords - self.selectionRectangle.max
+            self.__gapOffset.start = mouseCoords - self.selectionRectangle.min
+            self.__gapOffset.end = mouseCoords - self.selectionRectangle.max
 
     def on_mouse_drag(self, event):
         """
@@ -179,7 +184,7 @@ class SelectionRectangleCanvasController:
 
         if self.getAction() == SelectionRectangleAction.MOVE:
             # Update the selection rectangle coordinates
-            self.selectionRectangle.setCoords(mouseCoords - self.startGapOffset, mouseCoords - self.endGapOffset)
+            self.selectionRectangle.setCoords(mouseCoords - self.__gapOffset.start, mouseCoords - self.__gapOffset.end)
             
             # Render the selection rectangle to the new position
             self.render()
