@@ -188,6 +188,14 @@ class CanvasImage(CanvasEntity):
 
         return rotatedImage
     
+    def applyTransformations(self, width, height, degrees = 0):
+        self.angle = degrees
+        transformed_image = self.image.rotate(self.angle, expand=True)
+        transformed_image = transformed_image.resize((width, height))
+
+        self.photoImage = ImageTk.PhotoImage(transformed_image)
+
+    
     def crop(self, x: int, y: int, width: int, height: int) -> None:
         self.image = self.image.crop((x, y, x + width, y + height))
 
