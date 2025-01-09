@@ -62,7 +62,7 @@ class MainController:
         
         # Attach the selection rectangle canvas controller to the canvas
         # It's used to control the selection rectangle when it's on the canvas
-        self.SRCC: SelectionRectangleCanvasController = SelectionRectangleCanvasController(self.CC)
+        self.SRCC: SelectionRectangleCanvasController = SelectionRectangleCanvasController(self.CC, self.toolBarController)
         
         # Attach the tools to the canvas controller and the selection rectangle controller
         # Since each of them has a selection rectangle, it's attached to the selection rectangle controller
