@@ -7,6 +7,7 @@ from pathlib import Path
 from Controller.canvasController import CanvasController
 
 from DrawLibrary.Graphics.canvasImage import CanvasImage
+from DrawLibrary.utils import Utils
 
 from DrawScript.Core.drawScriptTokenizer import DrawScriptTokenizer
 from DrawScript.Core.drawScriptParser import DrawScriptParser
@@ -148,10 +149,7 @@ class ScriptEditorController:
                         print(f"Build failed: {e}")
 
                     output_folder = f'{current_directory}/Data/Outputs'
-                    for filename in os.listdir(output_folder):
-                        file_path = os.path.join(output_folder, filename)
-                        if os.path.isfile(file_path) and filename != ".gitignore":
-                            os.remove(file_path)
+                    Utils.RemoveFilesInDirectory(output_folder, ".gitignore")
 
                     # Run the C code
                     try:
