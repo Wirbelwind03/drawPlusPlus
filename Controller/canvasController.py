@@ -123,6 +123,12 @@ class CanvasController:
 
         # Update the photoImage on the tkinter Canvas
         self.view.itemconfig(canvasImage.id, image=canvasImage.photoImage)
+
+    def applyTransformations(self, canvasImage: CanvasImage, width, height, degrees = 0):
+        canvasImage.applyTransformations(width, height, degrees)
+
+        # Update the photoImage on the tkinter Canvas
+        self.view.itemconfig(canvasImage.id, image=canvasImage.photoImage)
     
     def deleteImage(self, canvasImage: CanvasImage) -> None:
         if canvasImage == None:
