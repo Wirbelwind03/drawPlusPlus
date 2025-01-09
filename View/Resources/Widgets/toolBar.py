@@ -1,7 +1,10 @@
 import tkinter as tk
 from tkinter import ttk, PhotoImage
 from PIL import Image, ImageTk  # Import Pillow for resize
+
 from DrawLibrary.Graphics.imageUtils import ImageUtils
+
+from View.Resources.Widgets.numericSpinBox import NumericSpinBox
 
 class ToolBar(tk.Frame):
     def __init__(self, *args, **kwargs) -> None:
@@ -81,15 +84,15 @@ class ToolBar(tk.Frame):
         # Width Input
         widthLabel = tk.Label(inputFrame, text="Width")
         widthLabel.grid(row=0, column=0, sticky="w", pady=(0, 2))  # Label above the input
-        self.selectionRectangleWidth = tk.IntVar()
-        self.widthInput = tk.Entry(inputFrame, width=6, justify="left", textvariable=self.selectionRectangleWidth)
+        self.selectionRectangleWidth = tk.IntVar(resizeFrame, 0)
+        self.widthInput = NumericSpinBox(inputFrame, width=6, justify="left", from_=self.selectionRectangleWidth.get(), to=9999, textvariable=self.selectionRectangleWidth, state="disabled")
         self.widthInput.grid(row=1, column=0)
 
         # Height Input
         heightLabel = tk.Label(inputFrame, text="Height")
         heightLabel.grid(row=2, column=0, sticky="w", pady=(0, 2))  # Label above the input
-        self.selectionRectangleHeight = tk.IntVar()
-        self.heightInput = tk.Entry(inputFrame, width=6, justify="left", textvariable=self.selectionRectangleHeight)
+        self.selectionRectangleHeight = tk.IntVar(resizeFrame, 0)
+        self.heightInput = NumericSpinBox(inputFrame, width=6, justify="left", from_=self.selectionRectangleHeight.get(), to=9999, textvariable=self.selectionRectangleHeight, state="disabled")
         self.heightInput.grid(row=3, column=0)
 
         # Separator after Resize Frame
