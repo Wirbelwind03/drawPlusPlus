@@ -2,10 +2,12 @@ import tkinter as tk
 import subprocess
 import os
 from tkinter import filedialog
+from pathlib import Path
 
 from Controller.canvasController import CanvasController
 
 from DrawLibrary.Graphics.canvasImage import CanvasImage
+from DrawLibrary.utils import Utils
 
 from DrawScript.Core.drawScriptTokenizer import DrawScriptTokenizer
 from DrawScript.Core.drawScriptParser import DrawScriptParser
@@ -59,6 +61,11 @@ class ScriptEditorController:
         self.terminal = terminal
         self.CC = CC
         self.tokenizer = DrawScriptTokenizer()
+
+        self.refresh_widgets_event = None  # Callback attribute
+
+    def set_event_refresh_widgets(self, event):
+        self.refresh_widgets_event = event
 
     def executeCode(self):
         # Retrieve the entire text content from the text editor starting at line 1, character 0, to the end
@@ -147,10 +154,7 @@ class ScriptEditorController:
                         print(f"Build failed: {e}")
 
                     output_folder = f'{current_directory}/Data/Outputs'
-                    for filename in os.listdir(output_folder):
-                        file_path = os.path.join(output_folder, filename)
-                        if os.path.isfile(file_path) and filename != ".gitignore":
-                            os.remove(file_path)
+                    Utils.RemoveFilesInDirectory(output_folder, ".gitignore")
 
                     # Run the C code
                     try:
@@ -190,8 +194,11 @@ class ScriptEditorController:
         file_path = filedialog.askopenfilename(filetypes=[("Text Files", "*.txt")])
         if file_path:
             with open(file_path, "r") as file:
-                self.textEditor.openedTab.delete("1.0", tk.END)
+                self.textEditor.add_editor_tab(Path(file_path).stem)
+                self.textEditor.notebook.select(len(self.textEditor.editor_tabs) - 1)
                 self.textEditor.openedTab.insert(tk.END, file.read())
+                if self.refresh_widgets_event:
+                    self.refresh_widgets_event()
 
     # Fonction pour sauvegarder le fichier
     def save_file(self):
@@ -202,14 +209,11 @@ class ScriptEditorController:
 
     # Fonction de création de fichier (pour l'instant vide)
     def create_new_file(self):
-        self.textEditor.openedTab.delete("1.0", tk.END)
+        # "+ 1" because the new tab has not been added yet
+        self.textEditor.add_editor_tab(f'Fenêtre {len(self.textEditor.editor_tabs) + 1}')
+        # Select the new tab
+        # "- 1" because the new tab has been added
+        self.textEditor.notebook.select(len(self.textEditor.editor_tabs) - 1)
+        if self.refresh_widgets_event:
+            self.refresh_widgets_event()
 
-""" 
-    Mettre ici les fonctions liés à l'éditeur de texte et au terminal
-    Cela peut etre par exemple des opérations liés au fichiers qui est communiqué à l'éditeur de texte
-    Si vous avez besoin de communiqué avec un autre widget (bon il y a pas vraiment de widget pour prendre exemple
-    mais genre avec la barre d'outils), il faudra crée un controller et l'ajoutée comme attribut
-    C'est le cas avec le CanvasController, lorsqu'on execute le code, cela efface le canvas, et le
-    CanvasController gère tout ce qui est par rapport au Canvas.
-    Le seul controller à ne pas mettre comme attribut est le MainController
-"""

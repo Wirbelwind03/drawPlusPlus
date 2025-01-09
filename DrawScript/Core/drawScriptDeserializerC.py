@@ -130,7 +130,6 @@ class DrawScriptDeserializerC:
         if ast_node["type"] != None:
             type = f'{ast_node["type"]}'
         expression = self.deserialize_node_type(ast_node["expression"])
-        # Add detect type if type == ""
         if type == "" : type = self.detect_expression_type(ast_node["expression"])
         return f'{type} {ast_node["name"]} = {expression};'
     
