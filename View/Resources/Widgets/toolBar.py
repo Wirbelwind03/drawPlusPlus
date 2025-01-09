@@ -73,9 +73,9 @@ class ToolBar(tk.Frame):
         separator_before = ttk.Separator(resizeFrame, orient="vertical")
         separator_before.grid(row=0, column=0, sticky="ns", padx=(5, 5))
 
-        self.resizeButton = tk.Button(resizeFrame, image=resize_image, height=80, width=80)
-        self.resizeButton.image = resize_image
-        self.resizeButton.grid(row=0, column=1, padx=(0, 5))  # Place the button to the left of inputs
+        self.resizeLabel = tk.Label(resizeFrame, image=resize_image, height=64, width=64)
+        self.resizeLabel.image = resize_image
+        self.resizeLabel.grid(row=0, column=1, padx=(0, 5))  # Place the button to the left of inputs
 
         # Vertical Frame for Inputs (Width & Height)
         inputFrame = tk.Frame(resizeFrame)
