@@ -58,7 +58,7 @@ class MainController:
         self.DCC = DebugCanvasController(self.view.canvas)
         
         # Attach the canvas controller to the main controller
-        self.CC = CanvasController(self.view.canvas, canvasToolManager)
+        self.CC = CanvasController(self.view.canvas, canvasToolManager, self.DCC)
         
         # Attach the selection rectangle canvas controller to the canvas
         # It's used to control the selection rectangle when it's on the canvas
@@ -80,7 +80,8 @@ class MainController:
         self.refresh_widgets()
 
     def start(self):
-        pass
+        test = CanvasImage.fromPath("Data/Assets/gear.png")
+        self.CC.drawImage(test, 256, 256, 64, 64)
 
     def refresh_widgets(self):
         if self.SC.settings == None: return
