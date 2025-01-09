@@ -2,10 +2,12 @@ import tkinter as tk
 import subprocess
 import os
 from tkinter import filedialog
+from pathlib import Path
 
 from Controller.canvasController import CanvasController
 
 from DrawLibrary.Graphics.canvasImage import CanvasImage
+from DrawLibrary.utils import Utils
 
 from DrawScript.Core.drawScriptTokenizer import DrawScriptTokenizer
 from DrawScript.Core.drawScriptParser import DrawScriptParser
@@ -17,12 +19,10 @@ from View.Resources.Widgets.multiTextEditor import MultiTextEditor
 
 class ScriptEditorController:
     """
-    Controller that handle the drawScript.
-    It also communicate with the canvasController since when the drawScript is read, it's modify the canvas.
-    It's where the file operations (open, save, edit) are made,
-    but also where the drawScript is going to be written, in the textEditor.
-    It's also manage the compilation of the drawScript, and when compiled succesfully, then draw to the canvas
-    The terminal is used to show the errors of the code if it fail to compile
+    The Script Editor Controller handle the drawScript and its compilation.
+    When the drawScript is compiled, it's communicate to the canvasController, to draw the shapes given by the drawScript
+    This controller also handle everything tied to file operations (open, save, edit) since the file is modified in the text editor.
+    If the drawScript fail to compile, this controller communicate to the terminal to show the errors.
 
     Attributes
     -----------
@@ -58,7 +58,11 @@ class ScriptEditorController:
         self.textEditor = textEditor
         self.terminal = terminal
         self.CC = CC
-        self.tokenizer = DrawScriptTokenizer()
+
+        self.refresh_widgets_event = None  # Callback attribute
+
+    def set_event_refresh_widgets(self, event):
+        self.refresh_widgets_event = event
 
     def executeCode(self):
         # Retrieve the entire text content from the text editor starting at line 1, character 0, to the end
@@ -78,7 +82,10 @@ class ScriptEditorController:
             self.CC.deleteAll()
 
             tokenizer = DrawScriptTokenizer()
-            tokens, errors = tokenizer.tokenize(code)
+            tokens, tokenize_errors = tokenizer.tokenize(code)
+
+            if tokenize_errors:
+                print("=== Tokenizer errors detected ===")
 
             parser = DrawScriptParser(tokens)
             ast_nodes, parse_errors = parser.parse()
@@ -91,30 +98,32 @@ class ScriptEditorController:
                     self.terminal.text_widget.insert(tk.END, f"Ligne {err['line']}: {err['message']}\n")
                     print(f"Ligne {err['line']}: {err['message']}")
                 print("Impossible de poursuivre l'analyse sémantique.")
-                raise Exception
-            else:
-                print("Aucune erreur de parsing.")
-                # Si pas d'erreur de parsing, on effectue l'analyse sémantique
-                analyzer = SemanticAnalyzer()
-                semantic_errors = analyzer.analyze(ast_nodes)
+                raise Exception # Stop the code
+            
+            print("Aucune erreur de parsing.")
+            # Si pas d'erreur de parsing, on effectue l'analyse sémantique
+            analyzer = SemanticAnalyzer()
+            semantic_errors = analyzer.analyze(ast_nodes)
 
-                if semantic_errors:
-                    print("=== Erreurs sémantiques détectées ===")
-                    for err in semantic_errors:
-                        self.terminal.text_widget.insert(tk.END, err)
-                        print(err)
-                    print("Annulation de la génération du code C.")
-                    raise Exception
-                else:
-                    print("Aucune erreur sémantique, génération du code C en cours.")
-                    interpreter = DrawScriptDeserializerC(ast_nodes, self.CC)
-                    interpreter.write_c()
+            if semantic_errors:
+                print("=== Semantic errors detected ===")
+                # Highlight the line where the error occurred in the text editor
+                #self.highlight_error(line_number)
+                for err in semantic_errors:
+                    self.terminal.text_widget.insert(tk.END, err)
+                    print(err)
+                print("Annulation de la génération du code C.")
+                raise Exception # Stop the code
 
-                    # Indicate successful execution in the terminal
-                    self.terminal.text_widget.insert(tk.END, "Exécution réussie !\n")
+            print("Aucune erreur sémantique, génération du code C en cours.")
+            interpreter = DrawScriptDeserializerC(ast_nodes, self.CC)
+            interpreter.write_c()
 
-                    # Get the directory where the code is ran
-                    current_directory = os.getcwd()
+            # Indicate successful execution in the terminal
+            self.terminal.text_widget.insert(tk.END, "Exécution réussie !\n")
+
+            # Get the directory where the code is ran
+            current_directory = os.getcwd()
 
                     gcc_command = [
                         "gcc",
@@ -168,27 +177,26 @@ class ScriptEditorController:
             # Display the error message in the terminal
             self.terminal.text_widget.insert(tk.END, str(e) + "\n")
 
-            # Highlight the line where the error occurred in the text editor
-            #self.highlight_error(e, line_number)
-
         self.terminal.text_widget.config(state=tk.DISABLED)  # Disable editing again
 
-    # Fonction pour souligner la ligne contenant une erreur
-    def highlight_error(self, error, line_number):
-        error_message = str(error)
+    def highlight_error(self, line_number):
+        """
+            Highlight the first error in the text editor
+        """
         # On extrait le numéro de ligne de l'erreur
         self.textEditor.openedTab.tag_add("error", f"{line_number}.0", f"{line_number}.end")
         self.textEditor.openedTab.tag_config("error", background="red")  # Configurer le surlignement
 
-    # Fonction pour charger un fichier
     def load_file(self):
         file_path = filedialog.askopenfilename(filetypes=[("Text Files", "*.txt")])
         if file_path:
             with open(file_path, "r") as file:
-                self.textEditor.openedTab.delete("1.0", tk.END)
+                self.textEditor.add_editor_tab(Path(file_path).stem)
+                self.textEditor.notebook.select(len(self.textEditor.editor_tabs) - 1)
                 self.textEditor.openedTab.insert(tk.END, file.read())
+                if self.refresh_widgets_event:
+                    self.refresh_widgets_event()
 
-    # Fonction pour sauvegarder le fichier
     def save_file(self):
         file_path = filedialog.asksaveasfilename(defaultextension=".txt", filetypes=[("Text Files", "*.txt")])
         if file_path:
@@ -197,14 +205,10 @@ class ScriptEditorController:
 
     # Fonction de création de fichier (pour l'instant vide)
     def create_new_file(self):
-        self.textEditor.openedTab.delete("1.0", tk.END)
-
-""" 
-    Mettre ici les fonctions liés à l'éditeur de texte et au terminal
-    Cela peut etre par exemple des opérations liés au fichiers qui est communiqué à l'éditeur de texte
-    Si vous avez besoin de communiqué avec un autre widget (bon il y a pas vraiment de widget pour prendre exemple
-    mais genre avec la barre d'outils), il faudra crée un controller et l'ajoutée comme attribut
-    C'est le cas avec le CanvasController, lorsqu'on execute le code, cela efface le canvas, et le
-    CanvasController gère tout ce qui est par rapport au Canvas.
-    Le seul controller à ne pas mettre comme attribut est le MainController
-"""
+        # "+ 1" because the new tab has not been added yet
+        self.textEditor.add_editor_tab(f'Fenêtre {len(self.textEditor.editor_tabs) + 1}')
+        # Select the new tab
+        # "- 1" because the new tab has been added
+        self.textEditor.notebook.select(len(self.textEditor.editor_tabs) - 1)
+        if self.refresh_widgets_event:
+            self.refresh_widgets_event()

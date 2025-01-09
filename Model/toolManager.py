@@ -66,7 +66,8 @@ class ToolManager:
         # Get the current active tool class
         # So the function can be called
         tool = self.getActiveTool()
-        # Check if the event exist in the class
+        # Check if the method_name entered as argument exist in the class of the tool
+        # Example : "on_mouse_over" method exist in the selection tool, if it didn't, don't call it to avoid a error
         if tool and hasattr(tool, method_name):
             # Call the event
             getattr(tool, method_name)(event)
