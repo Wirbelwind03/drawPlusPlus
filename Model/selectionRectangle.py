@@ -97,19 +97,6 @@ class SelectionRectangle(AABB):
     
     @topLeft.setter
     def topLeft(self, newValue):
-        # The top left has lower x-coordinate than the top right
-        # If the top left is more or equal than the x-coordinate of the top right
-        # Then take the top right x-coordinate and subtract 1 so the top left stay lower
-        # (left of the canvas = lower x-coordinate)
-        if self.topLeft.x >= self.topRight.x:
-            newValue = Vector2(self.topRight.x - 1, self.topRight.y)
-        # The top left has lower y-coordinate than the bottom left
-        # If the top left is more or equal than the y-coordinate of the bottom left
-        # Then take the bottom left y-coordinate and subtract 1 so the top left stay lower
-        # (top of the canvas = lower y-coordinate)
-        elif self.topLeft.y >= self.bottomLeft.y:
-            newValue = Vector2(self.bottomLeft.x, self.bottomLeft.y - 1)
-        super(SelectionRectangle, type(self)).topLeft.fset(self, newValue)
         # Update the image coordinates
         if self.attachedImage:
             self.attachedImage.bbox.topLeft = newValue
@@ -120,18 +107,6 @@ class SelectionRectangle(AABB):
     
     @topRight.setter
     def topRight(self, newValue):
-        # The top right has higher x-coordinate than the top left
-        # If the top right is less or equal than the x-coordinate of the top left
-        # Then take the top left x-coordinate and add 1 so the top right stay higher
-        # (right of the canvas = higher x-coordinate)
-        if self.topRight.x <= self.topLeft.x:
-            newValue = Vector2(self.topLeft.x + 1, self.topLeft.y)
-        # The top right has lower y-coordinate than the bottom right
-        # If the top right is more or equal than the y-coordinate of the bottom right
-        # Then take the bottom right y-coordinate and subtract 1 so the top right stay lower
-        # (top of the canvas = lower y-coordinate)
-        elif self.topRight.y >= self.bottomRight.y:
-            newValue = Vector2(self.bottomRight.x, self.bottomRight.y - 1)
         super(SelectionRectangle, type(self)).topRight.fset(self, newValue)
         # Update the image coordinates
         if self.attachedImage:
@@ -143,18 +118,6 @@ class SelectionRectangle(AABB):
     
     @bottomLeft.setter
     def bottomLeft(self, newValue):
-        # The bottom left has lower x-coordinate than the bottom right
-        # If the bottom left is more or equal than the x-coordinate of the bottom right
-        # Then take the bottom right x-coordinate and subtract 1 so the bottom left stay lower
-        # (left of the canvas = lower x-coordinate)
-        if self.bottomLeft.x >= self.bottomRight.x:
-            newValue = Vector2(self.bottomRight.x - 1, self.bottomRight.y)
-        # The bottom left has higher y-coordinate than the top left
-        # If the bottom left is less or equal than the y-coordinate of the top left
-        # Then take the top left y-coordinate and add 1 so the bottom left stay higher
-        # (bottom of the canvas = higher y-coordinate)
-        elif self.bottomLeft.y <= self.topLeft.y:
-            newValue = Vector2(self.topLeft.x, self.topLeft.y  + 1)
         super(SelectionRectangle, type(self)).bottomLeft.fset(self, newValue)
         # Update the image coordinates
         if self.attachedImage:
@@ -166,18 +129,6 @@ class SelectionRectangle(AABB):
     
     @bottomRight.setter
     def bottomRight(self, newValue):
-        # The bottom right has higher x-coordinate than the bottom left
-        # If the bottom right is less or equal than the x-coordinate of the bottom left
-        # Then take the bottom left x-coordinate and add 1 so the bottom right stay higher
-        # (right of the canvas = higher x-coordinate)
-        if self.bottomRight.x <= self.bottomLeft.x:
-            newValue = Vector2(self.bottomLeft.x + 1, self.bottomLeft.y)
-        # The bottom right has higher y-coordinate than the top right
-        # If the bottom right is less or equal than the y-coordinate of the top right
-        # Then take the top right y-coordinate and add 1 so the bottom right stay higher
-        # (bottom of the canvas = higher y-coordinate)
-        elif self.bottomRight.y <= self.topRight.y:
-            newValue = Vector2(self.topRight.x, self.topRight.y + 1)
         super(SelectionRectangle, type(self)).bottomRight.fset(self, newValue)
         if self.attachedImage:
             self.attachedImage.bbox.bottomRight = newValue
@@ -209,17 +160,5 @@ class SelectionRectangle(AABB):
             newMax.y = self.max.y
         self.min = newMin
         self.max = newMax
-
-    def checkBounds(self) -> bool:
-        if (self.topLeft.x >= self.topRight.x
-            or self.topLeft.y >= self.bottomLeft.y
-            or self.topRight.x <= self.topLeft.x
-            or self.topRight.y >= self.bottomRight.y
-            or self.bottomLeft.x >= self.bottomRight.x
-            or self.bottomLeft.y <= self.topLeft.y
-            or self.bottomRight.x <= self.bottomLeft.x
-            or self.bottomRight.y <= self.topRight.y):
-            return True
-        return False
 
     #endregion Public Methods
