@@ -37,8 +37,8 @@ class SelectionRectangleCanvasController:
         self.TBC = TBC
         self.selectionRectangle: SelectionRectangle = None
         
-        self.TBC.view.selectionRectangleHeight.trace_add("write", self.on_selection_rectangle_dimension_change)
-        self.TBC.view.selectionRectangleWidth.trace_add("write", self.on_selection_rectangle_dimension_change)
+        self.TBC.view.selectionRectangleWidth.trace_add("write", self.on_selection_rectangle_width_change)
+        self.TBC.view.selectionRectangleHeight.trace_add("write", self.on_selection_rectangle_height_change)
         self.TBC.view.widthInput.configure(command=self.on_width_input_change)
         self.TBC.view.heightInput.configure(command=self.on_height_input_change)
 
@@ -158,8 +158,7 @@ class SelectionRectangleCanvasController:
 
     #endregion Public Methods
 
-    def on_selection_rectangle_dimension_change(self, *args):
-        self.selectionRectangle.height = self.TBC.view.selectionRectangleHeight.get()
+    def on_selection_rectangle_width_change(self, *args):
         self.selectionRectangle.width = self.TBC.view.selectionRectangleWidth.get()
         if self.selectionRectangle:
             self.CC.view.coords(
@@ -169,6 +168,21 @@ class SelectionRectangleCanvasController:
                 self.selectionRectangle.bottomRight.x, 
                 self.selectionRectangle.bottomRight.y
             )
+            if self.selectionRectangle.attachedImage:
+                self.CC.resizeImage(self.selectionRectangle.attachedImage, self.selectionRectangle.width, self.selectionRectangle.height)
+
+    def on_selection_rectangle_height_change(self, *args):
+        self.selectionRectangle.height = self.TBC.view.selectionRectangleHeight.get()
+        if self.selectionRectangle:
+            self.CC.view.coords(
+                self.selectionRectangle.canvasIdRectangle, 
+                self.selectionRectangle.x, 
+                self.selectionRectangle.y, 
+                self.selectionRectangle.bottomRight.x, 
+                self.selectionRectangle.bottomRight.y
+            )
+            if self.selectionRectangle.attachedImage:
+                self.CC.resizeImage(self.selectionRectangle.attachedImage, self.selectionRectangle.width, self.selectionRectangle.height)
 
     def on_width_input_change(self):
         self.TBC.view.selectionRectangleWidth.set(int(self.TBC.view.widthInput.get()))
