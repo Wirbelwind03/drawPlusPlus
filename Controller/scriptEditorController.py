@@ -7,7 +7,6 @@ from pathlib import Path
 from Controller.canvasController import CanvasController
 
 from DrawLibrary.Graphics.canvasImage import CanvasImage
-from DrawLibrary.utils import Utils
 
 from DrawScript.Core.drawScriptTokenizer import DrawScriptTokenizer
 from DrawScript.Core.drawScriptParser import DrawScriptParser
@@ -19,10 +18,12 @@ from View.Resources.Widgets.multiTextEditor import MultiTextEditor
 
 class ScriptEditorController:
     """
-    The Script Editor Controller handle the drawScript and its compilation.
-    When the drawScript is compiled, it's communicate to the canvasController, to draw the shapes given by the drawScript
-    This controller also handle everything tied to file operations (open, save, edit) since the file is modified in the text editor.
-    If the drawScript fail to compile, this controller communicate to the terminal to show the errors.
+    Controller that handle the drawScript.
+    It also communicate with the canvasController since when the drawScript is read, it's modify the canvas.
+    It's where the file operations (open, save, edit) are made,
+    but also where the drawScript is going to be written, in the textEditor.
+    It's also manage the compilation of the drawScript, and when compiled succesfully, then draw to the canvas
+    The terminal is used to show the errors of the code if it fail to compile
 
     Attributes
     -----------
@@ -58,6 +59,7 @@ class ScriptEditorController:
         self.textEditor = textEditor
         self.terminal = terminal
         self.CC = CC
+        self.tokenizer = DrawScriptTokenizer()
 
         self.refresh_widgets_event = None  # Callback attribute
 
@@ -82,10 +84,7 @@ class ScriptEditorController:
             self.CC.deleteAll()
 
             tokenizer = DrawScriptTokenizer()
-            tokens, tokenize_errors = tokenizer.tokenize(code)
-
-            if tokenize_errors:
-                print("=== Tokenizer errors detected ===")
+            tokens, errors = tokenizer.tokenize(code)
 
             parser = DrawScriptParser(tokens)
             ast_nodes, parse_errors = parser.parse()
@@ -98,97 +97,96 @@ class ScriptEditorController:
                     self.terminal.text_widget.insert(tk.END, f"Ligne {err['line']}: {err['message']}\n")
                     print(f"Ligne {err['line']}: {err['message']}")
                 print("Impossible de poursuivre l'analyse sémantique.")
-                raise Exception # Stop the code
-            
-            print("Aucune erreur de parsing.")
-            # Si pas d'erreur de parsing, on effectue l'analyse sémantique
-            analyzer = SemanticAnalyzer()
-            semantic_errors = analyzer.analyze(ast_nodes)
-
-            if semantic_errors:
-                print("=== Semantic errors detected ===")
-                # Highlight the line where the error occurred in the text editor
-                #self.highlight_error(line_number)
-                for err in semantic_errors:
-                    self.terminal.text_widget.insert(tk.END, err)
-                    print(err)
-                print("Annulation de la génération du code C.")
-                raise Exception # Stop the code
-
-            print("Aucune erreur sémantique, génération du code C en cours.")
-            interpreter = DrawScriptDeserializerC(ast_nodes, self.CC)
-            interpreter.write_c()
-
-            # Indicate successful execution in the terminal
-            self.terminal.text_widget.insert(tk.END, "Exécution réussie !\n")
-
-            # Get the directory where the code is ran
-            current_directory = os.getcwd()
-
-            gcc_command = [
-                "gcc",
-                f"-I{current_directory}/DrawLibrary/C/SDL2/src/include",
-                f"-I{current_directory}/DrawLibrary/C/SDL2_gfx",
-                f"-I{current_directory}/DrawLibrary/C/Utils",
-                f"{current_directory}/DrawLibrary/C/SDL2/main.c",
-                f"{current_directory}/DrawLibrary/C/Utils/shapes.c",
-                f"{current_directory}/DrawLibrary/C/Utils/cursor.c",
-                f"{current_directory}/DrawLibrary/C/Utils/utils.c",
-                f"{current_directory}/DrawLibrary/C/SDL2_gfx/SDL2_gfxPrimitives.c",
-                f"{current_directory}/DrawLibrary/C/SDL2_gfx/SDL2_rotozoom.c",
-                f"-L{current_directory}/DrawLibrary/C/SDL2/src/lib",
-                "-lmingw32",
-                "-lSDL2main",
-                "-lSDL2",
-                f"-o{current_directory}/DrawLibrary/C/SDL2/main.exe",
-            ]
-
-            # Compile the C code
-            try:
-                subprocess.run(gcc_command, check=True)
-                print("Build successful!")
-            except subprocess.CalledProcessError as e:
-                print(f"Build failed: {e}")
                 raise Exception
+            else:
+                print("Aucune erreur de parsing.")
+                # Si pas d'erreur de parsing, on effectue l'analyse sémantique
+                analyzer = SemanticAnalyzer()
+                semantic_errors = analyzer.analyze(ast_nodes)
 
-            # Remove the old drawings contained in Data/Outputs
-            output_folder = f'{current_directory}/Data/Outputs'
-            Utils.RemoveFilesInDirectory(output_folder)
+                if semantic_errors:
+                    print("=== Erreurs sémantiques détectées ===")
+                    for err in semantic_errors:
+                        self.terminal.text_widget.insert(tk.END, err)
+                        print(err)
+                    print("Annulation de la génération du code C.")
+                    raise Exception
+                else:
+                    print("Aucune erreur sémantique, génération du code C en cours.")
+                    interpreter = DrawScriptDeserializerC(ast_nodes, self.CC)
+                    interpreter.write_c()
 
-            # Run the C code
-            try:
-                subprocess.run(f"{current_directory}/DrawLibrary/C/SDL2/main.exe", check=True)  # This will run the exe and wait for it to finish
-                print(f"Successfully launched {current_directory}/DrawLibrary/C/SDL2/main.exe")
-            except subprocess.CalledProcessError as e:
-                print(f"Failed to launch {current_directory}/DrawLibrary/C/SDL2/main.exe: {e}")
-                raise Exception
+                    # Indicate successful execution in the terminal
+                    self.terminal.text_widget.insert(tk.END, "Exécution réussie !\n")
 
-            # Read the positions of the drawings
-            with open(f'{current_directory}/Data/Outputs/drawing_positions.txt', "r") as file:
-                lines = file.readlines()
+                    # Get the directory where the code is ran
+                    current_directory = os.getcwd()
 
-            # Reach each position of the drawings to place on the canvas
-            for i in range(len(lines)):
-                line = lines[i]
-                # Load the image from the path
-                image = CanvasImage.fromPath(f'{output_folder}/drawing_{i + 1}.bmp')
-                x, y = line.strip().split(',')
-                self.CC.drawImage(image, int(x), int(y))
+                    gcc_command = [
+                        "gcc",
+                        f"-I{current_directory}/DrawLibrary/C/SDL2/src/include",
+                        f"-I{current_directory}/DrawLibrary/C/SDL2_gfx",
+                        f"-I{current_directory}/DrawLibrary/C/Utils",
+                        f"{current_directory}/DrawLibrary/C/Utils/shapes.c",
+                        f"{current_directory}/DrawLibrary/C/Utils/cursor.c",
+                        f"{current_directory}/DrawLibrary/C/Utils/utils.c",
+                        f"{current_directory}/main.c",
+                        f"{current_directory}/DrawLibrary/C/SDL2_gfx/SDL2_gfxPrimitives.c",
+                        f"{current_directory}/DrawLibrary/C/SDL2_gfx/SDL2_rotozoom.c",
+                        f"-L{current_directory}/DrawLibrary/C/SDL2/src/lib",
+                        "-lmingw32",
+                        "-lSDL2main",
+                        "-lSDL2",
+                        f"-o{current_directory}/DrawLibrary/C/SDL2/main.exe",
+                    ]
+
+                    # Compile the C code
+                    try:
+                        subprocess.run(gcc_command, check=True)
+                        print("Build successful!")
+                    except subprocess.CalledProcessError as e:
+                        print(f"Build failed: {e}")
+
+                    output_folder = f'{current_directory}/Data/Outputs'
+                    for filename in os.listdir(output_folder):
+                        file_path = os.path.join(output_folder, filename)
+                        if os.path.isfile(file_path) and filename != ".gitignore":
+                            os.remove(file_path)
+
+                    # Run the C code
+                    try:
+                        subprocess.run(f"{current_directory}/DrawLibrary/C/SDL2/main.exe", check=True)  # This will run the exe and wait for it to finish
+                        print(f"Successfully launched {current_directory}/DrawLibrary/C/SDL2/main.exe")
+                    except subprocess.CalledProcessError as e:
+                        print(f"Failed to launch {current_directory}/DrawLibrary/C/SDL2/main.exe: {e}")
+
+                    with open(f'{current_directory}/Data/Outputs/drawing_positions.txt', "r") as file:
+                        lines = file.readlines()
+
+                    for i in range(0, len(lines)):
+                        line = lines[i]
+                        image = CanvasImage.fromPath(f'{output_folder}/drawing_{i + 1}.bmp')
+                        image.removeWhiteBackground()
+                        x, y = line.strip().split(',')
+                        self.CC.drawImage(image, int(x), int(y))
 
         except Exception as e:
             # Display the error message in the terminal
             self.terminal.text_widget.insert(tk.END, str(e) + "\n")
 
+            # Highlight the line where the error occurred in the text editor
+            #self.highlight_error(e, line_number)
+
         self.terminal.text_widget.config(state=tk.DISABLED)  # Disable editing again
 
-    def highlight_error(self, line_number):
-        """
-            Highlight the first error in the text editor
-        """
+    # Fonction pour souligner la ligne contenant une erreur
+    def highlight_error(self, error, line_number):
+        error_message = str(error)
         # On extrait le numéro de ligne de l'erreur
         self.textEditor.openedTab.tag_add("error", f"{line_number}.0", f"{line_number}.end")
         self.textEditor.openedTab.tag_config("error", background="red")  # Configurer le surlignement
 
+    # Fonction pour charger un fichier
     def load_file(self):
         file_path = filedialog.askopenfilename(filetypes=[("Text Files", "*.txt")])
         if file_path:
@@ -199,6 +197,7 @@ class ScriptEditorController:
                 if self.refresh_widgets_event:
                     self.refresh_widgets_event()
 
+    # Fonction pour sauvegarder le fichier
     def save_file(self):
         file_path = filedialog.asksaveasfilename(defaultextension=".txt", filetypes=[("Text Files", "*.txt")])
         if file_path:
@@ -214,3 +213,4 @@ class ScriptEditorController:
         self.textEditor.notebook.select(len(self.textEditor.editor_tabs) - 1)
         if self.refresh_widgets_event:
             self.refresh_widgets_event()
+
