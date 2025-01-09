@@ -170,6 +170,11 @@ class SelectionRectangleCanvasController:
             )
             if self.selectionRectangle.attachedImage:
                 self.CC.resizeImage(self.selectionRectangle.attachedImage, self.selectionRectangle.width, self.selectionRectangle.height)
+                self.selectionRectangle.setCoords(self.selectionRectangle.attachedImage.bbox.topLeft, self.selectionRectangle.attachedImage.bbox.bottomRight)
+                if DEBUG and self.CC.DCC != None:
+                    if self.selectionRectangle.attachedImage:
+                        self.CC.DCC.drawCanvasImageDebugInfos(self.selectionRectangle.attachedImage)
+
 
     def on_selection_rectangle_height_change(self, *args):
         if self.selectionRectangle:
@@ -183,6 +188,10 @@ class SelectionRectangleCanvasController:
             )
             if self.selectionRectangle.attachedImage:
                 self.CC.resizeImage(self.selectionRectangle.attachedImage, self.selectionRectangle.width, self.selectionRectangle.height)
+                self.selectionRectangle.setCoords(self.selectionRectangle.attachedImage.bbox.topLeft, self.selectionRectangle.attachedImage.bbox.bottomRight)
+                if DEBUG and self.CC.DCC != None:
+                    if self.selectionRectangle.attachedImage:
+                        self.CC.DCC.drawCanvasImageDebugInfos(self.selectionRectangle.attachedImage)
 
     def on_width_input_change(self):
         self.TBC.view.selectionRectangleWidth.set(int(self.TBC.view.widthInput.get()))
