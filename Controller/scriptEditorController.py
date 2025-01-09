@@ -88,8 +88,13 @@ class ScriptEditorController:
                 print("=== Erreurs de parsing détectées ===")
                 for err in parse_errors:
                     # Chaque err est un dict: {"message": str(e), "line": line}
-                    self.terminal.text_widget.insert(tk.END, f"Ligne {err['line']}: {err['message']}\n")
-                    print(f"Ligne {err['line']}: {err['message']}")
+                    ligne = err["line"]
+                    message = err["message"]
+                    self.terminal.text_widget.insert(tk.END, f"Ligne {ligne}: {message}\n")
+                    print(f"Ligne {ligne}: {message}")
+
+                    # Met la ligne incriminée en rouge
+                    self.highlight_error(message, ligne)
                 print("Impossible de poursuivre l'analyse sémantique.")
                 raise Exception
             else:
@@ -178,7 +183,7 @@ class ScriptEditorController:
         error_message = str(error)
         # On extrait le numéro de ligne de l'erreur
         self.textEditor.openedTab.tag_add("error", f"{line_number}.0", f"{line_number}.end")
-        self.textEditor.openedTab.tag_config("error", background="red")  # Configurer le surlignement
+        self.textEditor.openedTab.tag_config("error", foreground="red", underline=True)
 
     # Fonction pour charger un fichier
     def load_file(self):
