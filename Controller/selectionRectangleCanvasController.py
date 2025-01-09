@@ -31,7 +31,7 @@ class SelectionRectangleCanvasController:
         A Controller used to communicate with the Canvas
     """
 
-    def __init__(self, CC: CanvasController, TBC: ToolBarController):
+    def __init__(self, CC: CanvasController, TBC: ToolBarController) -> None:
         # Connect the controller to the canvas
         self.CC = CC
         self.TBC = TBC
@@ -125,7 +125,7 @@ class SelectionRectangleCanvasController:
             # Delete the image first
             self.CC.deleteImage(self.selectionRectangle.attachedImage)
             self.selectionRectangle.attachedImage = None
-            self.handle_clipboard_activation(False)
+            self.handle_clipboard_paste_activation(False)
         # Erase the selection rectangle
         self.deSelect()
 
@@ -145,18 +145,54 @@ class SelectionRectangleCanvasController:
         # Set the cursor to default (arrow)
         self.CC.view.config(cursor="arrow")
 
-    def handle_clipboard_activation(self, activate: bool) -> None:
-        icon = "clipboard_on.png" if activate else "clipboard_off.png"
-        command = self.clipBoardPaste if activate else None
-        image = ImageUtils.resizePhotoImageFromPath(f"Data/Assets/{icon}", 64, 64)
-        self.TBC.view.pasteButton.configure(image=image, command=command)
-        self.TBC.view.pasteButton.image = image
+    def handle_clipboard_paste_activation(self, activate: bool) -> None:
+        self.__handle_clipboard_button_activation("paste", activate, self.clipBoardPaste)
 
-    def clipBoardPaste(self):
+    def handle_clipboard_copy_activation(self, activate: bool) -> None:
+        self.__handle_clipboard_button_activation("copy", activate, self.clipBoardCopy)
+
+    def handle_clipboard_cut_activation(self, activate: bool) -> None:
+        self.__handle_clipboard_button_activation("cut", activate, self.clipBoardCut)
+
+    def clipBoardPaste(self) -> None:
         if self.selectionRectangle.attachedImage:
             self.CC.drawImage(self.selectionRectangle.attachedImage, self.selectionRectangle.min.x, self.selectionRectangle.min.y)
 
+    def clipBoardCopy(self):
+        pass
+
+    def clipBoardCut(self):
+        pass
+
     #endregion Public Methods
+
+    def __handle_clipboard_button_activation(self, buttonName: str, activate: bool, command: callable) -> None:
+        """
+        Handles the activation or deactivation of a clipboard button.
+
+        Parameters
+        -----------
+        buttonName : str
+            The name of the button.
+        activate : bool
+            Set the state of the button to activate or deactive it
+        command : callable
+            The command to assign when activated.
+        """
+        icon = f"{buttonName}_on.png" if activate else f"{buttonName}_off.png"
+        button = getattr(self.TBC.view, f"{buttonName}Button")
+        image = ImageUtils.resizePhotoImageFromPath(
+            f"Data/Assets/{icon}",
+            button.image.width(),
+            button.image.height()
+        )
+        button.configure(image=image, command=command if activate else None)
+        button.image = image
+
+
+    #region Private Methods
+
+    #endregion
 
     def on_selection_rectangle_width_change(self, *args):
         if self.selectionRectangle:
@@ -174,7 +210,6 @@ class SelectionRectangleCanvasController:
                 if DEBUG and self.CC.DCC != None:
                     if self.selectionRectangle.attachedImage:
                         self.CC.DCC.drawCanvasImageDebugInfos(self.selectionRectangle.attachedImage)
-
 
     def on_selection_rectangle_height_change(self, *args):
         if self.selectionRectangle:
@@ -221,13 +256,13 @@ class SelectionRectangleCanvasController:
             # If it's not, change that the action we want to do is creating a selection rectangle
             self.setAction(SelectionRectangleAction.NONE)
 
-    def on_button_press(self, event):
+    def on_button_press(self, event: tk.Event) -> None:
         """
         A event for when a left click occur on the selection rectangle
 
         Parameters
         -----------
-        event : 
+        event : tk.Event
         """
         mouseCoords = Vector2(event.x, event.y)
 
@@ -239,15 +274,13 @@ class SelectionRectangleCanvasController:
             self.__gapOffset.start = mouseCoords - self.selectionRectangle.min
             self.__gapOffset.end = mouseCoords - self.selectionRectangle.max
 
-    def on_mouse_drag(self, event):
+    def on_mouse_drag(self, event: tk.Event) -> None:
         """
         A event for when the user drag the selection rectangle
 
         Parameters
         -----------
-        event : 
-        canvas : tk.Canvas
-            The canvas where the selection rectangle is drawn
+        event : tk.Event
         """
         mouseCoords = Vector2(event.x, event.y)
 
@@ -266,19 +299,19 @@ class SelectionRectangleCanvasController:
 
         self.drag_start = mouseCoords
 
-    def on_button_release(self, event):
+    def on_button_release(self, event: tk.Event) -> None:
         """
         A event for when the left click is released on the canvas
 
         Parameters
         -----------
-        event : 
+        event : tk.Event
         """
 
         # Get the cursor position
         mouseCoords = Vector2(event.x, event.y)
 
-    def on_left(self, event):
+    def on_left(self, event: tk.Event) -> None:
         mouseCoords = Vector2(event.x, event.y)
 
         self.selectionRectangle.setCoords(self.selectionRectangle.attachedImage.bbox.topLeft, self.selectionRectangle.attachedImage.bbox.bottomRight)
