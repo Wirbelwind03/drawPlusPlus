@@ -159,8 +159,8 @@ class SelectionRectangleCanvasController:
     #endregion Public Methods
 
     def on_selection_rectangle_width_change(self, *args):
-        self.selectionRectangle.width = self.TBC.view.selectionRectangleWidth.get()
         if self.selectionRectangle:
+            self.selectionRectangle.width = self.TBC.view.selectionRectangleWidth.get()
             self.CC.view.coords(
                 self.selectionRectangle.canvasIdRectangle, 
                 self.selectionRectangle.x, 
@@ -172,8 +172,8 @@ class SelectionRectangleCanvasController:
                 self.CC.resizeImage(self.selectionRectangle.attachedImage, self.selectionRectangle.width, self.selectionRectangle.height)
 
     def on_selection_rectangle_height_change(self, *args):
-        self.selectionRectangle.height = self.TBC.view.selectionRectangleHeight.get()
         if self.selectionRectangle:
+            self.selectionRectangle.height = self.TBC.view.selectionRectangleHeight.get()
             self.CC.view.coords(
                 self.selectionRectangle.canvasIdRectangle, 
                 self.selectionRectangle.x, 
