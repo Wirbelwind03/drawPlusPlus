@@ -27,6 +27,14 @@ class SelectionTool:
 
         self.__copiedCanvasImage = None
 
+    @property
+    def toolBar(self):
+        return self.SRCC.TBC.view
+    
+    @property
+    def canvas(self):
+        return self.SRCC.CC.view
+
     def getClickedImage(self, mouseCoords):
         # Loop all the images present on the canvas
         for imageId, image in self.SRCC.CC.model.images.items():
@@ -39,10 +47,14 @@ class SelectionTool:
         self.SRCC.setSelectionRectangle(SelectionRectangle.fromCoordinates(image.bbox.min.x, image.bbox.min.y, image.bbox.max.x, image.bbox.max.y), image)
         self.SRCC.create()
 
+        self.toolBar.selectionRectangleWidth.set(self.SRCC.selectionRectangle.attachedImage.bbox.width)
+        self.toolBar.selectionRectangleHeight.set(self.SRCC.selectionRectangle.attachedImage.bbox.height)
+        self.toolBar.widthInput.configure(state="normal")
+        self.toolBar.heightInput.configure(state="normal")
+
         # Check the action to move since the cursor is inside the image
         self.SRCC.setAction(SelectionRectangleAction.MOVE)
-        self.SRCC.CC.view.config(cursor="fleur")
-
+        self.canvas.config(cursor="fleur")
 
     #region Event
 
@@ -65,7 +77,6 @@ class SelectionTool:
             # Check if the user has clicked on another image
             self.getClickedImage(mouseCoords)
 
-        
         if self.SRCC.hasSelectionRectangle() and self.SRCC.getAction() != SelectionRectangleAction.NONE:
             # Calculate the offset between mouse click and rectangle's position
             self.SRCC.on_button_press(event)
@@ -104,8 +115,11 @@ class SelectionTool:
     def on_left(self, event):
         if self.SRCC.hasSelectionRectangle():
             sr = self.SRCC.selectionRectangle
-            self.SRCC.CC.rotateImage(sr.attachedImage, 10)
+            self.SRCC.CC.applyTransformations(sr.attachedImage, sr.attachedImage.width, sr.attachedImage.height, 10)
             self.SRCC.on_left(event)
+
+            self.toolBar.selectionRectangleWidth.set(self.SRCC.selectionRectangle.attachedImage.bbox.width)
+            self.toolBar.selectionRectangleHeight.set(self.SRCC.selectionRectangle.attachedImage.bbox.height)
 
     #endregion Event
 
