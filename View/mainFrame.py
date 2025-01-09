@@ -16,11 +16,9 @@ class MainFrame(tk.Frame):
     def __init__(self, *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)
 
-        # Initialiser la variable pour suivre la date de modification
+        # Initialize variables
         self.last_modified_time = None
-
-        settings = self.load_settings()
-        self.dark_mode = settings.get("dark_mode", False)
+        self.json_file = "View/Resources/Widgets/gear.json"
 
         # Use grid for the main frame layout
         self.grid(row=0, column=0, sticky="nsew")
@@ -32,8 +30,8 @@ class MainFrame(tk.Frame):
         self.master.config(menu=self.menuBar)
 
         # Configure rows and columns for grid layout in MainFrame
-        self.grid_columnconfigure(0, weight=2)  # Plus grand poids pour la colonne de l'éditeur
-        self.grid_columnconfigure(1, weight=1)  # Poids plus faible pour la colonne du terminal
+        self.grid_columnconfigure(0, weight=2) 
+        self.grid_columnconfigure(1, weight=1) 
 
         self.grid_rowconfigure(0, weight=0)
         self.grid_rowconfigure(1, weight=0)
@@ -44,8 +42,8 @@ class MainFrame(tk.Frame):
         self.mainBar = MainBar(self)  # Background color for the mainBar
         self.mainBar.grid(row=0, column=1, sticky="new", padx=10, pady=10)
 
-        # Create and grid the widgets
-        self.toolBar = ToolBar(self)  # Background color for the toolBar
+        # Create and grid the tools
+        self.toolBar = ToolBar(self)
         self.toolBar.grid(row=1, column=1, sticky="new", padx=10, pady=10)
 
         # TextEditor on the left side, expands vertically
@@ -56,21 +54,18 @@ class MainFrame(tk.Frame):
         self.canvas = tk.Canvas(self, width=800, height=600)
         self.canvas.grid(row=2, column=1, rowspan=2, sticky="nsew", padx=10, pady=10)
 
-        # Terminal at the bottom, non-editable, fixed size, with customized style
+        # Terminal at the bottom with fixed size
         self.terminal = Terminal(self)
         self.terminal.grid(row=3, column=0, sticky="sew", padx=10, pady=10)
 
-        # Planifier la vérification des changements dans 500 ms
+        # Check if gear.json file is modified every 500ms
         self.check_for_changes()
 
+    # Function to load data from json file
     def load_settings(self):
-        """
-        Fonction pour charger les paramètres depuis le fichier JSON.
-        Charge une seule fois les paramètres pour l'ensemble de l'application.
-        """
-        json_file = "View/Resources/Widgets/gear.json"
-        if os.path.exists(json_file) and os.path.getsize(json_file) > 0:
-            with open(json_file, "r") as file:
+        # Check if the file has not been manually modified and if so we close the IDE with an error message
+        if os.path.exists(self.json_file) and os.path.getsize(self.json_file) > 0:
+            with open(self.json_file, "r") as file:
                 settings = json.load(file)
             return settings
         else:
@@ -78,26 +73,20 @@ class MainFrame(tk.Frame):
             exit(1)
 
     def check_for_changes(self):
-        json_file = "View/Resources/Widgets/gear.json"
-
-        # Vérifier si le fichier existe et si la date de modification a changé
-        if os.path.exists(json_file):
-            current_modified_time = os.path.getmtime(json_file)
-
+        # Check if the gear.json file exists and if the modification date has changed
+        if os.path.exists(self.json_file):
+            current_modified_time = os.path.getmtime(self.json_file)
             if self.last_modified_time is None or current_modified_time != self.last_modified_time:
                 self.last_modified_time = current_modified_time
 
-                # Recharger les paramètres et mettre à jour la couleur de fond si nécessaire
+                #If so, the new colors are applied to all IDE
                 settings = self.load_settings()
-
                 self.dark_mode = settings.get("dark_mode", False)
                 self.background_color = "#2E2E2E" if self.dark_mode else "#636363"
-
-                # Mettre à jour les couleurs des widgets
                 self.config(bg=self.background_color)
                 self.mainBar.config(bg=self.background_color)
                 self.toolBar.config(bg=self.background_color)
                 self.menuBar.config(bg=self.background_color)
 
-        # Planifier la vérification suivante dans 500 ms
+        # Schedule next check in 500ms
         self.after(500, self.check_for_changes)

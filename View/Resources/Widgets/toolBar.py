@@ -6,14 +6,13 @@ class ToolBar(tk.Frame):
         super().__init__(*args, **kwargs)
         self.grid(row=0, column=0, sticky="new")
 
-        # Creating a gap between icons by setting "minsize=100" every two column initializations
+        # Spacing between icons
         self.columnconfigure(0,weight=1)
         self.columnconfigure(1)
         self.columnconfigure(2,minsize=100)
         self.columnconfigure(3)
         self.columnconfigure(4,minsize=100)
         self.columnconfigure(5,weight=1)
-
         self.rowconfigure(0, minsize=30)
 
         # Load images
@@ -22,22 +21,22 @@ class ToolBar(tk.Frame):
         rotation_image = PhotoImage(file="Data/Assets/rotation.png")
         trash_image = PhotoImage(file="Data/Assets/trash.png")
 
-        # Tool 1 - Mouse
+        # 1-Mouse button
         mouseButton = tk.Button(self, image=mouse_image, height=80, width=80)
         mouseButton.image = mouse_image
         mouseButton.grid(row=0, column=1)
 
-        # Tool 2 - Rectangle de selection
+        # 2-Selection rectangle button
         rectangleButton = tk.Button(self, image=rectangle_image, height=80, width=80)
         rectangleButton.image = rectangle_image
         rectangleButton.grid(row=0, column=2)
 
-        # Tool 3 - Rotation
+        # 3-Rotation button
         rotationButton = tk.Button(self, image=rotation_image, height=80, width=80)
         rotationButton.image = rotation_image
         rotationButton.grid(row=0, column=3)
 
-        # Tool 4 - Trash
+        #   4-Trash button
         trashButton= tk.Button(self, image=trash_image, height=80, width=80)
         trashButton.image = trash_image
         trashButton.grid(row=0, column=4)

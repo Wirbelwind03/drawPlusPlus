@@ -11,36 +11,30 @@ class Window(tk.Tk):
 
         # Initialiser la variable pour suivre la date de modification
         self.last_modified_time = None
-
-        # Charger les paramètres depuis le fichier JSON
-        self.settings = self.load_settings()
-        self.dark_mode = self.settings.get("dark_mode", False)
+        self.json_file = "View/Resources/Widgets/gear.json"
 
         # Set window to full screen
         width = self.winfo_screenwidth()
         height = self.winfo_screenheight()
-        # Setting window size
         self.geometry(f"{width}x{height}")
 
         self.title("draw++ IDE")
 
-        # Définir la couleur en fonction du mode sombre
-        self.background_color = "#2E2E2E" if self.dark_mode else "#636363"
+        # Create the main user interface
+        self.main_frame = MainFrame(self)
 
-        # Créer l'interface utilisateur principale avec le mode de fond choisi
-        self.main_frame = MainFrame(self, bg=self.background_color)
-
-        # Attacher le contrôleur à l'UI
+        # Attach the controller to the UI
         self.controller = MainController(self.main_frame)
         self.controller.start()
 
-        # Planifier la vérification des changements dans 500 ms
+        # Check if gear.json file is modified every 500ms
         self.check_for_changes()
 
+    # Function to load data from json file
     def load_settings(self):
-        json_file = "View/Resources/Widgets/gear.json"
-        if os.path.exists(json_file) and os.path.getsize(json_file) > 0:
-            with open(json_file, "r") as file:
+        # Check if the file has not been manually modified and if so we close the IDE with an error message
+        if os.path.exists(self.json_file) and os.path.getsize(self.json_file) > 0:
+            with open(self.json_file, "r") as file:
                 settings = json.load(file)
             return settings
         else:
@@ -48,24 +42,19 @@ class Window(tk.Tk):
             exit(1)
 
     def check_for_changes(self):
-        json_file = "View/Resources/Widgets/gear.json"
-
-        # Vérifier si le fichier existe et si la date de modification a changé
-        if os.path.exists(json_file):
-            current_modified_time = os.path.getmtime(json_file)
-
+        # Check if the gear.json file exists and if the modification date has changed
+        if os.path.exists(self.json_file):
+            current_modified_time = os.path.getmtime(self.json_file)
             if self.last_modified_time is None or current_modified_time != self.last_modified_time:
                 self.last_modified_time = current_modified_time
 
-                # Recharger les paramètres et mettre à jour la couleur de fond si nécessaire
+                # If so, the new colors are applied to all IDE if there is a change
                 new_settings = self.load_settings()
                 new_dark_mode = new_settings.get("dark_mode", False)
-
                 if new_dark_mode != self.dark_mode:
                     self.dark_mode = new_dark_mode
                     self.background_color = "#2E2E2E" if self.dark_mode else "#636363"
-                    # Mettre à jour le fond de la fenêtre principale
                     self.main_frame.config(bg=self.background_color)
 
-        # Planifier la vérification suivante dans 500 ms
+        # Schedule next check in 500ms
         self.after(500, self.check_for_changes)

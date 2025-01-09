@@ -16,7 +16,7 @@ class GearWindow(tk.Toplevel):
 
         # Function to load data from json file
         def load_settings():
-            # We check if the file has not been manually modified
+            # Check if the file has not been manually modified and if so we close the IDE with an error message
             if os.path.exists(json_file) and os.path.getsize(json_file) > 0:
                 with open(json_file, "r") as file:
                     settings = json.load(file)
@@ -88,6 +88,6 @@ class GearWindow(tk.Toplevel):
         close_after_save_check = tk.Checkbutton(self, text="Fermer après l'enregistrement", variable=close_after_save_var)
         close_after_save_check.pack(pady=10)
 
-        # Save button (we only take close_after_save as a parameter because it is the only variable that has an impact on this function)
+        # Save button (Only take close_after_save as a parameter because it is the only variable that has an impact on this function)
         save_button = tk.Button(self, text="Enregistrer", command=lambda : save_settings(close_after_save_var.get()))
         save_button.pack(pady=10)

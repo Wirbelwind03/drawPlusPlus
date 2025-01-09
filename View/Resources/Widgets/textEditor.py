@@ -1,3 +1,5 @@
+#Fichier d'éditeur de texte de base créé par Dylan Mei. Sa structure a été en partie reprise dans multiTextEditor. Ce fichier est inactif et ne sert que d'exemple pour voir l'évolution de multiTextEditor. Il n'est donc pas annoté.
+
 import tkinter as tk
 
 class TextEditor(tk.Frame):
