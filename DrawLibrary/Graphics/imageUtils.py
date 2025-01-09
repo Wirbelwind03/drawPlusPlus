@@ -26,7 +26,7 @@ class ImageUtils:
     @staticmethod
     def resizePhotoImageFromPath(path, width: int, height: int) -> ImageTk.PhotoImage:
         image = Image.open(path)
-        resizedImage: Image = image.resize((width, height), Image.ANTIALIAS)
+        resizedImage: Image = image.resize((width, height))
         photoImage = ImageTk.PhotoImage(resizedImage)
         return photoImage
     
