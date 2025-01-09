@@ -60,7 +60,7 @@ class ToolBar(tk.Frame):
         copy_image = ImageUtils.resizePhotoImageFromPath("Data/Assets/copy_off.png", 16, 16)
         paste_image = ImageUtils.resizePhotoImageFromPath("Data/Assets/clipboard_off.png", 48, 48)
 
-        #####
+        ##### Column 0
         pasteFrame = tk.Frame(clipboardOperationsFrame)
         pasteFrame.grid(row=0, column=0)
 
@@ -71,33 +71,36 @@ class ToolBar(tk.Frame):
         pasteLabel = tk.Label(pasteFrame, text="Coller")
         pasteLabel.grid(row=1, column=0, pady=(0, 2))  # Label above the input
 
-        #####
+        ##### Column 1
         otherFrame = tk.Frame(clipboardOperationsFrame)
-        otherFrame.grid(row=0, column=1)
+        otherFrame.grid(row=0, column=1, sticky="n")  # Align the frame itself to the top
+
+        otherFrame.grid_rowconfigure(0, weight=1)  # Ensure top alignment for content
+        otherFrame.grid_rowconfigure(1, weight=0)  # Avoid distributing space to this row
 
         ###
-        cutFrame = tk.Frame(otherFrame)
-        cutFrame.grid(row=0, column=0)
-
-        self.cutButton = tk.Button(cutFrame, image=cut_image, height=16, width=16)
+        self.cutButton = tk.Button(
+            otherFrame, 
+            image=cut_image, 
+            text="Couper", 
+            compound="left"  # Places the text to the right of the image
+        )
         self.cutButton.image = cut_image
-        self.cutButton.grid(row=0, column=0)
-        descriptionLabel = tk.Label(cutFrame, text="Couper")
-        descriptionLabel.grid(row=0, column=1)  # Label above the input
+        self.cutButton.grid(row=0, column=0, sticky="n", pady=(0, 5))  # Align to the top with padding
 
         ###
-        copyFrame = tk.Frame(otherFrame)
-        copyFrame.grid(row=1, column=0)
-
-        self.copyButton = tk.Button(copyFrame, image=copy_image, height=16, width=16)
+        self.copyButton = tk.Button(
+            otherFrame, 
+            image=copy_image, 
+            text="Copier", 
+            compound="left"  # Places the text to the right of the image
+        )
         self.copyButton.image = copy_image
-        self.copyButton.grid(row=0, column=0)
-        descriptionLabel = tk.Label(copyFrame, text="Copier")
-        descriptionLabel.grid(row=0, column=1)  # Label above the input
+        self.copyButton.grid(row=1, column=0, sticky="n", pady=(0, 5))  
 
-        #####
+        ##### Column 2
         separator_after = ttk.Separator(clipboardOperationsFrame, orient="vertical")
-        separator_after.grid(row=0, column=1, sticky="ns", padx=(5, 5))
+        separator_after.grid(row=0, column=2, sticky="ns", padx=(5, 5))
 
     def __construct_rotate_frame(self, rotateFrame: tk.Frame):
         rotation_image = ImageUtils.resizePhotoImageFromPath("Data/Assets/rotation.png", 48, 48)
