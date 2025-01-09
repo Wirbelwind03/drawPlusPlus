@@ -7,18 +7,19 @@ class MultiTextEditor(tk.Frame):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        # Créer un widget Notebook
+        # Create a Notebook Widget
         self.notebook = ttk.Notebook(self)
         self.notebook.pack(fill="both", expand=True)
 
-        # Initialiser la variable pour suivre la date de modification
+        # Initialize the variable (1)
         self.last_modified_time = None
 
-        # Ajouter 18 onglets avec des éditeurs de texte
+        # Add 18 tabs with text editors
         self.editor_tabs = [] 
-        self.add_editor_tab("Fenêtre")
+        for i in range(1,19):
+            self.add_editor_tab("Fenêtre")
 
-        # Vérifier les changements toutes les 500 ms
+        # Check if gear.json file is modified every 100ms
         self.check_for_changes()
     
     @property
