@@ -8,10 +8,13 @@ from Controller.canvasController import CanvasController
 from DrawLibrary.Core.Math.vector2 import Vector2
 from DrawLibrary.Core.Collision.aabb import AABB
 from DrawLibrary.Graphics.canvasImage import CanvasImage
+from DrawLibrary.Graphics.imageUtils import ImageUtils
 
 from Model.canvasEntities import CanvasEntities
 from Model.selectionRectangle import SelectionRectangle
 from Model.selectionRectangle import SelectionRectangleAction
+
+from Controller.toolBarController import ToolBarController
 
 class GapOffset:
     def __init__(self):
@@ -28,10 +31,16 @@ class SelectionRectangleCanvasController:
         A Controller used to communicate with the Canvas
     """
 
-    def __init__(self, CC: CanvasController):
+    def __init__(self, CC: CanvasController, TBC: ToolBarController):
         # Connect the controller to the canvas
         self.CC = CC
+        self.TBC = TBC
         self.selectionRectangle: SelectionRectangle = None
+        
+        self.TBC.view.selectionRectangleHeight.trace_add("write", self.on_selection_rectangle_dimension_change)
+        self.TBC.view.selectionRectangleWidth.trace_add("write", self.on_selection_rectangle_dimension_change)
+        self.TBC.view.widthInput.configure(command=self.on_width_input_change)
+        self.TBC.view.heightInput.configure(command=self.on_height_input_change)
 
         self.__gapOffset = GapOffset()
 
@@ -108,12 +117,22 @@ class SelectionRectangleCanvasController:
         """
         Delete completly the selection rectangle and the image inside it if there's one on the canvas.
         """
+        if not self.selectionRectangle:
+            return
+
         # If there is a attached image in the selection rectangle
         if self.selectionRectangle.attachedImage:
             # Delete the image first
             self.CC.deleteImage(self.selectionRectangle.attachedImage)
-        # Deselect from the selection rectangle
+            self.selectionRectangle.attachedImage = None
+            self.handle_clipboard_activation(False)
+        # Erase the selection rectangle
         self.deSelect()
+
+        self.TBC.view.selectionRectangleWidth.set(0)
+        self.TBC.view.selectionRectangleHeight.set(0)
+        self.TBC.view.widthInput.configure(state="disabled")
+        self.TBC.view.heightInput.configure(state="disabled")
 
     def deSelect(self) -> None:
         """
@@ -126,7 +145,32 @@ class SelectionRectangleCanvasController:
         # Set the cursor to default (arrow)
         self.CC.view.config(cursor="arrow")
 
+    def handle_clipboard_activation(self, activate: bool) -> None:
+        icon = "clipboard_on.png" if activate else "clipboard_off.png"
+        command = self.clipBoardPaste if activate else None
+        image = ImageUtils.resizePhotoImageFromPath(f"Data/Assets/{icon}", 64, 64)
+        self.TBC.view.pasteButton.configure(image=image, command=command)
+        self.TBC.view.pasteButton.image = image
+
     #endregion Public Methods
+
+    def on_selection_rectangle_dimension_change(self, *args):
+        self.selectionRectangle.height = self.TBC.view.selectionRectangleHeight.get()
+        self.selectionRectangle.width = self.TBC.view.selectionRectangleWidth.get()
+        if self.selectionRectangle:
+            self.CC.view.coords(
+                self.selectionRectangle.canvasIdRectangle, 
+                self.selectionRectangle.x, 
+                self.selectionRectangle.y, 
+                self.selectionRectangle.bottomRight.x, 
+                self.selectionRectangle.bottomRight.y
+            )
+
+    def on_width_input_change(self):
+        self.TBC.view.selectionRectangleWidth.set(int(self.TBC.view.widthInput.get()))
+
+    def on_height_input_change(self):
+        self.TBC.view.selectionRectangleHeight.set(int(self.TBC.view.heightInput.get()))
 
     #region Event
 
@@ -217,5 +261,9 @@ class SelectionRectangleCanvasController:
 
         if DEBUG and self.CC.DCC != None:
             self.CC.DCC.drawCanvasImageDebugInfos(self.selectionRectangle.attachedImage)
+
+    def clipBoardPaste(self):
+        if self.selectionRectangle.attachedImage:
+            self.CC.drawImage(self.selectionRectangle.attachedImage, self.selectionRectangle.min.x, self.selectionRectangle.min.y)
 
     #endregion Event
