@@ -54,7 +54,7 @@ class ToolBar(tk.Frame):
         self.trashButton.grid(row=0, column=5)
 
     def __construct_clipboard_operations_frame(self, clipboardOperationsFrame: tk.Frame):
-        paste_image = ImageUtils.resizePhotoImageFromPath("Data/Assets/clipboard.png", 64, 64)
+        paste_image = ImageUtils.resizePhotoImageFromPath("Data/Assets/clipboard_off.png", 64, 64)
 
         self.pasteButton = tk.Button(clipboardOperationsFrame, image=paste_image, height=80, width=80)
         self.pasteButton.image = paste_image
