@@ -1,4 +1,5 @@
 import tkinter as tk
+from PIL import Image, ImageTk
 
 from config import DEBUG
 
@@ -115,11 +116,12 @@ class SelectionTool:
     def on_left(self, event):
         if self.SRCC.hasSelectionRectangle():
             sr = self.SRCC.selectionRectangle
-            self.SRCC.CC.applyTransformations(sr.attachedImage, sr.attachedImage.width, sr.attachedImage.height, 10)
+            self.SRCC.CC.rotateImage(sr.attachedImage, 10)
+            #self.SRCC.CC.applyTransformations(sr.attachedImage, sr.width, sr.height, 10)
             self.SRCC.on_left(event)
 
-            self.toolBar.selectionRectangleWidth.set(self.SRCC.selectionRectangle.attachedImage.bbox.width)
-            self.toolBar.selectionRectangleHeight.set(self.SRCC.selectionRectangle.attachedImage.bbox.height)
+            #self.toolBar.selectionRectangleWidth.set(self.SRCC.selectionRectangle.attachedImage.width)
+            #self.toolBar.selectionRectangleHeight.set(self.SRCC.selectionRectangle.attachedImage.height)
 
     #endregion Event
 
