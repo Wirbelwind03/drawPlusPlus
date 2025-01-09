@@ -81,7 +81,7 @@ class MainController:
 
     def start(self):
         test = CanvasImage.fromPath("Data/Assets/gear.png")
-        self.CC.drawImage(test, 256, 256, 64, 64)
+        self.CC.drawImage(test, 256, 256, 128, 64)
 
     def refresh_widgets(self):
         if self.SC.settings == None: return
