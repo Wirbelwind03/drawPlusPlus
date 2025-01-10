@@ -80,7 +80,7 @@ class MainController:
         self.refresh_widgets()
 
     def start(self):
-        test = CanvasImage.fromPath("Data/Assets/gear.png")
+        test = CanvasImage.fromPath("Data/Assets/trash.png")
         self.CC.drawImage(test, 256, 256, 128, 64)
 
     def refresh_widgets(self):
