@@ -12,13 +12,12 @@ class ToolBar(tk.Frame):
         self.grid(row=0, column=0, sticky="new")
 
         # Creating a gap between icons by setting "minsize=100" every two column initializations
-        self.columnconfigure(0, minsize=100)
-        self.columnconfigure(1, minsize=100)
-        self.columnconfigure(2, minsize=100)
-        self.columnconfigure(3, minsize=100)
-        self.columnconfigure(4, minsize=100)
-        self.columnconfigure(5, minsize=100)
-        self.columnconfigure(7, weight=1)
+        self.columnconfigure(0)
+        self.columnconfigure(1)
+        self.columnconfigure(2)
+        self.columnconfigure(3)
+        self.columnconfigure(4)
+        self.columnconfigure(5, weight=1)
         self.rowconfigure(0, minsize=30)
 
         # Load images
@@ -27,18 +26,18 @@ class ToolBar(tk.Frame):
         trash_image = ImageUtils.resizePhotoImageFromPath("Data/Assets/trash.png", 48, 48)
 
         clipboardOperationsFrame = tk.Frame(self)
-        clipboardOperationsFrame.grid(row=0, column=0)
+        clipboardOperationsFrame.grid(row=0, column=0, padx=(5,5))
         self.__construct_clipboard_operations_frame(clipboardOperationsFrame)
 
         # Tool 1 - Mouse
-        self.mouseButton = tk.Button(self, image=mouse_image, height=48, width=48)
-        self.mouseButton.image = mouse_image
-        self.mouseButton.grid(row=0, column=1)
+        selectionFrame = tk.Frame(self)
+        selectionFrame.grid(row=0, column=1, padx=(5,5))
+        self.__construct_selection_frame(selectionFrame)
 
         # Tool 2 - Rectangle selection
         self.rectangleButton = tk.Button(self, image=rectangle_image, height=48, width=48)
         self.rectangleButton.image = rectangle_image
-        self.rectangleButton.grid(row=0, column=2)
+        self.rectangleButton.grid(row=0, column=2, padx=(5,5))
 
         # Tool 3 - Rotation
         rotateFrame = tk.Frame(self)
@@ -54,6 +53,23 @@ class ToolBar(tk.Frame):
         self.trashButton = tk.Button(self, image=trash_image, height=48, width=48, state="disabled")
         self.trashButton.image = trash_image
         self.trashButton.grid(row=0, column=5)
+
+    def __construct_selection_frame(self, selectionFrame: tk.Frame):
+        mouse_image = ImageUtils.resizePhotoImageFromPath("Data/Assets/mouse.png", 48, 48)
+
+        ##### Column 0
+        buttonFrame = tk.Frame(selectionFrame)
+        buttonFrame.grid(row=0, column=0)
+
+        self.mouseButton = tk.Button(buttonFrame, image=mouse_image, height=48, width=48)
+        self.mouseButton.image = mouse_image
+        self.mouseButton.grid(row=0, column=0, padx=(0, 5))
+
+        buttonLabel = tk.Label(buttonFrame, text="Selection")
+        buttonLabel.grid(row=1, column=0, pady=(0, 2))  # Label above the input
+
+        separator_after = ttk.Separator(selectionFrame, orient="vertical")
+        separator_after.grid(row=0, column=1, sticky="ns", padx=(5, 0))
 
     def __construct_clipboard_operations_frame(self, clipboardOperationsFrame: tk.Frame):
         cut_image = ImageUtils.resizePhotoImageFromPath("Data/Assets/cut_off.png", 16, 16)
@@ -102,7 +118,7 @@ class ToolBar(tk.Frame):
 
         ##### Column 2
         separator_after = ttk.Separator(clipboardOperationsFrame, orient="vertical")
-        separator_after.grid(row=0, column=2, sticky="ns", padx=(5, 5))
+        separator_after.grid(row=0, column=2, sticky="ns", padx=(5, 0))
 
     def __construct_rotate_frame(self, rotateFrame: tk.Frame):
         rotation_image = ImageUtils.resizePhotoImageFromPath("Data/Assets/rotation.png", 48, 48)
@@ -128,9 +144,9 @@ class ToolBar(tk.Frame):
         #
         degreesLabel = tk.Label(inputFrame, text="Degrees")
         degreesLabel.grid(row=0, column=0, sticky="w", pady=(0, 2))  # Label above the input
-        self.selectionRectangleDegrees = tk.IntVar(rotateFrame, 0)
-        self.widthInput = NumericSpinBox(inputFrame, width=6, justify="left", from_=0, to=360, textvariable=self.selectionRectangleDegrees, state="disabled")
-        self.widthInput.grid(row=1, column=0)
+        self.selectionRectangleRotation = tk.IntVar(rotateFrame, 0)
+        self.rotationInput = NumericSpinBox(inputFrame, width=6, justify="left", from_=0, to=360, textvariable=self.selectionRectangleRotation, state="disabled")
+        self.rotationInput.grid(row=1, column=0)
 
     def __construct_resize_frame(self, resizeFrame: tk.Frame):
         resize_image = ImageUtils.resizePhotoImageFromPath("Data/Assets/resize.png", 48, 48)
