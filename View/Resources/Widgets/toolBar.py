@@ -188,9 +188,9 @@ class ToolBar(tk.Frame):
         eraser_image = ImageUtils.resizePhotoImageFromPath("Data/Assets/eraser_off.png", 48, 48)
 
         # Tool 5 - Trash
-        self.trashButton = tk.Button(eraseFrame, image=eraser_image, height=48, width=48, state="disabled")
-        self.trashButton.image = eraser_image
-        self.trashButton.grid(row=0, column=0)
+        self.eraseButton = tk.Button(eraseFrame, image=eraser_image, height=48, width=48, state="disabled")
+        self.eraseButton.image = eraser_image
+        self.eraseButton.grid(row=0, column=0)
 
         descriptionLabel = tk.Label(eraseFrame, text="Supprimer")
         descriptionLabel.grid(row=1, column=0, pady=(0, 2))  # Label above the input

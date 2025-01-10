@@ -51,7 +51,7 @@ class SelectionRectangleCanvasController:
         self.toolBar.copyButton.configure(command=self.on_copy_button_click)
         self.toolBar.pasteButton.configure(command=self.on_paste_button_click)
         self.toolBar.cutButton.configure(command=self.on_cut_button_click)
-        self.toolBar.trashButton.configure(command=self.on_delete_button_click)
+        self.toolBar.eraseButton.configure(command=self.on_delete_button_click)
 
         self.__gapOffset = GapOffset()
 

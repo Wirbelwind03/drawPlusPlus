@@ -103,6 +103,7 @@ class SelectionTool:
             sr = self.SRCC.selectionRectangle
             self.SRCC.CC.applyTransformations(sr.attachedImage, sr.attachedImage.width, sr.attachedImage.height, 10)
             self.SRCC.on_left(event)
+            print(sr)
 
     #endregion Event
 
