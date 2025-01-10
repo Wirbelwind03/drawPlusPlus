@@ -60,16 +60,12 @@ class SelectionTool:
         # If there isn't any select image, check if the user has clicked on one
         if not self.SRCC.hasSelectionRectangle():
             self.getClickedImage(mouseCoords)
-            self.SRCC.handle_clipboard_cut_activation(True)
-            self.SRCC.handle_clipboard_copy_activation(True)
         
         # If the cursor is outside the selected image/selection rectangle, deselect it
         if self.SRCC.hasSelectionRectangle() and self.SRCC.selectionRectangle.isOutside(mouseCoords):
             self.SRCC.deSelect()
             # Check if the user has clicked on another image
-            if self.getClickedImage(mouseCoords):
-                self.SRCC.handle_clipboard_cut_activation(True)
-                self.SRCC.handle_clipboard_copy_activation(True)
+            self.getClickedImage(mouseCoords)
 
         if self.SRCC.hasSelectionRectangle() and self.SRCC.action != SelectionRectangleAction.NONE:
             # Calculate the offset between mouse click and rectangle's position
@@ -91,7 +87,7 @@ class SelectionTool:
             pass
 
     def on_delete(self, event: tk.Event) -> None:
-        self.SRCC.deSelect()
+        self.SRCC.deleteSelectionRectangle()
 
     def on_control_c(self, event: tk.Event) -> None:
         self.SRCC.on_control_c(event)
@@ -105,12 +101,8 @@ class SelectionTool:
     def on_left(self, event: tk.Event) -> None:
         if self.SRCC.hasSelectionRectangle():
             sr = self.SRCC.selectionRectangle
-            self.SRCC.CC.rotateImage(sr.attachedImage, 10)
-            #self.SRCC.CC.applyTransformations(sr.attachedImage, sr.width, sr.height, 10)
+            self.SRCC.CC.applyTransformations(sr.attachedImage, sr.attachedImage.width, sr.attachedImage.height, 10)
             self.SRCC.on_left(event)
-
-            #self.toolBar.selectionRectangleWidth.set(self.SRCC.selectionRectangle.attachedImage.width)
-            #self.toolBar.selectionRectangleHeight.set(self.SRCC.selectionRectangle.attachedImage.height)
 
     #endregion Event
 
