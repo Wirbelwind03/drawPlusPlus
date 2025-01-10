@@ -3,16 +3,17 @@ GLOBAL_SYMBOLS_FUNCTIONS = {
     "setColorRGBA": 4,  #setColorRGBA(r, g, b, a)
     "drawCircle": 3,    #drawCircle(x, y, radius)
     "drawSegment": 4,   #drawSegment(x0, y0, x1, y1)
-    "drawSquare": 2,    #drawSquare(x, y, width, height)
+    "drawRectangle": 4, #drawRectangle(x, y, width, height)
     "drawPoint": 2,     #drawPoint(x, y)
 }
 
+# Methods to draw with the cursor
 GLOBAL_SYMBOLS_CURSOR_FUNCTIONS = {
-    "move": 2,           # Remplacement de "moveTo" par "move(xOuY, pixels)"
+    "move": 2,           # move(x, y)"
     "rotate": 1,         # rotate(degrees)
     "drawCircle": 1,     # drawCircle(radius)
-    "drawSegment": 2,    # drawSegment(x1, y1)
-    "drawSquare": 2,     # drawSquare(width, height)
+    "drawSegment": 1,    # drawSegment(length)
+    "drawRectangle": 2,  # drawRectangle(width, height)
     "drawPoint": 0,      # drawPoint()
     "setColor": 1,       # Nouvelle méthode
     "setThickness": 1    # Nouvelle méthode
