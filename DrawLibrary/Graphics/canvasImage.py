@@ -39,7 +39,6 @@ class CanvasImage(CanvasEntity):
         self._angle: int = 0
         self.image: Image = None
         self.photoImage: ImageTk.PhotoImage = None
-        self._angle = 0
 
     @staticmethod
     def createTransparent(width: int, height: int) -> 'CanvasImage':
@@ -72,6 +71,7 @@ class CanvasImage(CanvasEntity):
             canvasImage.photoImage = ImageTk.PhotoImage(canvasImage.image)
             canvasImage.width = canvasImage.image.width
             canvasImage.height = canvasImage.image.height
+            canvasImage.angle = 0
             return canvasImage
         except FileNotFoundError as e:
             print(e)
@@ -111,6 +111,7 @@ class CanvasImage(CanvasEntity):
 
         canvasImage.width = self.width
         canvasImage.height = self.height
+        canvasImage.angle = 0
 
         return canvasImage
 
@@ -184,6 +185,24 @@ class CanvasImage(CanvasEntity):
         """
 
         self.image.paste(canvasImage.image, (x, y))
+
+    def applyTransformations(self, width, height, degrees = 0):
+        self.angle = degrees
+        # Resize and rotate the image
+        resized_image = self.image.resize((width, height))
+        rotated_image = resized_image.rotate(self.angle, expand=True)
+
+        img_width, img_height = rotated_image.size
+        
+        # Draw a rectangle as the bounding box
+        x0, y0 = (self.bbox.center.x - img_width // 2, self.bbox.center.y - img_height // 2)  # Top-left corner
+        x1, y1 = (self.bbox.center.x + img_width // 2, self.bbox.center.y + img_height // 2)  # Bottom-right corner
+
+        self.bbox.min = Vector2(x0, y0)
+        self.bbox.max = Vector2(x1, y1)
+        
+        # Update canvas with transformed image
+        self.photoImage = ImageTk.PhotoImage(rotated_image)
 
     def removeWhiteBackground(self) -> None:
         self.image.convert("RGBA")
