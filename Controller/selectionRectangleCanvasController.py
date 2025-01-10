@@ -51,7 +51,7 @@ class SelectionRectangleCanvasController:
         self.toolBar.copyButton.configure(command=self.on_copy_button_click)
         self.toolBar.pasteButton.configure(command=self.on_paste_button_click)
         self.toolBar.cutButton.configure(command=self.on_cut_button_click)
-        self.toolBar.eraseButton.configure(command=self.on_delete_button_click)
+        self.toolBar.eraserButton.configure(command=self.on_delete_button_click)
 
         self.__gapOffset = GapOffset()
 
@@ -161,7 +161,7 @@ class SelectionRectangleCanvasController:
         self.TBC.handle_button_activation("paste", False)
         self.TBC.handle_button_activation("copy", False)
         self.TBC.handle_button_activation("cut", False)
-        self.TBC.handle_button_activation("erase", False)
+        self.TBC.handle_button_activation("eraser", False)
 
         # Deactive the inputs of the resize
         self.toolBar.selectionRectangleWidth.set(0)
@@ -194,7 +194,7 @@ class SelectionRectangleCanvasController:
         self.toolBar.rotationInput.configure(state="normal")
         self.handle_clipboard_cut_activation(True)
         self.handle_clipboard_copy_activation(True)
-        self.TBC.handle_button_activation("erase", True)
+        self.TBC.handle_button_activation("eraser", True)
 
         # Check the action to move since the cursor is inside the image
         self.action = SelectionRectangleAction.MOVE # Set the action that the user can move the image
@@ -219,7 +219,12 @@ class SelectionRectangleCanvasController:
         if self.hasSelectionRectangle() and self.clipBoardImage:
             if DEBUG:
                 print("Pasting the image")
-            newCanvasImage = self.CC.drawImage(self.clipBoardImage, self.selectionRectangle.min.x, self.selectionRectangle.min.y)
+            newCanvasImage = self.CC.drawImage(
+                self.clipBoardImage, 
+                self.selectionRectangle.min.x, self.selectionRectangle.min.y, 
+                self.selectionRectangle.width, self.selectionRectangle.height,
+                self.selectionRectangle.attachedImage.angle
+            )
             #self.selectImage(newCanvasImage)
 
     def clipBoardCopy(self):
