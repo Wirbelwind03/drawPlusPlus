@@ -139,62 +139,6 @@ class CanvasImage(CanvasEntity):
         # Update the image
         self.image = new_img
         self.photoImage = ImageTk.PhotoImage(new_img)
-
-    def rotatePhotoImage(self, degrees: int = 0) -> None:
-        # Resize the image first
-        resizedImage: Image = self.resizeImage(self.image, self.width, self.height)
-        rotatedImage: Image = self.rotateImage(resizedImage, degrees)
-
-        self.photoImage = ImageTk.PhotoImage(rotatedImage)
-
-        img_width, img_height = rotatedImage.size
-        
-        # Draw a rectangle as the bounding box
-        x0, y0 = (self.bbox.center.x - img_width // 2, self.bbox.center.y - img_height // 2)  # Top-left corner
-        x1, y1 = (self.bbox.center.x + img_width // 2, self.bbox.center.y + img_height // 2)  # Bottom-right corner
-
-        self.bbox.min = Vector2(x0, y0)
-        self.bbox.max = Vector2(x1, y1)
-
-    def resizePhotoImage(self, width: int, height: int) -> None:
-        # Rotate the image first, because if it's not first, it's gonna update the image size
-        rotatedImage: Image = self.rotateImage(self.image, 0)
-        # Resize the rotated image
-        resizedImage: Image = self.resizeImage(rotatedImage, width, height)
-
-        self.photoImage = ImageTk.PhotoImage(resizedImage)
-
-        img_width, img_height = resizedImage.size
-        
-        # Draw a rectangle as the bounding box
-        x0, y0 = (self.bbox.center.x - img_width // 2, self.bbox.center.y - img_height // 2)  # Top-left corner
-        x1, y1 = (self.bbox.center.x + img_width // 2, self.bbox.center.y + img_height // 2)  # Bottom-right corner
-
-        self.bbox.min = Vector2(x0, y0)
-        self.bbox.max = Vector2(x1, y1)
-    
-    def resizeImage(self, image, width, height):
-        self.width = width
-        self.height = height
-        resizedImage: Image = image.resize((width, height))
-
-        return resizedImage
-    
-    def rotateImage(self, iamge, degrees = 0):
-        self.angle = degrees
-        # Fix this line when resizing the image, since rotation use the original image size
-        # While resize update the image size
-        rotatedImage: Image = iamge.rotate(self.angle, expand=True)
-
-        return rotatedImage
-    
-    def applyTransformations(self, width, height, degrees = 0):
-        self.angle = degrees
-        transformed_image = self.image.rotate(self.angle, expand=True)
-        transformed_image = transformed_image.resize((width, height))
-
-        self.photoImage = ImageTk.PhotoImage(transformed_image)
-
     
     def crop(self, x: int, y: int, width: int, height: int) -> None:
         self.image = self.image.crop((x, y, x + width, y + height))
