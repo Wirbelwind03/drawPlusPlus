@@ -50,6 +50,8 @@ class SelectionRectangleCanvasController:
 
         self.__gapOffset = GapOffset()
 
+    #region Properties
+
     @property
     def toolBar(self):
         return self.TBC.view
@@ -66,7 +68,7 @@ class SelectionRectangleCanvasController:
         """
         return self.selectionRectangle.action
     
-    @property.setter
+    @action.setter
     def action(self, action: SelectionRectangleAction) -> None:
         """
         Set the action of the selection rectangle.
@@ -87,6 +89,8 @@ class SelectionRectangleCanvasController:
 
         if DEBUG:
             print(f"Selection Rectangle Action set: {action.value}")
+
+    #endregion
 
     #region Public Methods
 
