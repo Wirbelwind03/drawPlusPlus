@@ -18,12 +18,7 @@ class ToolBar(tk.Frame):
         self.columnconfigure(3)
         self.columnconfigure(4)
         self.columnconfigure(5, weight=1)
-        self.rowconfigure(0, minsize=30)
-
-        # Load images
-        mouse_image = ImageUtils.resizePhotoImageFromPath("Data/Assets/mouse.png", 48, 48)
-        rectangle_image = ImageUtils.resizePhotoImageFromPath("Data/Assets/rectangle.png", 48, 48)
-        trash_image = ImageUtils.resizePhotoImageFromPath("Data/Assets/trash.png", 48, 48)
+        self.rowconfigure(0, minsize=30)      
 
         clipboardOperationsFrame = tk.Frame(self)
         clipboardOperationsFrame.grid(row=0, column=0, padx=(5,5))
@@ -33,11 +28,6 @@ class ToolBar(tk.Frame):
         selectionFrame = tk.Frame(self)
         selectionFrame.grid(row=0, column=1, padx=(5,5))
         self.__construct_selection_frame(selectionFrame)
-
-        # Tool 2 - Rectangle selection
-        self.rectangleButton = tk.Button(self, image=rectangle_image, height=48, width=48)
-        self.rectangleButton.image = rectangle_image
-        self.rectangleButton.grid(row=0, column=2, padx=(5,5))
 
         # Tool 3 - Rotation
         rotateFrame = tk.Frame(self)
@@ -49,23 +39,30 @@ class ToolBar(tk.Frame):
         resizeFrame.grid(row=0, column=4)
         self.__construct_resize_frame(resizeFrame)
 
-        # Tool 5 - Trash
-        self.trashButton = tk.Button(self, image=trash_image, height=48, width=48, state="disabled")
-        self.trashButton.image = trash_image
-        self.trashButton.grid(row=0, column=5)
+        eraseFrame = tk.Frame(self)
+        eraseFrame.grid(row=0, column=5)
+        self.__construct_erase_frame(eraseFrame)
 
     def __construct_selection_frame(self, selectionFrame: tk.Frame):
-        mouse_image = ImageUtils.resizePhotoImageFromPath("Data/Assets/mouse.png", 48, 48)
-
         ##### Column 0
-        buttonFrame = tk.Frame(selectionFrame)
-        buttonFrame.grid(row=0, column=0)
+        frame = tk.Frame(selectionFrame)
+        frame.grid(row=0, column=0)
 
-        self.mouseButton = tk.Button(buttonFrame, image=mouse_image, height=48, width=48)
+        buttonsFrame = tk.Frame(frame)
+        buttonsFrame.grid(row=0, column=0)
+
+        mouse_image = ImageUtils.resizePhotoImageFromPath("Data/Assets/mouse.png", 48, 48)
+        self.mouseButton = tk.Button(buttonsFrame, image=mouse_image, height=48, width=48)
         self.mouseButton.image = mouse_image
         self.mouseButton.grid(row=0, column=0, padx=(0, 5))
 
-        buttonLabel = tk.Label(buttonFrame, text="Selection")
+        # Tool 2 - Rectangle selection
+        rectangle_image = ImageUtils.resizePhotoImageFromPath("Data/Assets/rectangle.png", 48, 48)
+        self.rectangleButton = tk.Button(buttonsFrame, image=rectangle_image, height=48, width=48)
+        self.rectangleButton.image = rectangle_image
+        self.rectangleButton.grid(row=0, column=1, padx=(5,5))
+
+        buttonLabel = tk.Label(frame, text="Selection")
         buttonLabel.grid(row=1, column=0, pady=(0, 2))  # Label above the input
 
         separator_after = ttk.Separator(selectionFrame, orient="vertical")
@@ -130,9 +127,9 @@ class ToolBar(tk.Frame):
         descriptionFrame = tk.Frame(rotateFrame)
         descriptionFrame.grid(row=0, column=1)
 
-        self.rotationImageLabel = tk.Label(descriptionFrame, image=rotation_image, height=64, width=64)
-        self.rotationImageLabel.image = rotation_image
-        self.rotationImageLabel.grid(row=0, column=0)
+        rotationImageLabel = tk.Label(descriptionFrame, image=rotation_image, height=48, width=48)
+        rotationImageLabel.image = rotation_image
+        rotationImageLabel.grid(row=0, column=0)
 
         descriptionLabel = tk.Label(descriptionFrame, text="Rotation")
         descriptionLabel.grid(row=1, column=0, pady=(0, 2))  # Label above the input
@@ -158,9 +155,9 @@ class ToolBar(tk.Frame):
         descriptionFrame = tk.Frame(resizeFrame)
         descriptionFrame.grid(row=0, column=1)
 
-        self.resizeLabel = tk.Label(descriptionFrame, image=resize_image, height=64, width=64)
-        self.resizeLabel.image = resize_image
-        self.resizeLabel.grid(row=0, column=0, padx=(0, 5))  # Place the button to the left of inputs
+        resizeImageLabel = tk.Label(descriptionFrame, image=resize_image, height=48, width=48)
+        resizeImageLabel.image = resize_image
+        resizeImageLabel.grid(row=0, column=0, padx=(0, 5), pady=(5,0))  # Place the button to the left of inputs
 
         descriptionLabel = tk.Label(descriptionFrame, text="Zoom")
         descriptionLabel.grid(row=1, column=0, pady=(0, 2))  # Label above the input
@@ -186,3 +183,14 @@ class ToolBar(tk.Frame):
         # Separator after Resize Frame
         separator_after = ttk.Separator(resizeFrame, orient="vertical")
         separator_after.grid(row=0, column=3, sticky="ns", padx=(5, 5))
+
+    def __construct_erase_frame(self, eraseFrame: tk.Frame):
+        eraser_image = ImageUtils.resizePhotoImageFromPath("Data/Assets/eraser_off.png", 48, 48)
+
+        # Tool 5 - Trash
+        self.trashButton = tk.Button(eraseFrame, image=eraser_image, height=48, width=48, state="disabled")
+        self.trashButton.image = eraser_image
+        self.trashButton.grid(row=0, column=0)
+
+        descriptionLabel = tk.Label(eraseFrame, text="Supprimer")
+        descriptionLabel.grid(row=1, column=0, pady=(0, 2))  # Label above the input
