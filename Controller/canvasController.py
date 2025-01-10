@@ -115,22 +115,23 @@ class CanvasController:
 
         return newCanvasImage
     
-    def rotateImage(self, canvasImage: CanvasImage, degrees: int = 0):
-        canvasImage.rotatePhotoImage(degrees)
-
-        # Update the photoImage on the tkinter Canvas
-        self.view.itemconfig(canvasImage.id, image=canvasImage.photoImage)
-
-    def resizeImage(self, canvasImage: CanvasImage, width: int, height: int):
-        canvasImage.resizePhotoImage(width, height)
-
-        # Update the photoImage on the tkinter Canvas
-        self.view.itemconfig(canvasImage.id, image=canvasImage.photoImage)
-
     def applyTransformations(self, canvasImage: CanvasImage, width, height, degrees = 0):
-        canvasImage.applyTransformations(width, height, degrees)
+        canvasImage.angle = degrees
+        # Resize and rotate the image
+        resized_image = canvasImage.image.resize((width, height))
+        rotated_image = resized_image.rotate(canvasImage.angle, expand=True)
 
-        # Update the photoImage on the tkinter Canvas
+        img_width, img_height = rotated_image.size
+        
+        # Draw a rectangle as the bounding box
+        x0, y0 = (canvasImage.bbox.center.x - img_width // 2, canvasImage.bbox.center.y - img_height // 2)  # Top-left corner
+        x1, y1 = (canvasImage.bbox.center.x + img_width // 2, canvasImage.bbox.center.y + img_height // 2)  # Bottom-right corner
+
+        canvasImage.bbox.min = Vector2(x0, y0)
+        canvasImage.bbox.max = Vector2(x1, y1)
+        
+        # Update canvas with transformed image
+        canvasImage.photoImage = ImageTk.PhotoImage(rotated_image)
         self.view.itemconfig(canvasImage.id, image=canvasImage.photoImage)
     
     def deleteImage(self, canvasImage: CanvasImage) -> None:
