@@ -61,7 +61,7 @@ class CanvasController:
     
     #region Public Methods
 
-    def drawImage(self, canvasImage: CanvasImage, x, y, width=None, height=None) -> CanvasImage:
+    def drawImage(self, canvasImage: CanvasImage, x, y, width=None, height=None, degrees=None) -> CanvasImage:
         """
         Draw a image to the canvas
 
@@ -82,21 +82,18 @@ class CanvasController:
         # Put the width and height of the canvas image loaded
         width = width or canvasImage.width
         height = height or canvasImage.height
+        degrees = degrees or canvasImage.angle
 
         # Clone the canvas image, so a new reference can be create
         newCanvasImage = canvasImage.clone()
-
-        # Resize the image
-        resizedImage = newCanvasImage.image.resize((width, height))
-        # Attach the new resized image to the attribute
-        newCanvasImage.image = resizedImage
-        newCanvasImage.photoImage = ImageTk.PhotoImage(resizedImage)
 
         newCanvasImage.width = width
         newCanvasImage.height = height
         
         # Create the abb of the image
         newCanvasImage.createAABB(x, y, width, height)
+
+        newCanvasImage.applyTransformations(width, height, degrees)
 
         # Set the CanvasImage position in the center
         newCanvasImageCenter = Vector2(x + width // 2, y + height // 2)
@@ -116,22 +113,7 @@ class CanvasController:
         return newCanvasImage
     
     def applyTransformations(self, canvasImage: CanvasImage, width, height, degrees = 0):
-        canvasImage.angle = degrees
-        # Resize and rotate the image
-        resized_image = canvasImage.image.resize((width, height))
-        rotated_image = resized_image.rotate(canvasImage.angle, expand=True)
-
-        img_width, img_height = rotated_image.size
-        
-        # Draw a rectangle as the bounding box
-        x0, y0 = (canvasImage.bbox.center.x - img_width // 2, canvasImage.bbox.center.y - img_height // 2)  # Top-left corner
-        x1, y1 = (canvasImage.bbox.center.x + img_width // 2, canvasImage.bbox.center.y + img_height // 2)  # Bottom-right corner
-
-        canvasImage.bbox.min = Vector2(x0, y0)
-        canvasImage.bbox.max = Vector2(x1, y1)
-        
-        # Update canvas with transformed image
-        canvasImage.photoImage = ImageTk.PhotoImage(rotated_image)
+        canvasImage.applyTransformations(width, height, degrees)
         self.view.itemconfig(canvasImage.id, image=canvasImage.photoImage)
     
     def deleteImage(self, canvasImage: CanvasImage) -> None:
