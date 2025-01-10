@@ -61,4 +61,4 @@ class MultiTextEditor(tk.Frame):
             text.configure(font=(settings["font"], settings["font_size"]))
             text.configure(bg=Theme.BackgroundColor(settings))
             text.configure(insertbackground=Theme.InsertBackgroundColor(settings))
-            text.tag_configure("custom_font", foreground=Theme.FontColor(settings))
+            text.configure(foreground=Theme.FontColor(settings))
