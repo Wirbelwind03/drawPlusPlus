@@ -161,7 +161,7 @@ class SelectionRectangleCanvasController:
         self.TBC.handle_button_activation("paste", False)
         self.TBC.handle_button_activation("copy", False)
         self.TBC.handle_button_activation("cut", False)
-        self.toolBar.trashButton.configure(state="disabled")
+        self.TBC.handle_button_activation("trash", False)
 
         # Deactive the inputs of the resize
         self.toolBar.selectionRectangleWidth.set(0)
@@ -194,7 +194,7 @@ class SelectionRectangleCanvasController:
         self.toolBar.rotationInput.configure(state="normal")
         self.handle_clipboard_cut_activation(True)
         self.handle_clipboard_copy_activation(True)
-        self.toolBar.trashButton.configure(state="active")
+        self.TBC.handle_button_activation("trash", True)
 
         # Check the action to move since the cursor is inside the image
         self.action = SelectionRectangleAction.MOVE # Set the action that the user can move the image
