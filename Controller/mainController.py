@@ -79,11 +79,16 @@ class MainController:
         # Refresh the widget to apply the settings
         self.refresh_widgets()
 
-    def start(self):
+    def start(self) -> None:
         test = CanvasImage.fromPath("Data/Assets/trash.png")
         self.CC.drawImage(test, 256, 256, 128, 64)
 
-    def refresh_widgets(self):
+    def refresh_widgets(self) -> None:
+        """
+        Refresh all the widget inside the mainController
+        Used to change the color, font, etc.
+        """
+        # If there isn't any settings, stop this function since it's needed
         if self.SC.settings == None: return
 
         # Apply the settings to the widgets

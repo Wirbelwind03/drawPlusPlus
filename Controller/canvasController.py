@@ -48,8 +48,8 @@ class CanvasController:
 
         # Bind mouse events to the canvas
         self.view.bind("<ButtonPress-1>", self.on_mouse_left_click)
-        self.view.bind("<B1-Motion>", self.on_mouse_drag)
         self.view.bind("<ButtonRelease-1>", self.on_mouse_left_release)
+        self.view.bind("<B1-Motion>", self.on_mouse_drag)
         self.view.bind("<Motion>", self.on_mouse_over)
         
         # Bind key events to the canvas
@@ -87,19 +87,21 @@ class CanvasController:
         # Clone the canvas image, so a new reference can be create
         newCanvasImage = canvasImage.clone()
 
+        # Update the attributes
         newCanvasImage.width = width
         newCanvasImage.height = height
         
-        # Create the abb of the image
+        # Create the bounding box of the image
         newCanvasImage.createAABB(x, y, width, height)
 
+        # Apply the transformations like resize and rotations to the created image
         newCanvasImage.applyTransformations(width, height, degrees)
 
         # Set the CanvasImage position in the center
         newCanvasImageCenter = Vector2(x + width // 2, y + height // 2)
         # Draw the image on the tkinter canvas
         imageId = self.view.create_image(newCanvasImageCenter.x, newCanvasImageCenter.y, image=newCanvasImage.photoImage) 
-        # Assign the id to the CanvasImage
+        # Assign the canvas id to be stored in the CanvasImage
         newCanvasImage.id = imageId
 
         # Draw debug informations of the canvas Image
@@ -107,13 +109,26 @@ class CanvasController:
             self.DCC.addCanvasID(newCanvasImage)
             self.DCC.drawCanvasImageDebugInfos(newCanvasImage)
 
-        # Put the image to dictionary with the id as the key
+        # Put the image to dictionary with the canvas id as the key
         self.model.addEntity(imageId, newCanvasImage)
 
         return newCanvasImage
     
-    def applyTransformations(self, canvasImage: CanvasImage, width, height, degrees = 0):
+    def applyTransformations(self, canvasImage: CanvasImage, width: int, height: int, degrees: int = 0) -> None:
+        """
+        Apply the transformations (like resize and rotation) to the canvas image entered as argument
+
+        Parameters
+        -----------
+        width : int
+            The width the image is going to be resized to
+        height : int
+            The height the image is going to be resized to
+        degrees : int
+            The degrees to add to the angle to the image
+        """
         canvasImage.applyTransformations(width, height, degrees)
+        # Update the image on the canvas
         self.view.itemconfig(canvasImage.id, image=canvasImage.photoImage)
     
     def deleteImage(self, canvasImage: CanvasImage) -> None:
