@@ -10,6 +10,8 @@ class DrawScriptDeserializerC:
         self.CC = canvasController
 
     def write_c(self):
+        self.write_globals()
+
         bodyFile = open("body.c", "r")
         bodyCode = bodyFile.read()
 
@@ -36,6 +38,24 @@ class DrawScriptDeserializerC:
         w = open("main.c", "w")
         w.write(bodyCode)
         w.close()
+
+    def write_globals(self):
+        if self.CC != None:
+            globals = f'#define SCREEN_WIDTH {self.CC.view.winfo_width()}\n#define SCREEN_HEIGHT {self.CC.view.winfo_height()}\n'
+        else:
+            globals = f'#define SCREEN_WIDTH 800\n#define SCREEN_HEIGHT 600\n'
+
+        base_code = (
+            f'#ifndef GLOBALS_H\n'
+            f'#define GLOBALS_H\n'
+            f'\n'
+            f'{globals}'
+            f'\n'
+            f'#endif'
+        )
+
+        with open("DrawLibrary/C/Utils/globals.h", "w") as file:
+            file.write(base_code)
 
     def detect_expression_type(self, ast_node):
         if ast_node["node_type"] == "binary_op" and ast_node["op"] == '/':
