@@ -12,9 +12,12 @@ class ImageEditorApp:
         self.original_image = Image.open(self.image_path)
         self.image = self.original_image
         
+        # For copy-paste functionality
+        self.copied_image = None
+        
         # Canvas to display image
         self.canvas = tk.Canvas(self.root, width=400, height=400, bg="white")
-        self.canvas.grid(row=0, column=0, columnspan=3)
+        self.canvas.grid(row=0, column=0, columnspan=4)
         self.tk_image = ImageTk.PhotoImage(self.image)
         self.image_id = self.canvas.create_image(200, 200, image=self.tk_image)
         self.bounding_box_id = None  # ID for the bounding box rectangle
@@ -33,7 +36,13 @@ class ImageEditorApp:
         self.angle_entry.grid(row=3, column=1)
 
         apply_button = ttk.Button(self.root, text="Apply", command=self.apply_transformations)
-        apply_button.grid(row=4, column=0, columnspan=3)
+        apply_button.grid(row=4, column=0, columnspan=2)
+
+        copy_button = ttk.Button(self.root, text="Copy", command=self.copy_image)
+        copy_button.grid(row=5, column=0)
+
+        paste_button = ttk.Button(self.root, text="Paste", command=self.paste_image)
+        paste_button.grid(row=5, column=1)
 
     def apply_transformations(self):
         try:
@@ -43,7 +52,7 @@ class ImageEditorApp:
             angle = int(self.angle_entry.get())
             
             # Resize and rotate the image
-            resized_image = self.original_image.resize((new_width, new_height))
+            resized_image = self.original_image.resize((new_width, new_height), Image.ANTIALIAS)
             rotated_image = resized_image.rotate(angle, expand=True)
             
             # Update canvas with transformed image
@@ -76,6 +85,22 @@ class ImageEditorApp:
         self.bounding_box_id = self.canvas.create_rectangle(
             x1, y1, x2, y2, outline="red", width=2
         )
+
+    def copy_image(self):
+        """Copies the current image to memory."""
+        self.copied_image = self.image.copy()
+        print("Image copied!")
+
+    def paste_image(self):
+        """Pastes the copied image onto the canvas."""
+        if self.copied_image:
+            self.image = self.copied_image
+            self.tk_image = ImageTk.PhotoImage(self.image)
+            self.canvas.itemconfig(self.image_id, image=self.tk_image)
+            self.draw_bounding_box()
+            print("Image pasted!")
+        else:
+            print("No image to paste. Please copy an image first.")
 
 if __name__ == "__main__":
     root = tk.Tk()
