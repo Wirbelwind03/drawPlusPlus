@@ -263,9 +263,7 @@ class SelectionRectangleCanvasController:
 
     def on_selection_rectangle_dimension_change(self, dimension):
         """Handles changes in selection rectangle dimensions (width or height)."""
-        if (not self.selectionRectangle 
-            or self.toolBar.widthInput["state"] == "disabled"
-            or self.toolBar.heightInput["state"] == "disabled"):
+        if not self.selectionRectangle:
             return
         
         # Update the dimension
