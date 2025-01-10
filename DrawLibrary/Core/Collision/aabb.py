@@ -109,6 +109,22 @@ class AABB(Rectangle):
         self.bottom = newValue.y
 
     @property
+    def width(self) -> int:
+        return self._max.x - self._min.x
+    
+    @width.setter
+    def width(self, newValue: int) -> int:
+        super(AABB, type(self)).width.fset(self, newValue)
+
+    @property
+    def height(self) -> int:
+        return self._max.y - self._min.y
+    
+    @height.setter
+    def height(self, newValue: int) -> int:
+        super(AABB, type(self)).height.fset(self, newValue)
+
+    @property
     def center(self) -> Vector2:
         return Vector2((self.min.x + self.max.x) // 2, (self.min.y + self.max.y) // 2)
 
