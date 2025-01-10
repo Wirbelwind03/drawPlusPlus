@@ -78,8 +78,8 @@ class SelectionRectangleTool:
             if sr.isIntersecting(image.bbox):
                 intersectRectangle = sr.getIntersectRectangle(image.bbox)
                 relative_coords = Vector2(
-                    intersectRectangle.min.x - image.bbox.topLeft.x,
-                    intersectRectangle.min.y - image.bbox.topLeft.y
+                    intersectRectangle.min.x - image.bbox.min.x,
+                    intersectRectangle.min.y - image.bbox.min.y
                 )
 
                 if DEBUG:
@@ -222,7 +222,7 @@ class SelectionRectangleTool:
             self.canvas.delete(self.__debugBbox)
 
         if self.SRCC.hasSelectionRectangle() and self.selectionRectangle.attachedImage:
-            self.SRCC.deSelect()
+            self.SRCC.deleteSelectionRectangle()
 
     def on_control_c(self, event: tk.Event) -> None:
         if self.SRCC.hasSelectionRectangle():
