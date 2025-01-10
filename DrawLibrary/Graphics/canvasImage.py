@@ -201,7 +201,8 @@ class CanvasImage(CanvasEntity):
 
     def copy(self, x: int, y: int, width: int, height: int) -> 'CanvasImage':
         """
-        Copy a CanvasImage
+        Copy a CanvasImage, the difference with clone is that with this function, you can choose the
+        region of the copied image
 
         Parameters
         -----------
