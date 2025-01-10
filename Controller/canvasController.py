@@ -15,7 +15,6 @@ class CanvasController:
     """
     The canvas controller is used to communication infos given to the canvas, and opposite.
 
-
     Attributes
     -----------
     canvas : tk.Canvas
@@ -23,9 +22,13 @@ class CanvasController:
     images : dict[int, CanvasImage]
         A dictonary to keep all the CanvasImage. 
         The key are the ID given through the draw functions of tk.Canvas, and the value is the CanvasImage itself.
+    toolManager : ToolManager
+        The tools tied to this controller, for example, the selection tool, the selection rectangle creation tool, etc.
+    DCC : DebugCanvasController
+        A controller used to communicate with the debug informations
     """
 
-    def __init__(self, canvas: tk.Canvas, toolManager: ToolManager, DCC: DebugCanvasController = None):
+    def __init__(self, canvas: tk.Canvas, toolManager: ToolManager, DCC: DebugCanvasController = None) -> None:
         """
         Constructs a new CanvasImagesManager to the canvas.
 
@@ -44,21 +47,21 @@ class CanvasController:
         self.DCC = DCC
 
         # Bind mouse events to the canvas
-        self.view.bind("<ButtonPress-1>", self.on_button_press)
+        self.view.bind("<ButtonPress-1>", self.on_mouse_left_click)
         self.view.bind("<B1-Motion>", self.on_mouse_drag)
-        self.view.bind("<ButtonRelease-1>", self.on_button_release)
+        self.view.bind("<ButtonRelease-1>", self.on_mouse_left_release)
         self.view.bind("<Motion>", self.on_mouse_over)
         
         # Bind key events to the canvas
         self.view.bind("<Delete>", self.on_delete)
         self.view.bind("<Control-Key-c>", self.on_control_c)
         self.view.bind("<Control-Key-v>", self.on_control_v)
+        self.view.bind("<Control-Key-x>", self.on_control_x)
         self.view.bind("<Left>", self.on_left)
-        self.view.bind("<Left>", self.on_left)
-
+    
     #region Public Methods
 
-    def drawImage(self, canvasImage: CanvasImage, x, y, width=None, height=None):
+    def drawImage(self, canvasImage: CanvasImage, x, y, width=None, height=None) -> CanvasImage:
         """
         Draw a image to the canvas
 
@@ -112,22 +115,39 @@ class CanvasController:
 
         return newCanvasImage
     
-    def rotateImage(self, canvasImage: CanvasImage, degrees: int = 0):
-        canvasImage.rotatePhotoImage(degrees)
+    def applyTransformations(self, canvasImage: CanvasImage, width, height, degrees = 0):
+        canvasImage.angle = degrees
+        # Resize and rotate the image
+        resized_image = canvasImage.image.resize((width, height))
+        rotated_image = resized_image.rotate(canvasImage.angle, expand=True)
 
-        # Update the photoImage on the tkinter Canvas
-        self.view.itemconfig(canvasImage.id, image=canvasImage.photoImage)
+        img_width, img_height = rotated_image.size
+        
+        # Draw a rectangle as the bounding box
+        x0, y0 = (canvasImage.bbox.center.x - img_width // 2, canvasImage.bbox.center.y - img_height // 2)  # Top-left corner
+        x1, y1 = (canvasImage.bbox.center.x + img_width // 2, canvasImage.bbox.center.y + img_height // 2)  # Bottom-right corner
 
-    def resizeImage(self, canvasImage: CanvasImage, width: int, height: int):
-        canvasImage.resizePhotoImage(width, height)
-
-        # Update the photoImage on the tkinter Canvas
+        canvasImage.bbox.min = Vector2(x0, y0)
+        canvasImage.bbox.max = Vector2(x1, y1)
+        
+        # Update canvas with transformed image
+        canvasImage.photoImage = ImageTk.PhotoImage(rotated_image)
         self.view.itemconfig(canvasImage.id, image=canvasImage.photoImage)
     
     def deleteImage(self, canvasImage: CanvasImage) -> None:
+        """
+        Delete a specific image
+
+        Parameters
+        -----------
+        canvasImage : CanvasImage
+            The image on the canvas the user want to delete
+        """
         if canvasImage == None:
             return
+        # Remove the image on the canvas by using its ID
         self.view.delete(canvasImage.id)
+        # Remove the image from the dictionary by using its ID as key
         self.model.deleteEntity(canvasImage.id)
 
     def update(self) -> None:
@@ -139,16 +159,20 @@ class CanvasController:
             # Update the image
             self.view.itemconfig(imageId, image=canvasImage.photoImage)
 
-    def deleteAll(self):
-        # Remove every drawn entities on the canvas (aka both images and shapes)
+    def deleteAll(self) -> None:
+        """
+        Remove every image drawn on the canvas
+        """
+        # tag used to delete all the images on the canvas
         self.view.delete("all")
+        # Clear the dictionary that store the images
         self.model.deleteAll()
 
     #endregion Public Methods
 
     #region Private Methods
 
-    def __invoke_active_tool_method(self, method_name: str, event) -> None:
+    def __invoke_active_tool_method(self, method_name: str, event: tk.Event) -> None:
         """
         Call the function from the tool
 
@@ -156,7 +180,8 @@ class CanvasController:
         -----------
         method_name : str
             The function name to be called in the tool
-        event :
+        event : tk.Event
+            The event object containing details about the event, such as position (x, y).
         """
         self.toolManager.invoke_tool_method(method_name, event)
         
@@ -164,86 +189,104 @@ class CanvasController:
 
     #region Event
 
-    def on_mouse_over(self, event) -> None:
+    def on_mouse_over(self, event: tk.Event) -> None:
         """
-        Event when the mouse is over the canvas
+        Triggered when the mouse cursor moves over the canvas.
 
         Parameters
-        -----------
-        event :
+        ----------
+        event : tk.Event
+            The event object containing details about the mouse event, such as position (x, y).
         """
         self.__invoke_active_tool_method("on_mouse_over", event)
 
-    def on_button_press(self, event) -> None:
+    def on_mouse_left_click(self, event: tk.Event) -> None:
         """
-        Event when the left click of the mouse is pressed
+        Triggered when the left mouse button is pressed on the canvas.
 
         Parameters
-        -----------
-        event :
+        ----------
+        event : tk.Event
+            The event object containing details about the button press event, such as position (x, y).
         """
         self.view.focus_set()
-        
         self.__invoke_active_tool_method("on_button_press", event)
 
-    def on_mouse_drag(self, event) -> None:
+    def on_mouse_drag(self, event: tk.Event) -> None:
         """
-        Event when the mouse is dragged over the canvas
+        Triggered when the mouse is dragged across the canvas while a button is pressed.
 
         Parameters
-        -----------
-        event :
+        ----------
+        event : tk.Event
+            The event object containing details about the drag event, such as position (x, y) and button state.
         """
         self.__invoke_active_tool_method("on_mouse_drag", event)
 
-    def on_button_release(self, event) -> None:
+    def on_mouse_left_release(self, event: tk.Event) -> None:
         """
-        Event when the left click of the mouse is released
+        Triggered when the left mouse button is released on the canvas.
 
         Parameters
-        -----------
-        event :
+        ----------
+        event : tk.Event
+            The event object containing details about the button release event, such as position (x, y).
         """
         self.__invoke_active_tool_method("on_button_release", event)
 
-    def on_delete(self, event) -> None:
+    def on_delete(self, event: tk.Event) -> None:
         """
-        Event when the "Del" button on the keyboard is pressed
+        Triggered when the "Del" key on the keyboard is pressed.
 
         Parameters
-        -----------
-        event :
+        ----------
+        event : tk.Event
+            The event object containing details about the keypress event.
         """
         self.__invoke_active_tool_method("on_delete", event)
         self.update()
 
-    def on_control_c(self, event) -> None:
+    def on_control_c(self, event: tk.Event) -> None:
         """
-        Event when the "Ctrl+C" short cut on the keyboard is pressed
+        Triggered when the "Ctrl+C" keyboard shortcut is pressed (Copy command).
 
         Parameters
-        -----------
-        event :
+        ----------
+        event : tk.Event
+            The event object containing details about the keypress event.
         """
         self.__invoke_active_tool_method("on_control_c", event)
 
-    def on_control_v(self, event) -> None:
+    def on_control_v(self, event: tk.Event) -> None:
         """
-        Event when the "Ctrl+V" short cut on the keyboard is pressed
+        Triggered when the "Ctrl+V" keyboard shortcut is pressed (Paste command).
 
         Parameters
-        -----------
-        event :
+        ----------
+        event : tk.Event
+            The event object containing details about the keypress event.
         """
         self.__invoke_active_tool_method("on_control_v", event)
 
-    def on_left(self, event) -> None:
+    def on_control_x(self, event: tk.Event) -> None:
         """
-        Event when the left arrow button on the keyboard is pressed
+        Triggered when the "Ctrl+X" keyboard shortcut is pressed (Cut command).
 
         Parameters
-        -----------
-        event :
+        ----------
+        event : tk.Event
+            The event object containing details about the keypress event.
+        """
+        self.__invoke_active_tool_method("on_control_x", event)
+
+    def on_left(self, event: tk.Event) -> None:
+        """
+        Triggered when the left arrow key on the keyboard is pressed.
+
+        Parameters
+        ----------
+        event : tk.Event
+            The event object containing details about the keypress event.
         """
         self.__invoke_active_tool_method("on_left", event)
 

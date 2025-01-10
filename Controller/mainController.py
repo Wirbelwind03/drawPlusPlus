@@ -9,6 +9,7 @@ from Controller.menuBarController import MenuBarController
 from Controller.mainBarController import MainBarController
 from Controller.selectionRectangleCanvasController import SelectionRectangleCanvasController
 from Controller.settingsWindowController import SettingsWindowController
+from Controller.toolBarController import ToolBarController
 
 from DrawLibrary.Graphics.canvasImage import CanvasImage
 
@@ -52,18 +53,21 @@ class MainController:
 
         # Create a tool manager for the canvas controller
         canvasToolManager = ToolManager()
+        self.toolBarController = ToolBarController(self.view.toolBar, canvasToolManager)
         #
         self.DCC = DebugCanvasController(self.view.canvas)
+        
         # Attach the canvas controller to the main controller
-        self.CC = CanvasController(self.view.canvas, canvasToolManager)
+        self.CC = CanvasController(self.view.canvas, canvasToolManager, self.DCC)
+        
         # Attach the selection rectangle canvas controller to the canvas
         # It's used to control the selection rectangle when it's on the canvas
-        self.SRCC: SelectionRectangleCanvasController = SelectionRectangleCanvasController(self.CC)
+        self.SRCC: SelectionRectangleCanvasController = SelectionRectangleCanvasController(self.CC, self.toolBarController)
+        
         # Attach the tools to the canvas controller and the selection rectangle controller
         # Since each of them has a selection rectangle, it's attached to the selection rectangle controller
         canvasToolManager.addTool("SELECTION_TOOL", SelectionTool(self.SRCC))
-        canvasToolManager.addTool("SELECTION_TOOL_RECTANGLE", SelectionRectangleTool(self.SRCC))
-        canvasToolManager.setActiveTool("SELECTION_TOOL")
+        canvasToolManager.addTool("SELECTION_TOOL_RECTANGLE", SelectionRectangleTool(self.SRCC, self.toolBarController))
         # Attach the script editor controller to the main controller
         self.SEC = ScriptEditorController(self.view.textEditor, self.view.terminal, self.CC)
         self.SEC.set_event_refresh_widgets(self.refresh_widgets)
@@ -76,7 +80,8 @@ class MainController:
         self.refresh_widgets()
 
     def start(self):
-        pass
+        test = CanvasImage.fromPath("Data/Assets/trash.png")
+        self.CC.drawImage(test, 256, 256, 128, 64)
 
     def refresh_widgets(self):
         if self.SC.settings == None: return
