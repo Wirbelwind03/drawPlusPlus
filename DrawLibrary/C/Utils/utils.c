@@ -32,55 +32,27 @@ SDL_Renderer* CreateRenderer(SDL_Window* window){
     return renderer;
 }
 
-// Fonction pour capturer et sauvegarder l'écran comme une image
-void saveScreenshot(SDL_Renderer *renderer, int screen_width, int screen_height, const char *filename) {
-    SDL_Surface *surface = SDL_CreateRGBSurfaceWithFormat(0, screen_width, screen_height, 32, SDL_PIXELFORMAT_RGBA32);
+SDL_Surface* CreateSurface(int width, int height){
+    // Create an empty surface to draw on
+    SDL_Surface *surface = SDL_CreateRGBSurfaceWithFormat(0, width, height, 32, SDL_PIXELFORMAT_RGBA32);
     if (!surface) {
-        printf("Erreur SDL_CreateRGBSurfaceWithFormat: %s\n", SDL_GetError());
-        return;
+        SDL_Log("Unable to create surface! SDL_Error: %s", SDL_GetError());
+        SDL_Quit();
+        return NULL;
     }
-
-    // Lire les pixels de l'écran
-    if (SDL_RenderReadPixels(renderer, NULL, surface->format->format, surface->pixels, surface->pitch) != 0) {
-        printf("Erreur SDL_RenderReadPixels: %s\n", SDL_GetError());
-        SDL_FreeSurface(surface);
-        return;
-    }
-
-    // Sauvegarder l'image
-    if (SDL_SaveBMP(surface, filename) != 0) {
-        printf("Erreur SDL_SaveBMP: %s\n", SDL_GetError());
-    } else {
-        printf("Image sauvegardée dans le fichier : %s\n", filename);
-    }
-
-    SDL_FreeSurface(surface);
+    return surface;
 }
 
-void savePartialScreenshot(SDL_Renderer *renderer, const char *filename, int x, int y, int width, int height) {
-    // Create a rectangle for the region of interest
-    SDL_Rect region = {x, y, width, height};
-
-    // Create a surface for the region
-    SDL_Surface *sshot = SDL_CreateRGBSurfaceWithFormat(0, width, height, 32, SDL_PIXELFORMAT_RGBA32);
-    if (!sshot) {
-        fprintf(stderr, "Failed to create surface: %s\n", SDL_GetError());
-        return;
+SDL_Texture* CreateTexture(SDL_Renderer* renderer, SDL_Surface* surface){
+        // Create a texture from the surface
+    SDL_Texture* texture = SDL_CreateTextureFromSurface(renderer, surface);
+    if (!texture) {
+        SDL_Log("Unable to create texture! SDL_Error: %s", SDL_GetError());
+        SDL_FreeSurface(surface);
+        SDL_Quit();
+        return NULL;
     }
-
-    // Read pixels from the specified region
-    if (SDL_RenderReadPixels(renderer, &region, SDL_PIXELFORMAT_RGBA32, sshot->pixels, sshot->pitch) != 0) {
-        fprintf(stderr, "Failed to read pixels: %s\n", SDL_GetError());
-        SDL_FreeSurface(sshot);
-        return;
-    }
-
-    // Save the surface to a BMP file
-    if (SDL_SaveBMP(sshot, filename) != 0) {
-        fprintf(stderr, "Failed to save screenshot: %s\n", SDL_GetError());
-    }
-
-    SDL_FreeSurface(sshot);
+    return texture;
 }
 
 void ClearCanvas(SDL_Renderer *renderer, int r, int g, int b, int a){
