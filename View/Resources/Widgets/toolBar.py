@@ -26,7 +26,7 @@ class ToolBar(tk.Frame):
         rectangle_image = ImageUtils.resizePhotoImageFromPath("Data/Assets/rectangle.png", 48, 48)
         trash_image = ImageUtils.resizePhotoImageFromPath("Data/Assets/trash.png", 48, 48)
 
-        clipboardOperationsFrame = tk.Frame(self)  # Frame for grouping the resize button and inputs
+        clipboardOperationsFrame = tk.Frame(self)
         clipboardOperationsFrame.grid(row=0, column=0)
         self.__construct_clipboard_operations_frame(clipboardOperationsFrame)
 
@@ -46,25 +46,25 @@ class ToolBar(tk.Frame):
         self.__construct_rotate_frame(rotateFrame)
 
         # Tool 4 & Input Group - Resize
-        resizeFrame = tk.Frame(self)  # Frame for grouping the resize button and inputs
+        resizeFrame = tk.Frame(self)
         resizeFrame.grid(row=0, column=4)
         self.__construct_resize_frame(resizeFrame)
 
         # Tool 5 - Trash
-        self.trashButton = tk.Button(self, image=trash_image, height=48, width=48)
+        self.trashButton = tk.Button(self, image=trash_image, height=48, width=48, state="disabled")
         self.trashButton.image = trash_image
         self.trashButton.grid(row=0, column=5)
 
     def __construct_clipboard_operations_frame(self, clipboardOperationsFrame: tk.Frame):
         cut_image = ImageUtils.resizePhotoImageFromPath("Data/Assets/cut_off.png", 16, 16)
         copy_image = ImageUtils.resizePhotoImageFromPath("Data/Assets/copy_off.png", 16, 16)
-        paste_image = ImageUtils.resizePhotoImageFromPath("Data/Assets/clipboard_off.png", 48, 48)
+        paste_image = ImageUtils.resizePhotoImageFromPath("Data/Assets/paste_off.png", 48, 48)
 
         ##### Column 0
         pasteFrame = tk.Frame(clipboardOperationsFrame)
         pasteFrame.grid(row=0, column=0)
 
-        self.pasteButton = tk.Button(pasteFrame, image=paste_image, height=48, width=48)
+        self.pasteButton = tk.Button(pasteFrame, image=paste_image, height=48, width=48, state="disabled")
         self.pasteButton.image = paste_image
         self.pasteButton.grid(row=0, column=0, padx=(0, 5))
 
@@ -83,7 +83,8 @@ class ToolBar(tk.Frame):
             otherFrame, 
             image=cut_image, 
             text="Couper", 
-            compound="left"  # Places the text to the right of the image
+            compound="left",
+            state="disabled"
         )
         self.cutButton.image = cut_image
         self.cutButton.grid(row=0, column=0, sticky="n", pady=(0, 5))  # Align to the top with padding
@@ -93,7 +94,8 @@ class ToolBar(tk.Frame):
             otherFrame, 
             image=copy_image, 
             text="Copier", 
-            compound="left"  # Places the text to the right of the image
+            compound="left",
+            state="disabled"
         )
         self.copyButton.image = copy_image
         self.copyButton.grid(row=1, column=0, sticky="n", pady=(0, 5))  
