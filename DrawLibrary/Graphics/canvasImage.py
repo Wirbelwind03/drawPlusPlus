@@ -39,6 +39,7 @@ class CanvasImage:
         self.width = 0
         self.height = 0
         self._angle: int = 0
+        self.originalImage : Image = None
         self.image: Image = None
         self.photoImage: ImageTk.PhotoImage = None
 
@@ -49,6 +50,7 @@ class CanvasImage:
         blankCanvasImage = CanvasImage()
 
         blankImage = Image.new("RGBA", (width, height), (0, 0, 0, 0))
+        blankCanvasImage.originalImage = blankImage
         blankCanvasImage.image = blankImage
         blankCanvasImage.photoImage = ImageTk.PhotoImage(blankImage)
 
@@ -71,7 +73,8 @@ class CanvasImage:
                 raise FileNotFoundError(f"The file '{filePath}' does not exist.")
             canvasImage = CanvasImage()
             canvasImage.filePath = filePath
-            canvasImage.image = Image.open(filePath)
+            canvasImage.originalImage = Image.open(filePath)
+            canvasImage.image = canvasImage.originalImage
             canvasImage.photoImage = ImageTk.PhotoImage(canvasImage.image)
             canvasImage.width = canvasImage.image.width
             canvasImage.height = canvasImage.image.height
@@ -127,7 +130,8 @@ class CanvasImage:
         canvasImage.id = -1
         canvasImage.bbox = self.bbox
         
-        canvasImage.image = self.image.copy()
+        canvasImage.originalImage = self.originalImage.copy()
+        canvasImage.image = canvasImage.originalImage 
         canvasImage.photoImage = ImageTk.PhotoImage(canvasImage.image)
         canvasImage.filePath = self.filePath
 
@@ -167,7 +171,6 @@ class CanvasImage:
         # Resize and rotate the image
         # resized_image = self.image.resize((self.width, self.height))
         # rotated_image = resized_image.rotate(self.angle, expand=True)
-
         self.image = self.image.crop((x, y, x + width, y + height))
 
     def copy(self, x: int, y: int, width: int, height: int) -> 'CanvasImage':
@@ -215,7 +218,7 @@ class CanvasImage:
     def applyTransformations(self, width: int, height: int, degrees: int = 0):
         self.angle = degrees
         # Resize and rotate the image
-        resized_image = self.image.resize((width, height))
+        resized_image = self.originalImage.resize((width, height))
         rotated_image = resized_image.rotate(self.angle, expand=True)
 
         img_width, img_height = rotated_image.size
@@ -228,6 +231,7 @@ class CanvasImage:
         self.bbox.max = Vector2(x1, y1)
         
         # Update canvas with transformed image
+        self.image = rotated_image
         self.photoImage = ImageTk.PhotoImage(rotated_image)
 
     def removeWhiteBackground(self) -> None:
