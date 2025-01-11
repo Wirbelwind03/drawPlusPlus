@@ -186,22 +186,9 @@ class SelectionRectangleCanvasController:
         self.CC.view.config(cursor="fleur") # Change the cursor look
 
     def activate_operations(self):
-        # Temporarily remove the trace for selectionRectangleWidth
-        self.toolBar.selectionRectangleWidth.trace_remove("write", self.selectionRectangleWidth_trace_id)
         self.toolBar.selectionRectangleWidth.set(self.selectionRectangle.attachedImage.bbox.width)  # Update the value
-        # Re-add the trace for selectionRectangleWidth
-        self.selectionRectangleWidth_trace_id = self.toolBar.selectionRectangleWidth.trace_add(
-            "write", lambda *args: self.on_selection_rectangle_dimension_change("width")
-        )
-
-        # Temporarily remove the trace for selectionRectangleHeight
-        self.toolBar.selectionRectangleHeight.trace_remove("write", self.selectionRectangleHeight_trace_id)
         self.toolBar.selectionRectangleHeight.set(self.selectionRectangle.attachedImage.bbox.height)  # Update the value
-        # Re-add the trace for selectionRectangleHeight
-        self.selectionRectangleHeight_trace_id = self.toolBar.selectionRectangleHeight.trace_add(
-            "write", lambda *args: self.on_selection_rectangle_dimension_change("height")
-        )
-        
+
         self.toolBar.widthInput.configure(state="normal") # Activate the width input to not be read only
         self.toolBar.heightInput.configure(state="normal") # Activate the height input to not be read only
         self.toolBar.rotationInput.configure(state="normal")
