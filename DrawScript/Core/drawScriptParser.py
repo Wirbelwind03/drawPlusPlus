@@ -802,19 +802,6 @@ class DrawScriptParser:
         # Sinon, c’est vide (rien)
         return None
 
-    """def parse_simple_assignment(self): #Mis en commentaire (Paul) car elle ne sert à rien et est trop strict
-        # Identifiant
-        id_token = self.consume('IDENTIFIER')
-        self.consume('ASSIGN', '=')
-        expr = self.parse_expression()
-        # pas de ;, car c'est un “init”
-        return {
-        "node_type": "for_assignment",
-        "target": id_token["value"],
-        "value": expr
-        }
-    """
-
     #Initialisation en cas de variable deja existante (pas de declaration de variable var)
     def parse_var_declaration_no_semi(self):
         """
