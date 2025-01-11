@@ -4,9 +4,7 @@ import os
 from DrawLibrary.Core.Math.vector2 import Vector2
 from DrawLibrary.Core.Collision.aabb import AABB
 
-from DrawLibrary.Graphics.canvasEntity import CanvasEntity
-
-class CanvasImage(CanvasEntity):
+class CanvasImage:
     #region Constructor
     
     """
@@ -19,6 +17,8 @@ class CanvasImage(CanvasEntity):
         The id of the CanvasImage drawn on a tk.Canvas
     filePath : str
         The file path of the image
+    _center : Vector2
+        The center of the canvasImage, it also represent the position
     _width : int
         The width of the image
     _height : int
@@ -32,13 +32,17 @@ class CanvasImage(CanvasEntity):
     """
 
     def __init__(self) -> None:
-        super().__init__()
+        self.id: int = -1
+        self._center : Vector2 = None
+        self.bbox: AABB = None
         self.filePath: str = ""
         self.width = 0
         self.height = 0
         self._angle: int = 0
         self.image: Image = None
         self.photoImage: ImageTk.PhotoImage = None
+
+        self.debugBbox: int = -1  
 
     @staticmethod
     def createTransparent(width: int, height: int) -> 'CanvasImage':
@@ -91,6 +95,9 @@ class CanvasImage(CanvasEntity):
     #endregion Property
 
     #region Public Methods
+
+    def createAABB(self, x, y, width=0, height=0):
+        self.bbox = AABB(x, y, width, height)
 
     def clone(self) -> 'CanvasImage':
         """

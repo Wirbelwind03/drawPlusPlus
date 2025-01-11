@@ -2,9 +2,7 @@
 #include <stdio.h>
 #include <SDL2/SDL.h>
 #include <SDL2_gfxPrimitives.h>
-#include <SDL2_rotozoom.h>
 
-#include "cursor.h"
 #include "shapes.h"
 #include "utils.h"
 #include "globals.h"
@@ -39,28 +37,7 @@ void drawCircle(SDL_Renderer *renderer, int x, int y, int radius, int r, int g, 
         captureRect.h = SCREEN_HEIGHT - captureRect.y;  // Adjust the height to fit within the window
     }
 
-    // Capture the current content of the renderer into an SDL_Surface
-    SDL_Surface *surface = SDL_CreateRGBSurfaceWithFormat(0, captureRect.w, captureRect.h, 32, SDL_PIXELFORMAT_RGBA32);
-    if (!surface) {
-        printf("Surface creation failed: %s\n", SDL_GetError());
-        return;
-    }
-
-    // Copy the rendered content to the surface
-    if (SDL_RenderReadPixels(renderer, &captureRect, SDL_PIXELFORMAT_RGBA32, surface->pixels, surface->pitch) != 0) {
-        printf("Failed to read pixels: %s\n", SDL_GetError());
-        SDL_FreeSurface(surface);
-        return;
-    }
-
-    // Save the surface as a BMP file
-    if (SDL_SaveBMP(surface, filename) != 0) {
-        printf("Failed to save BMP: %s\n", SDL_GetError());
-    }
-    // Clean up
-    SDL_FreeSurface(surface);
-
-    ClearCanvas(renderer, 255, 255, 255, 255);
+    SaveDrawing(renderer, captureRect, 0, filename);
 }
 
 void drawSegment(SDL_Renderer *renderer, int x0, int y0, int x1, int y1, int thickness, int r, int g, int b, int a, char* filename){
@@ -82,71 +59,16 @@ void drawSegment(SDL_Renderer *renderer, int x0, int y0, int x1, int y1, int thi
         (maxY - minY) + thickness * 2
     };
 
-    // Capture the current content of the renderer into an SDL_Surface
-    SDL_Surface *surface = SDL_CreateRGBSurfaceWithFormat(0, captureRect.w, captureRect.h, 32, SDL_PIXELFORMAT_RGBA32);
-    if (!surface) {
-        printf("Surface creation failed: %s\n", SDL_GetError());
-        return;
-    }
-
-    // Copy the rendered content to the surface
-    if (SDL_RenderReadPixels(renderer, &captureRect, SDL_PIXELFORMAT_RGBA32, surface->pixels, surface->pitch) != 0) {
-        printf("Failed to read pixels: %s\n", SDL_GetError());
-        SDL_FreeSurface(surface);
-        return;
-    }
-
-    // Save the rotated surface as a BMP file
-    if (SDL_SaveBMP(surface, filename) != 0) {
-        printf("Failed to save BMP: %s\n", SDL_GetError());
-    }
-
-    // Clean up
-    SDL_FreeSurface(surface);
-
-    ClearCanvas(renderer, 255, 255, 255, 255);
+    SaveDrawing(renderer, captureRect, 0, filename);
 }
 
 void drawRectangle(SDL_Renderer *renderer, int x, int y, int width, int height, int angle, int r, int g, int b, int a, char* filename){
     // Draw the rectangle on the renderer (red color)
     boxRGBA(renderer, x, y, x + width, y + height, r, g, b, a);
-
     // Render the content to the window
     SDL_RenderPresent(renderer);
-
     // Define the area to capture (the area where the rectangle was drawn)
     SDL_Rect captureRect = { x, y, width, height };
-
-    // Capture the current content of the renderer into an SDL_Surface
-    SDL_Surface *surface = SDL_CreateRGBSurfaceWithFormat(0, captureRect.w, captureRect.h, 32, SDL_PIXELFORMAT_RGBA32);
-    if (!surface) {
-        printf("Surface creation failed: %s\n", SDL_GetError());
-        return;
-    }
-
-    // Copy the rendered content to the surface
-    if (SDL_RenderReadPixels(renderer, &captureRect, SDL_PIXELFORMAT_RGBA32, surface->pixels, surface->pitch) != 0) {
-        printf("Failed to read pixels: %s\n", SDL_GetError());
-        SDL_FreeSurface(surface);
-        return;
-    }
-
-    // Rotate the surface
-    SDL_Surface *rotatedSurface = rotozoomSurface(surface, angle, 1.0, 1);
-    if (!rotatedSurface) {
-        printf("Failed to rotate surface.\n");
-        SDL_FreeSurface(surface);
-        return;
-    }
-
-    // Save the rotated surface as a BMP file
-    if (SDL_SaveBMP(rotatedSurface, filename) != 0) {
-        printf("Failed to save BMP: %s\n", SDL_GetError());
-    }
-
-    // Clean up
-    SDL_FreeSurface(surface);
-    SDL_FreeSurface(rotatedSurface);
-
-    ClearCanvas(renderer, 255, 255, 255, 255);
+    
+    SaveDrawing(renderer, captureRect, angle, filename);
 }
