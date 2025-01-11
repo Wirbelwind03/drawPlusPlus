@@ -251,8 +251,8 @@ class SelectionRectangleTool:
                 # Draw the composed image (created from detected regions) on the canvas
                 blankCanvasImage = self.SRCC.CC.drawImage(
                     blankCanvasImage, 
-                    self.selectionRectangle.min.x, 
-                    self.selectionRectangle.min.y, 
+                    self.selectionRectangle.min.x + self.selectionRectangle.width // 2, 
+                    self.selectionRectangle.min.y + self.selectionRectangle.height // 2, 
                     self.selectionRectangle.width, 
                     self.selectionRectangle.height
                 )

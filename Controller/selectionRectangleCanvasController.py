@@ -39,12 +39,12 @@ class SelectionRectangleCanvasController:
         self.clipBoardImage : CanvasImage = None
         
         # Connect event to the input of the rotation
-        self.toolBar.selectionRectangleRotation.trace_add("write", self.on_selection_rectangle_rotation_change)
+        self.selectionRectangleRotation_trace_id = self.toolBar.selectionRectangleRotation.trace_add("write", self.on_selection_rectangle_rotation_change)
         self.toolBar.rotationInput.configure(command=self.on_rotation_input_change)
 
         # Connect event to the inputs of the resize
-        self.toolBar.selectionRectangleWidth.trace_add("write", lambda *args: self.on_selection_rectangle_dimension_change("width"))
-        self.toolBar.selectionRectangleHeight.trace_add("write", lambda *args: self.on_selection_rectangle_dimension_change("height"))
+        self.selectionRectangleWidth_trace_id = self.toolBar.selectionRectangleWidth.trace_add("write", lambda *args: self.on_selection_rectangle_dimension_change("width"))
+        self.selectionRectangleHeight_trace_id = self.toolBar.selectionRectangleHeight.trace_add("write", lambda *args: self.on_selection_rectangle_dimension_change("height"))
         self.toolBar.widthInput.configure(command=self.on_width_input_change)
         self.toolBar.heightInput.configure(command=self.on_height_input_change)
 
@@ -186,9 +186,22 @@ class SelectionRectangleCanvasController:
         self.setSelectionRectangle(SelectionRectangle.fromCoordinates(image.bbox.min.x, image.bbox.min.y, image.bbox.max.x, image.bbox.max.y), image)
         self.create()
 
-        # Activate the resize tool input in the tool bar
-        self.toolBar.selectionRectangleWidth.set(self.selectionRectangle.attachedImage.bbox.width) # Update the width input in the resize tool bar
-        self.toolBar.selectionRectangleHeight.set(self.selectionRectangle.attachedImage.bbox.height) # Update the height input in the resize tool bar
+        # Temporarily remove the trace for selectionRectangleWidth
+        self.toolBar.selectionRectangleWidth.trace_remove("write", self.selectionRectangleWidth_trace_id)
+        self.toolBar.selectionRectangleWidth.set(self.selectionRectangle.attachedImage.bbox.width)  # Update the value
+        # Re-add the trace for selectionRectangleWidth
+        self.selectionRectangleWidth_trace_id = self.toolBar.selectionRectangleWidth.trace_add(
+            "write", lambda *args: self.on_selection_rectangle_dimension_change("width")
+        )
+
+        # Temporarily remove the trace for selectionRectangleHeight
+        self.toolBar.selectionRectangleHeight.trace_remove("write", self.selectionRectangleHeight_trace_id)
+        self.toolBar.selectionRectangleHeight.set(self.selectionRectangle.attachedImage.bbox.height)  # Update the value
+        # Re-add the trace for selectionRectangleHeight
+        self.selectionRectangleHeight_trace_id = self.toolBar.selectionRectangleHeight.trace_add(
+            "write", lambda *args: self.on_selection_rectangle_dimension_change("height")
+        )
+        
         self.toolBar.widthInput.configure(state="normal") # Activate the width input to not be read only
         self.toolBar.heightInput.configure(state="normal") # Activate the height input to not be read only
         self.toolBar.rotationInput.configure(state="normal")
@@ -221,7 +234,8 @@ class SelectionRectangleCanvasController:
                 print("Pasting the image")
             newCanvasImage = self.CC.drawImage(
                 self.clipBoardImage, 
-                self.selectionRectangle.min.x, self.selectionRectangle.min.y, 
+                self.selectionRectangle.min.x + self.selectionRectangle.width // 2, 
+                self.selectionRectangle.min.y + self.selectionRectangle.height // 2, 
                 self.selectionRectangle.width, self.selectionRectangle.height,
                 self.selectionRectangle.attachedImage.angle
             )
