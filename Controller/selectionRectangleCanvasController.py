@@ -10,7 +10,7 @@ from DrawLibrary.Core.Collision.aabb import AABB
 from DrawLibrary.Graphics.canvasImage import CanvasImage
 from DrawLibrary.Graphics.imageUtils import ImageUtils
 
-from Model.canvasEntities import CanvasEntities
+from Model.canvasImages import CanvasImages
 from Model.selectionRectangle import SelectionRectangle
 from Model.selectionRectangle import SelectionRectangleAction
 
@@ -104,6 +104,13 @@ class SelectionRectangleCanvasController:
         if attachedImage:
             self.selectionRectangle.attachedImage = attachedImage
 
+        # Draw the main frame of the selection rectangle
+        self.selectionRectangle.canvasIdRectangle = self.CC.view.create_rectangle(
+            self.selectionRectangle.x, self.selectionRectangle.y, 
+            self.selectionRectangle.x + self.selectionRectangle.width, self.selectionRectangle.y + self.selectionRectangle.height, 
+            outline="black", width=2, dash=(2, 2)
+        )
+
     def hasSelectionRectangle(self) -> bool:
         """
         Check if the canvas has a selection rectangle
@@ -114,20 +121,7 @@ class SelectionRectangleCanvasController:
             If there is a selection rectangle present on the canvas
         """
         return self.selectionRectangle is not None
-    
-    def create(self) -> None:
-        """
-        Create a selection rectangle on a canvas.
-        """
-        # Draw the main frame of the selection rectangle
-        self.selectionRectangle.canvasIdRectangle = self.CC.view.create_rectangle(self.selectionRectangle.x, self.selectionRectangle.y, self.selectionRectangle.x + self.selectionRectangle.width, self.selectionRectangle.y + self.selectionRectangle.height, outline="black", width=2, dash=(2, 2))
-    
-    def erase(self) -> None:
-        """
-        Erase all the drawn shapes tied to the selection rectangle on the canvas.
-        """
-        self.CC.view.delete(self.selectionRectangle.canvasIdRectangle)
-
+        
     def render(self) -> None:
         sr = self.selectionRectangle
 
@@ -175,7 +169,7 @@ class SelectionRectangleCanvasController:
         Deselect the selection rectangle on the canvas.
         """
         # Erase the rendering of the selection rectangle
-        self.erase()
+        self.CC.view.delete(self.selectionRectangle.canvasIdRectangle)
         # Completly remove the selection rectangle
         self.selectionRectangle = None
         # Set the cursor to default (arrow)
@@ -184,8 +178,14 @@ class SelectionRectangleCanvasController:
     def selectImage(self, image: CanvasImage):
         # Create the selection rectangle around the selected image
         self.setSelectionRectangle(SelectionRectangle.fromCoordinates(image.bbox.min.x, image.bbox.min.y, image.bbox.max.x, image.bbox.max.y), image)
-        self.create()
 
+        self.activate_operations()
+
+        # Check the action to move since the cursor is inside the image
+        self.action = SelectionRectangleAction.MOVE # Set the action that the user can move the image
+        self.CC.view.config(cursor="fleur") # Change the cursor look
+
+    def activate_operations(self):
         # Temporarily remove the trace for selectionRectangleWidth
         self.toolBar.selectionRectangleWidth.trace_remove("write", self.selectionRectangleWidth_trace_id)
         self.toolBar.selectionRectangleWidth.set(self.selectionRectangle.attachedImage.bbox.width)  # Update the value
@@ -205,28 +205,11 @@ class SelectionRectangleCanvasController:
         self.toolBar.widthInput.configure(state="normal") # Activate the width input to not be read only
         self.toolBar.heightInput.configure(state="normal") # Activate the height input to not be read only
         self.toolBar.rotationInput.configure(state="normal")
-        self.handle_clipboard_cut_activation(True)
-        self.handle_clipboard_copy_activation(True)
+
+        # Activate clip board operations
+        self.TBC.handle_button_activation("cut", True, self.clipBoardCut)
+        self.TBC.handle_button_activation("copy", True, self.clipBoardCopy)
         self.TBC.handle_button_activation("eraser", True)
-
-        # Check the action to move since the cursor is inside the image
-        self.action = SelectionRectangleAction.MOVE # Set the action that the user can move the image
-        self.CC.view.config(cursor="fleur") # Change the cursor look
-
-    def handle_clipboard_paste_activation(self, activate: bool) -> None:
-        if DEBUG:
-            print("Handling paste button state")
-        self.TBC.handle_button_activation("paste", activate, self.clipBoardPaste)
-
-    def handle_clipboard_copy_activation(self, activate: bool) -> None:
-        if DEBUG:
-            print("Handling copy button state")
-        self.TBC.handle_button_activation("copy", activate, self.clipBoardCopy)
-
-    def handle_clipboard_cut_activation(self, activate: bool) -> None:
-        if DEBUG:
-            print("Handling cut button state")
-        self.TBC.handle_button_activation("cut", activate, self.clipBoardCut)
 
     def clipBoardPaste(self) -> None:
         if self.hasSelectionRectangle() and self.clipBoardImage:
@@ -247,7 +230,7 @@ class SelectionRectangleCanvasController:
                 print("Copying the image")
             self.clipBoardImage = self.selectionRectangle.attachedImage.clone()
             # Activate the paste function of the clipboard
-            self.handle_clipboard_paste_activation(True)
+            self.TBC.handle_button_activation("paste", True, self.clipBoardPaste)
 
     def clipBoardCut(self):
         if self.hasSelectionRectangle() and self.selectionRectangle.attachedImage:
@@ -256,10 +239,10 @@ class SelectionRectangleCanvasController:
             self.clipBoardImage = self.selectionRectangle.attachedImage.clone()
             self.CC.deleteImage(self.selectionRectangle.attachedImage)
             # Activate the paste function of the clipboard
-            self.handle_clipboard_paste_activation(True)
+            self.TBC.handle_button_activation("paste", True, self.clipBoardPaste)
             # Deactive the cut and copy function of the clipboard
-            self.handle_clipboard_copy_activation(False)
-            self.handle_clipboard_cut_activation(False)
+            self.TBC.handle_button_activation("copy", False, self.clipBoardCopy)
+            self.TBC.handle_button_activation("cut", False, self.clipBoardCut)
 
     #endregion Public Methods
 

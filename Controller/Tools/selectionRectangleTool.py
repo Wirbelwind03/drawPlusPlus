@@ -201,7 +201,6 @@ class SelectionRectangleTool:
             return
 
         self.SRCC.setSelectionRectangle(SelectionRectangle.fromCoordinates(self.__tempRectangleState.startCoords.x, self.__tempRectangleState.startCoords.y, mouseCoords.x, mouseCoords.y))
-        self.SRCC.create()
 
         self.TBC.view.selectionRectangleWidth.set(self.selectionRectangle.width)
         self.TBC.view.selectionRectangleHeight.set(self.selectionRectangle.height)
