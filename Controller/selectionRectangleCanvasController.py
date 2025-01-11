@@ -41,12 +41,12 @@ class SelectionRectangleCanvasController:
         self.clipBoardImage : CanvasImage = None
         
         # Connect event to the input of the rotation
-        self.selectionRectangleRotation_trace_id = self.toolBar.selectionRectangleRotation.trace_add("write", self.on_selection_rectangle_rotation_change)
+        self.toolBar.selectionRectangleRotation.trace_add("write", self.on_selection_rectangle_rotation_change)
         self.toolBar.rotationInput.configure(command=self.on_rotation_input_change)
 
         # Connect event to the inputs of the resize
-        self.selectionRectangleWidth_trace_id = self.toolBar.selectionRectangleWidth.trace_add("write", lambda *args: self.on_selection_rectangle_dimension_change("width"))
-        self.selectionRectangleHeight_trace_id = self.toolBar.selectionRectangleHeight.trace_add("write", lambda *args: self.on_selection_rectangle_dimension_change("height"))
+        self.toolBar.selectionRectangleWidth.trace_add("write", lambda *args: self.on_selection_rectangle_dimension_change("width"))
+        self.toolBar.selectionRectangleHeight.trace_add("write", lambda *args: self.on_selection_rectangle_dimension_change("height"))
         self.toolBar.widthInput.configure(command=self.on_width_input_change)
         self.toolBar.heightInput.configure(command=self.on_height_input_change)
 
@@ -246,53 +246,90 @@ class SelectionRectangleCanvasController:
 
     #region ToolBar Events
 
-    def on_selection_rectangle_rotation_change(self):
-        pass
+    def on_selection_rectangle_rotation_change(self, *args):
+        try:
+            if self.selectionRectangle.attachedImage:
+                self.selectionRectangle.attachedImage.angle = self.toolBar.rotationInput.get()
+
+                self.CC.applyTransformations(
+                    self.selectionRectangle.attachedImage, 
+                    self.selectionRectangle.attachedImage.width, 
+                    self.selectionRectangle.attachedImage.height, 
+                    self.selectionRectangle.attachedImage.angle
+                )
+
+                self.selectionRectangle.setCoords(
+                    self.selectionRectangle.attachedImage.bbox.topLeft,
+                    self.selectionRectangle.attachedImage.bbox.bottomRight
+                )
+
+                # Draw debug information if debugging is enabled
+                if DEBUG and self.CC.DCC is not None:
+                    self.CC.DCC.drawCanvasImageDebugInfos(self.selectionRectangle.attachedImage)
+
+            # Update the selection rectangle
+            self.CC.view.coords(
+                self.selectionRectangle.canvasIdRectangle,
+                self.selectionRectangle.x,
+                self.selectionRectangle.y,
+                self.selectionRectangle.bottomRight.x,
+                self.selectionRectangle.bottomRight.y
+            )
+
+        except tk.TclError:
+            self.toolBar.selectionRectangleRotation.set(0)
 
     def on_rotation_input_change(self):
         self.toolBar.selectionRectangleRotation.set(int(self.toolBar.rotationInput.get()))
 
     def on_selection_rectangle_dimension_change(self, dimension):
         """Handles changes in selection rectangle dimensions (width or height)."""
-        if not self.selectionRectangle:
-            return
-        
-        # If the rectangle is attached to an image, resize and update it
-        if self.selectionRectangle.attachedImage:
-            if dimension == "width":
-                self.selectionRectangle.attachedImage.width = self.toolBar.selectionRectangleWidth.get()
-            elif dimension == "height":
-                self.selectionRectangle.attachedImage.height = self.toolBar.selectionRectangleHeight.get()
+        try:
+            if (not self.selectionRectangle):
+                return
+            
+            # If the rectangle is attached to an image, resize and update it
+            if self.selectionRectangle.attachedImage:
+                if dimension == "width":
+                    self.selectionRectangle.attachedImage.width = self.toolBar.selectionRectangleWidth.get()
+                elif dimension == "height":
+                    self.selectionRectangle.attachedImage.height = self.toolBar.selectionRectangleHeight.get()
 
-            self.CC.applyTransformations(
-                self.selectionRectangle.attachedImage,
-                self.selectionRectangle.attachedImage.width,
-                self.selectionRectangle.attachedImage.height
+                self.CC.applyTransformations(
+                    self.selectionRectangle.attachedImage,
+                    self.selectionRectangle.attachedImage.width,
+                    self.selectionRectangle.attachedImage.height
+                )
+                self.selectionRectangle.setCoords(
+                    self.selectionRectangle.attachedImage.bbox.topLeft,
+                    self.selectionRectangle.attachedImage.bbox.bottomRight
+                )
+
+                # Draw debug information if debugging is enabled
+                if DEBUG and self.CC.DCC is not None:
+                    self.CC.DCC.drawCanvasImageDebugInfos(self.selectionRectangle.attachedImage)
+
+            else:
+                if dimension == "width":
+                    self.selectionRectangle.width = self.toolBar.selectionRectangleWidth.get()
+                elif dimension == "height":
+                    self.selectionRectangle.height = self.toolBar.selectionRectangleHeight.get()
+
+
+            # Update the selection rectangle
+            self.CC.view.coords(
+                self.selectionRectangle.canvasIdRectangle,
+                self.selectionRectangle.x,
+                self.selectionRectangle.y,
+                self.selectionRectangle.bottomRight.x,
+                self.selectionRectangle.bottomRight.y
             )
-            self.selectionRectangle.setCoords(
-                self.selectionRectangle.attachedImage.bbox.topLeft,
-                self.selectionRectangle.attachedImage.bbox.bottomRight
-            )
 
-            # Draw debug information if debugging is enabled
-            if DEBUG and self.CC.DCC is not None:
-                self.CC.DCC.drawCanvasImageDebugInfos(self.selectionRectangle.attachedImage)
-
-        else:
+        except tk.TclError:
             if dimension == "width":
-                self.selectionRectangle.width = self.toolBar.selectionRectangleWidth.get()
+                self.toolBar.selectionRectangleWidth.set(0)
             elif dimension == "height":
-                self.selectionRectangle.height = self.toolBar.selectionRectangleHeight.get()
-
-
-        # Update the canvas rectangle's coordinates
-        self.CC.view.coords(
-            self.selectionRectangle.canvasIdRectangle,
-            self.selectionRectangle.x,
-            self.selectionRectangle.y,
-            self.selectionRectangle.bottomRight.x,
-            self.selectionRectangle.bottomRight.y
-        )
+                self.toolBar.selectionRectangleHeight.set(0)
 
     def on_width_input_change(self):
         self.toolBar.selectionRectangleWidth.set(int(self.toolBar.widthInput.get()))
@@ -400,9 +437,20 @@ class SelectionRectangleCanvasController:
     def on_left(self, event: tk.Event) -> None:
         mouseCoords = Vector2(event.x, event.y)
 
-        self.CC.applyTransformations(self.selectionRectangle.attachedImage, self.toolBar.selectionRectangleWidth.get(), self.toolBar.selectionRectangleHeight.get(), 15)
+        self.TBC.view.selectionRectangleRotation.set(self.selectionRectangle.attachedImage.angle + 15)
         self.selectionRectangle.setCoords(self.selectionRectangle.attachedImage.bbox.topLeft, self.selectionRectangle.attachedImage.bbox.bottomRight)
-        print(self.selectionRectangle.attachedImage)
+
+        # Render the selection rectangle to the new position
+        self.render()
+
+        if DEBUG and self.CC.DCC != None:
+            self.CC.DCC.drawCanvasImageDebugInfos(self.selectionRectangle.attachedImage)
+
+    def on_right(self, event: tk.Event) -> None:
+        mouseCoords = Vector2(event.x, event.y)
+
+        self.TBC.view.selectionRectangleRotation.set(self.selectionRectangle.attachedImage.angle - 15)
+        self.selectionRectangle.setCoords(self.selectionRectangle.attachedImage.bbox.topLeft, self.selectionRectangle.attachedImage.bbox.bottomRight)
 
         # Render the selection rectangle to the new position
         self.render()
