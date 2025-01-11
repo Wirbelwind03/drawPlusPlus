@@ -8,7 +8,7 @@ from Controller.debugCanvasController import DebugCanvasController
 from DrawLibrary.Graphics.canvasImage import CanvasImage
 from DrawLibrary.Core.Math.vector2 import Vector2
 
-from Model.canvasEntities import CanvasEntities
+from Model.canvasImages import CanvasImages
 from Model.toolManager import ToolManager
 
 class CanvasController:
@@ -42,7 +42,7 @@ class CanvasController:
             A controller used to communicate with the debug informations
         """
         self.view: tk.Canvas = canvas
-        self.model: CanvasEntities = CanvasEntities()
+        self.model: CanvasImages = CanvasImages()
         self.toolManager = toolManager
         self.DCC = DCC
 
@@ -91,14 +91,12 @@ class CanvasController:
         newCanvasImage.width = width
         newCanvasImage.height = height
         
-        # Create the bounding box of the image
+        # Create the bounding box in the center of the image
         newCanvasImage.createAABB(x - width // 2, y - height // 2, width, height)
 
         # Apply the transformations like resize and rotations to the created image
         newCanvasImage.applyTransformations(width, height, degrees)
 
-        # Set the CanvasImage position in the center
-        newCanvasImageCenter = Vector2(x + width // 2, y + height // 2)
         # Draw the image on the tkinter canvas
         imageId = self.view.create_image(x, y, image=newCanvasImage.photoImage) 
         # Assign the canvas id to be stored in the CanvasImage
