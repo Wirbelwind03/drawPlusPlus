@@ -82,6 +82,21 @@ class CanvasImage:
 
     #endregion Constructor
 
+    def __repr__(self) -> str:
+        return (
+            f"{self.__class__.__name__}("
+            f"id={self.id}, "
+            f"_center={self._center}, "
+            f"bbox={self.bbox},"
+            f"filePath='{self.filePath}', "
+            f"width={self.width}, "
+            f"height={self.height}, "
+            f"_angle={self.angle}, "
+            f"image={self.image}, "
+            f"photoImage={self.photoImage}, "
+            f"debugBbox={self.debugBbox})"
+        )
+
     #region Property
 
     @property
