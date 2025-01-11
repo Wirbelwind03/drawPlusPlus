@@ -8,8 +8,8 @@
 #include "utils.h"
 #include "shapes.h"
 
-#define SCREEN_WIDTH 800
-#define SCREEN_HEIGHT 600
+#define SCREEN_WIDTH 827
+#define SCREEN_HEIGHT 622
 
 int main(int argc, char *argv[]) {
     FILE *file = fopen("Data/Outputs/drawing_positions.txt", "w");
@@ -23,14 +23,7 @@ int main(int argc, char *argv[]) {
     SDL_Window *window = CreateWindow(SCREEN_WIDTH, SCREEN_HEIGHT);
     SDL_Renderer *renderer = CreateRenderer(window);
 
-int centerX = 300;
-int centerY = 300;
-int radius = 50;
-int numCircles = 5;
-int angle = 0;
-float speed = 0.05;
-bool isAnimating = true;
-int gridX = 0;
+int x = 10;
 
     char filename[255];
     int drawing_index = 1;
@@ -39,47 +32,6 @@ int gridX = 0;
     SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255); // Transparent
     SDL_RenderClear(renderer);
 
-Cursor* cursor1 = Cursor_Constructor(centerX, centerY);
-for (int  i = 0; (i < numCircles); (i = (i + 1)))
-{
-float offsetX = (centerX + ((radius * 3) * cos((angle + (i * (360 / numCircles))))));
-float offsetY = (centerY + ((radius * 3) * sin((angle + (i * (360 / numCircles))))));
-circleRGBA(renderer, offsetX, offsetY, radius, 0, 0, 0, 255);
-fprintf(file, "%d,%d\n", (int)offsetX, (int)offsetY);
-snprintf(filename, sizeof(filename), "Data/Outputs/drawing_%d.bmp", drawing_index);
-drawing_index++;
-savePartialScreenshot(renderer, filename, offsetX - radius, offsetY - radius, radius * 2 + 1, radius * 2 + 1);
-ClearCanvas(renderer, 255, 255, 255, 255);
-}
-while((gridX <= SCREEN_WIDTH))
-{
-int gridY = 0;
-while((gridY <= SCREEN_HEIGHT))
-{
-circleRGBA(renderer, gridX, gridY, 5, 0, 0, 0, 255);
-fprintf(file, "%d,%d\n", (int)gridX, (int)gridY);
-snprintf(filename, sizeof(filename), "Data/Outputs/drawing_%d.bmp", drawing_index);
-drawing_index++;
-savePartialScreenshot(renderer, filename, gridX - 5, gridY - 5, 5 * 2 + 1, 5 * 2 + 1);
-ClearCanvas(renderer, 255, 255, 255, 255);
-(gridY = (gridY + 50));
-}
-(gridX = (gridX + 50));
-}
-Cursor_Move(cursor1, 400, 300);
-Cursor_Rotate(cursor1, 90);
-Cursor_DrawSegment(cursor1, renderer, 600, 600);
-fprintf(file, "%d,%d\n", (int)cursor1->x, (int)cursor1->y);
-Cursor_DrawCircle(cursor1, renderer, 50);
-fprintf(file, "%d,%d\n", (int)cursor1->x, (int)cursor1->y);
-Cursor_DrawRectangle(cursor1, renderer, 100, 50);
-fprintf(file, "%d,%d\n", (int)cursor1->x, (int)cursor1->y);
-circleRGBA(renderer, 250, 250, 75, 0, 0, 0, 255);
-fprintf(file, "%d,%d\n", (int)250, (int)250);
-snprintf(filename, sizeof(filename), "Data/Outputs/drawing_%d.bmp", drawing_index);
-drawing_index++;
-savePartialScreenshot(renderer, filename, 250 - 75, 250 - 75, 75 * 2 + 1, 75 * 2 + 1);
-ClearCanvas(renderer, 255, 255, 255, 255);
 
     SDL_RenderPresent(renderer);
 

@@ -4,9 +4,7 @@ import os
 from DrawLibrary.Core.Math.vector2 import Vector2
 from DrawLibrary.Core.Collision.aabb import AABB
 
-from DrawLibrary.Graphics.canvasEntity import CanvasEntity
-
-class CanvasImage(CanvasEntity):
+class CanvasImage:
     #region Constructor
     
     """
@@ -19,6 +17,8 @@ class CanvasImage(CanvasEntity):
         The id of the CanvasImage drawn on a tk.Canvas
     filePath : str
         The file path of the image
+    _center : Vector2
+        The center of the canvasImage, it also represent the position
     _width : int
         The width of the image
     _height : int
@@ -32,14 +32,17 @@ class CanvasImage(CanvasEntity):
     """
 
     def __init__(self) -> None:
-        super().__init__()
+        self.id: int = -1
+        self._center : Vector2 = None
+        self.bbox: AABB = None
         self.filePath: str = ""
         self.width = 0
         self.height = 0
         self._angle: int = 0
         self.image: Image = None
         self.photoImage: ImageTk.PhotoImage = None
-        self._angle = 0
+
+        self.debugBbox: int = -1  
 
     @staticmethod
     def createTransparent(width: int, height: int) -> 'CanvasImage':
@@ -72,6 +75,7 @@ class CanvasImage(CanvasEntity):
             canvasImage.photoImage = ImageTk.PhotoImage(canvasImage.image)
             canvasImage.width = canvasImage.image.width
             canvasImage.height = canvasImage.image.height
+            canvasImage.angle = 0
             return canvasImage
         except FileNotFoundError as e:
             print(e)
@@ -92,6 +96,9 @@ class CanvasImage(CanvasEntity):
 
     #region Public Methods
 
+    def createAABB(self, x, y, width=0, height=0):
+        self.bbox = AABB(x, y, width, height)
+
     def clone(self) -> 'CanvasImage':
         """
         Clone a existing CanvasImage
@@ -111,6 +118,7 @@ class CanvasImage(CanvasEntity):
 
         canvasImage.width = self.width
         canvasImage.height = self.height
+        canvasImage.angle = 0
 
         return canvasImage
 
@@ -139,61 +147,14 @@ class CanvasImage(CanvasEntity):
         # Update the image
         self.image = new_img
         self.photoImage = ImageTk.PhotoImage(new_img)
-
-    def rotatePhotoImage(self, degrees: int = 0) -> None:
-        # Resize the image first
-        resizedImage: Image = self.resizeImage(self.image, self.width, self.height)
-        rotatedImage: Image = self.rotateImage(resizedImage, degrees)
-
-        self.photoImage = ImageTk.PhotoImage(rotatedImage)
-
-        img_width, img_height = rotatedImage.size
-        
-        # Draw a rectangle as the bounding box
-        x0, y0 = (self.bbox.center.x - img_width // 2, self.bbox.center.y - img_height // 2)  # Top-left corner
-        x1, y1 = (self.bbox.center.x + img_width // 2, self.bbox.center.y + img_height // 2)  # Bottom-right corner
-
-        self.bbox.min = Vector2(x0, y0)
-        self.bbox.max = Vector2(x1, y1)
-
-    def resizePhotoImage(self, width: int, height: int) -> None:
-        # Rotate the image first, because if it's not first, it's gonna update the image size
-        rotatedImage: Image = self.rotateImage(self.image, 0)
-        # Resize the rotated image
-        resizedImage: Image = self.resizeImage(rotatedImage, width, height)
-
-        self.photoImage = ImageTk.PhotoImage(resizedImage)
-
-        img_width, img_height = resizedImage.size
-        
-        # Draw a rectangle as the bounding box
-        x0, y0 = (self.bbox.center.x - img_width // 2, self.bbox.center.y - img_height // 2)  # Top-left corner
-        x1, y1 = (self.bbox.center.x + img_width // 2, self.bbox.center.y + img_height // 2)  # Bottom-right corner
-
-        self.bbox.min = Vector2(x0, y0)
-        self.bbox.max = Vector2(x1, y1)
-    
-    def resizeImage(self, image, width, height):
-        self.width = width
-        self.height = height
-        resizedImage: Image = image.resize((width, height))
-
-        return resizedImage
-    
-    def rotateImage(self, iamge, degrees = 0):
-        self.angle = degrees
-        # Fix this line when resizing the image, since rotation use the original image size
-        # While resize update the image size
-        rotatedImage: Image = iamge.rotate(self.angle, expand=True)
-
-        return rotatedImage
     
     def crop(self, x: int, y: int, width: int, height: int) -> None:
         self.image = self.image.crop((x, y, x + width, y + height))
 
     def copy(self, x: int, y: int, width: int, height: int) -> 'CanvasImage':
         """
-        Copy a CanvasImage
+        Copy a CanvasImage, the difference with clone is that with this function, you can choose the
+        region of the copied image
 
         Parameters
         -----------
@@ -231,6 +192,24 @@ class CanvasImage(CanvasEntity):
         """
 
         self.image.paste(canvasImage.image, (x, y))
+
+    def applyTransformations(self, width, height, degrees = 0):
+        self.angle = degrees
+        # Resize and rotate the image
+        resized_image = self.image.resize((width, height))
+        rotated_image = resized_image.rotate(self.angle, expand=True)
+
+        img_width, img_height = rotated_image.size
+        
+        # Draw a rectangle as the bounding box
+        x0, y0 = (self.bbox.center.x - img_width // 2, self.bbox.center.y - img_height // 2)  # Top-left corner
+        x1, y1 = (self.bbox.center.x + img_width // 2, self.bbox.center.y + img_height // 2)  # Bottom-right corner
+
+        self.bbox.min = Vector2(x0, y0)
+        self.bbox.max = Vector2(x1, y1)
+        
+        # Update canvas with transformed image
+        self.photoImage = ImageTk.PhotoImage(rotated_image)
 
     def removeWhiteBackground(self) -> None:
         self.image.convert("RGBA")

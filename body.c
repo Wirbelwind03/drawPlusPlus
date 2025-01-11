@@ -7,8 +7,8 @@
 #include "cursor.h"
 #include "utils.h"
 #include "shapes.h"
+#include "globals.h"
 
-// INSERT GLOBALS
 int main(int argc, char *argv[]) {
     FILE *file = fopen("Data/Outputs/drawing_positions.txt", "w");
     if (file == NULL) {

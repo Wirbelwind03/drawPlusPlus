@@ -28,4 +28,5 @@ class Terminal(tk.Frame):
     def refresh(self, settings):
         self.text_widget.configure(font=(settings["font"], settings["font_size"]))
         self.text_widget.configure(bg=Theme.BackgroundColor(settings))
+        self.text_widget.configure(foreground=Theme.FontColor(settings))
         self.configure(highlightbackground=Theme.HighLightBackgroundColor(settings))

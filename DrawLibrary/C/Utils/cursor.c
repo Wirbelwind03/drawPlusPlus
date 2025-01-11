@@ -1,8 +1,10 @@
 #include <stdlib.h>
+#include <SDL2/SDL.h>
 #include <SDL2_gfxPrimitives.h>
 
 #include "cursor.h"
 #include "shapes.h"
+#include "utils.h"
 
 Cursor* Cursor_Constructor(int x, int y)
 {
@@ -24,31 +26,69 @@ void Cursor_Move(Cursor* cursor, int x, int y){
     cursor->y = y;
 }
 
-void Cursor_DrawCircle(Cursor* cursor, SDL_Renderer* renderer, int radius){
-    if (cursor->thickness == 1){
-        circleRGBA(renderer, cursor->x, cursor->y, radius, cursor->rgba[0], cursor->rgba[1], cursor->rgba[2], cursor->rgba[3]);
-        return;
-    }
+void Cursor_DrawCircle(Cursor* cursor, SDL_Renderer* renderer, int radius, char* filename) {
+    // if (cursor->thickness == 1){
+    //     circleRGBA(renderer, cursor->x, cursor->y, radius, cursor->rgba[0], cursor->rgba[1], cursor->rgba[2], cursor->rgba[3]);
+    //     return;
+    // }
     
-    int inner_radius = radius - cursor->thickness;
-    filledCircleRGBA(renderer, cursor->x, cursor->y, radius, cursor->rgba[0], cursor->rgba[1], cursor->rgba[2], cursor->rgba[3]);
-    filledCircleRGBA(renderer, cursor->x, cursor->y, inner_radius, 255, 255, 255, 255);
+    // int inner_radius = radius - cursor->thickness;
+    // filledCircleRGBA(renderer, cursor->x, cursor->y, radius, cursor->rgba[0], cursor->rgba[1], cursor->rgba[2], cursor->rgba[3]);
+    // filledCircleRGBA(renderer, cursor->x, cursor->y, inner_radius, 255, 255, 255, 255);
+    drawCircle(renderer, cursor->x, cursor->y, radius, cursor->rgba[0], cursor->rgba[1], cursor->rgba[2], cursor->rgba[3], filename);
 }
 
-void Cursor_DrawRectangle(Cursor* cursor, SDL_Renderer* renderer, int width, int height){
-    int x1 = cursor->x + width;
-    int y1 = cursor->y + height;
-    if (cursor->thickness == 1){
-        rectangleRGBA(renderer, cursor->x, cursor->y, x1, y1, cursor->rgba[0], cursor->rgba[1], cursor->rgba[2], cursor->rgba[3]);
-        return;
-    }
-
-    boxRGBA(renderer, cursor->x, cursor->y, x1, y1, cursor->rgba[0], cursor->rgba[1], cursor->rgba[2], cursor->rgba[3]);
-    boxRGBA(renderer, cursor->x + cursor->thickness, cursor->y + cursor->thickness, x1 - cursor->thickness, y1 - cursor->thickness, 255, 255, 255, 255); // Assuming black background
+void Cursor_DrawFilledCircle(Cursor* cursor, SDL_Renderer* renderer, int radius, char* filename) {
+    drawFilledCircle(renderer, cursor->x, cursor->y, radius, cursor->rgba[0], cursor->rgba[1], cursor->rgba[2], cursor->rgba[3], filename);
 }
 
-void Cursor_DrawSegment(Cursor* cursor, SDL_Renderer* renderer, int x1, int y1){
-    thickLineRGBA(renderer, cursor->x, cursor->y, x1, y1, cursor->thickness, cursor->rgba[0], cursor->rgba[1], cursor->rgba[2], cursor->rgba[3]);
+void Cursor_DrawEllipse(Cursor* cursor, SDL_Renderer* renderer, int rx, int ry, char* filename) {
+    drawEllipse(renderer, cursor->x, cursor->y, rx, ry, cursor->angle, cursor->rgba[0], cursor->rgba[1], cursor->rgba[2], cursor->rgba[3], filename);
+}
+
+void Cursor_DrawFilledEllipse(Cursor* cursor, SDL_Renderer* renderer, int rx, int ry, char* filename) {
+    drawFilledEllipse(renderer, cursor->x, cursor->y, rx, ry, cursor->angle, cursor->rgba[0], cursor->rgba[1], cursor->rgba[2], cursor->rgba[3], filename);
+}
+
+void Cursor_DrawRoundedRectangle(Cursor* cursor, SDL_Renderer* renderer, int width, int height, int radius, char* filename) {
+    drawRoundedRectangle(renderer, cursor->x, cursor->y, width, height, radius, cursor->angle, cursor->rgba[0], cursor->rgba[1], cursor->rgba[2], cursor->rgba[3], filename);
+}
+
+void Cursor_DrawBox(Cursor* cursor, SDL_Renderer* renderer, int width, int height, char* filename) {
+    drawBox(renderer, cursor->x, cursor->y, width, height, cursor->angle, cursor->rgba[0], cursor->rgba[1], cursor->rgba[2], cursor->rgba[3], filename);
+}
+
+void Cursor_DrawRoundedBox(Cursor* cursor, SDL_Renderer* renderer, int width, int height, int radius, char* filename) {
+    drawRoundedBox(renderer, cursor->x, cursor->y, width, height, radius, cursor->angle, cursor->rgba[0], cursor->rgba[1], cursor->rgba[2], cursor->rgba[3], filename);
+}
+
+void Cursor_DrawSegment(Cursor* cursor, SDL_Renderer *renderer, int length, char* filename) {
+    // Convert the angle to radians
+    double angleRadians = cursor->angle * (M_PI / 180.0);
+
+    // Calculate the end point using trigonometry
+    int x1 = cursor->x + (int)(length * cos(angleRadians));
+    int y1 = cursor->y + (int)(length * sin(angleRadians));
+
+    // Draw the line
+    drawSegment(renderer, cursor->x, cursor->y, x1, y1, cursor->thickness, cursor->rgba[0], cursor->rgba[1], cursor->rgba[2], cursor->rgba[3], filename);
+}
+
+void Cursor_DrawRectangle(Cursor* cursor, SDL_Renderer *renderer, int width, int height, char* filename) {
+    drawRectangle(renderer, 
+                cursor->x, cursor->y, 
+                width, height, 
+                cursor->angle, 
+                cursor->rgba[0], cursor->rgba[1], cursor->rgba[2], cursor->rgba[3], 
+                filename);
+}
+
+void Cursor_DrawTriangle(Cursor* cursor, SDL_Renderer *renderer, int x0, int y0, int x1, int y1, char* filename){
+    drawTriangle(renderer, 
+                cursor->x, cursor->y, x0, y0, x1, y1, 
+                cursor->angle, cursor->rgba[0], 
+                cursor->rgba[1], cursor->rgba[2], cursor->rgba[3], 
+                filename);
 }
 
 void Cursor_Rotate(Cursor* cursor, int degrees){

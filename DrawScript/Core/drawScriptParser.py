@@ -1081,4 +1081,3 @@ class DrawScriptParser:
             "arguments": args,
             "line": line_num
         }
-

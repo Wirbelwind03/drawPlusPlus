@@ -75,52 +75,6 @@ class Rectangle:
     #region Property
     
     @property
-    def x(self) -> int:
-        """
-        The x-coordinate of the rectangle
-        """
-        return self._x
-    
-    @x.setter
-    def x(self, newValue: int):
-        """
-        Set the value for the x-coordinate of the rectangle
-        When changed, it move the whole rectangle in x-coordinate
-        It's cannot be < 0 since the library is for a tkinter canvas (where negative coordanites doesn't exist)
-
-        Parameters
-        -----------
-        newValue : int
-            The new x-coordinate to place the rectangle to
-        """
-        if newValue < 0:
-            newValue = 0
-        self._x = newValue
-
-    @property
-    def y(self) -> int:
-        """
-        The y-coordinate of the rectangle
-        """
-        return self._y
-    
-    @y.setter
-    def y(self, newValue: int):
-        """
-        Set the value for the y-coordinate of the rectangle
-        When changed, it move the whole rectangle in the y-coordinate
-        It's cannot be < 0 since the library is for a tkinter canvas (where negative coordanites doesn't exist)
-
-        Parameters
-        -----------
-        newValue : int
-            The new y-coordinate to place the rectangle to
-        """
-        if newValue < 0:
-            newValue = 0
-        self._y = newValue
-
-    @property
     def width(self) -> int:
         return self._width
     

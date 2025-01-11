@@ -1,5 +1,8 @@
 #include <stdio.h>
+#include <SDL2_rotozoom.h>
+
 #include "utils.h"
+#include "globals.h"
 
 int SDL_Start(){
     // Initialisation de SDL
@@ -32,58 +35,100 @@ SDL_Renderer* CreateRenderer(SDL_Window* window){
     return renderer;
 }
 
-// Fonction pour capturer et sauvegarder l'écran comme une image
-void saveScreenshot(SDL_Renderer *renderer, int screen_width, int screen_height, const char *filename) {
-    SDL_Surface *surface = SDL_CreateRGBSurfaceWithFormat(0, screen_width, screen_height, 32, SDL_PIXELFORMAT_RGBA32);
+SDL_Surface* CreateSurface(int width, int height){
+    // Create an empty surface to draw on
+    SDL_Surface *surface = SDL_CreateRGBSurfaceWithFormat(0, width, height, 32, SDL_PIXELFORMAT_RGBA32);
     if (!surface) {
-        printf("Erreur SDL_CreateRGBSurfaceWithFormat: %s\n", SDL_GetError());
-        return;
+        SDL_Log("Unable to create surface! SDL_Error: %s", SDL_GetError());
+        return NULL;
     }
-
-    // Lire les pixels de l'écran
-    if (SDL_RenderReadPixels(renderer, NULL, surface->format->format, surface->pixels, surface->pitch) != 0) {
-        printf("Erreur SDL_RenderReadPixels: %s\n", SDL_GetError());
-        SDL_FreeSurface(surface);
-        return;
-    }
-
-    // Sauvegarder l'image
-    if (SDL_SaveBMP(surface, filename) != 0) {
-        printf("Erreur SDL_SaveBMP: %s\n", SDL_GetError());
-    } else {
-        printf("Image sauvegardée dans le fichier : %s\n", filename);
-    }
-
-    SDL_FreeSurface(surface);
+    return surface;
 }
 
-void savePartialScreenshot(SDL_Renderer *renderer, const char *filename, int x, int y, int width, int height) {
-    // Create a rectangle for the region of interest
-    SDL_Rect region = {x, y, width, height};
-
-    // Create a surface for the region
-    SDL_Surface *sshot = SDL_CreateRGBSurfaceWithFormat(0, width, height, 32, SDL_PIXELFORMAT_RGBA32);
-    if (!sshot) {
-        fprintf(stderr, "Failed to create surface: %s\n", SDL_GetError());
-        return;
+int CopyRenderToSurface(SDL_Renderer* renderer, SDL_Rect rect, SDL_Surface* surface) {
+    // Copy the rendered content to the surface
+    if (SDL_RenderReadPixels(renderer, &rect, SDL_PIXELFORMAT_RGBA32, surface->pixels, surface->pitch) != 0) {
+        printf("Failed to read pixels: %s\n", SDL_GetError());
+        SDL_FreeSurface(surface);
+        return 1;
     }
+    return 0;
+}
 
-    // Read pixels from the specified region
-    if (SDL_RenderReadPixels(renderer, &region, SDL_PIXELFORMAT_RGBA32, sshot->pixels, sshot->pitch) != 0) {
-        fprintf(stderr, "Failed to read pixels: %s\n", SDL_GetError());
-        SDL_FreeSurface(sshot);
-        return;
+SDL_Surface* RotateSurface(SDL_Surface* surface, int angle) {
+    SDL_Surface *rotatedSurface = rotozoomSurface(surface, angle, 1.0, 1);
+    if (!rotatedSurface) {
+        printf("Failed to rotate surface.\n");
+        SDL_FreeSurface(surface);
+        return NULL;
     }
+    return rotatedSurface;
+}
 
-    // Save the surface to a BMP file
-    if (SDL_SaveBMP(sshot, filename) != 0) {
-        fprintf(stderr, "Failed to save screenshot: %s\n", SDL_GetError());
+SDL_Texture* CreateTexture(SDL_Renderer* renderer, SDL_Surface* surface){
+        // Create a texture from the surface
+    SDL_Texture* texture = SDL_CreateTextureFromSurface(renderer, surface);
+    if (!texture) {
+        SDL_Log("Unable to create texture! SDL_Error: %s", SDL_GetError());
+        SDL_FreeSurface(surface);
+        return NULL;
     }
+    return texture;
+}
 
-    SDL_FreeSurface(sshot);
+int SaveBMP(SDL_Surface* surface, char* filename){
+    if (SDL_SaveBMP(surface, filename) != 0) {
+        printf("Failed to save BMP: %s\n", SDL_GetError());
+        return 1;
+    }
+    return 0;
+}
+
+int SaveDrawing(SDL_Renderer* renderer, SDL_Rect captureRect, int angle, char* filename) {
+    // Capture the current content of the renderer into an SDL_Surface
+    SDL_Surface *surface = CreateSurface(captureRect.w, captureRect.h);
+    // Copy the rendered content to the surface
+    if (CopyRenderToSurface(renderer, captureRect, surface) != 0){
+        return 1;
+    }
+    // Rotate the surface
+    SDL_Surface *rotatedSurface = RotateSurface(surface, angle);
+    // Save the rotated surface as a BMP file
+    if (SaveBMP(rotatedSurface, filename) != 0){
+        return 1;
+    }
+    // Clean up
+    SDL_FreeSurface(surface);
+    SDL_FreeSurface(rotatedSurface);
+    // Clean the window
+    ClearCanvas(renderer, 255, 255, 255, 255);
+
+    return 0;
 }
 
 void ClearCanvas(SDL_Renderer *renderer, int r, int g, int b, int a){
     SDL_SetRenderDrawColor(renderer, r, g, b, a);
     SDL_RenderClear(renderer);
+}
+
+void AdjustCaptureRect(SDL_Rect *captureRect) {
+    // Ensure the capture rectangle's coordinates are valid
+    if (captureRect->x < 0) {
+        captureRect->w += captureRect->x;  // Reduce width if it overflows to the left
+        captureRect->x = 0;  // Reset to 0 if it's off-screen
+    }
+
+    if (captureRect->y < 0) {
+        captureRect->h += captureRect->y;  // Reduce height if it overflows to the top
+        captureRect->y = 0;  // Reset to 0 if it's off-screen
+    }
+
+    // Check if the rectangle extends beyond the window (right and bottom)
+    if (captureRect->x + captureRect->w > SCREEN_WIDTH) {  
+        captureRect->w = SCREEN_WIDTH - captureRect->x;  // Adjust the width to fit within the window
+    }
+
+    if (captureRect->y + captureRect->h > SCREEN_HEIGHT) {  
+        captureRect->h = SCREEN_HEIGHT - captureRect->y;  // Adjust the height to fit within the window
+    }
 }

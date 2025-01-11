@@ -187,7 +187,7 @@ class ScriptEditorController:
         error_message = str(error)
         # On extrait le numéro de ligne de l'erreur
         self.textEditor.openedTab.tag_add("error", f"{line_number}.0", f"{line_number}.end")
-        self.textEditor.openedTab.tag_config("error", foreground="red", underline=True)
+        self.textEditor.openedTab.tag_config("error", underlinefg="red", underline=True)
 
     # Fonction pour charger un fichier
     def load_file(self):

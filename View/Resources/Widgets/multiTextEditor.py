@@ -31,7 +31,7 @@ class MultiTextEditor(tk.Frame):
         frame.grid_columnconfigure(0, weight=1)
 
         # Créer un widget Text avec barre de défilement
-        text = tk.Text(frame, wrap="word")
+        text = tk.Text(frame, wrap="word", undo=True, maxundo=-1, autoseparators=True)
         vsb = tk.Scrollbar(frame, orient="vertical", command=text.yview, width=20)
         text.configure(yscrollcommand=vsb.set)
         
@@ -61,4 +61,4 @@ class MultiTextEditor(tk.Frame):
             text.configure(font=(settings["font"], settings["font_size"]))
             text.configure(bg=Theme.BackgroundColor(settings))
             text.configure(insertbackground=Theme.InsertBackgroundColor(settings))
-            text.tag_configure("custom_font", foreground=Theme.FontColor(settings))
+            text.configure(foreground=Theme.FontColor(settings))
