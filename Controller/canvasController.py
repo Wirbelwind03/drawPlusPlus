@@ -92,7 +92,7 @@ class CanvasController:
         newCanvasImage.height = height
         
         # Create the bounding box of the image
-        newCanvasImage.createAABB(x, y, width, height)
+        newCanvasImage.createAABB(x - width // 2, y - height // 2, width, height)
 
         # Apply the transformations like resize and rotations to the created image
         newCanvasImage.applyTransformations(width, height, degrees)
@@ -100,7 +100,7 @@ class CanvasController:
         # Set the CanvasImage position in the center
         newCanvasImageCenter = Vector2(x + width // 2, y + height // 2)
         # Draw the image on the tkinter canvas
-        imageId = self.view.create_image(newCanvasImageCenter.x, newCanvasImageCenter.y, image=newCanvasImage.photoImage) 
+        imageId = self.view.create_image(x, y, image=newCanvasImage.photoImage) 
         # Assign the canvas id to be stored in the CanvasImage
         newCanvasImage.id = imageId
 
