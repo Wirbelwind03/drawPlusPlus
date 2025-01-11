@@ -15,12 +15,6 @@ class DrawScriptDeserializerC:
         bodyFile = open("body.c", "r")
         bodyCode = bodyFile.read()
 
-        if self.CC != None:
-            globals = f'#define SCREEN_WIDTH {self.CC.view.winfo_width()}\n#define SCREEN_HEIGHT {self.CC.view.winfo_height()}\n'
-        else:
-            globals = f'#define SCREEN_WIDTH 800\n#define SCREEN_HEIGHT 600\n'
-        bodyCode = bodyCode.replace("// INSERT GLOBALS", globals)
-
         variables = ""  
         for ast_node in self.ast_nodes:
             if ast_node["node_type"] == "var_declaration":
@@ -112,7 +106,7 @@ class DrawScriptDeserializerC:
         def format_code(callee_name, *params):
             base_code = (
                 f'snprintf(filename, sizeof(filename), "Data/Outputs/drawing_%d.bmp", drawing_index);\n'
-                f'{callee_name}({cursor_name}, renderer, SCREEN_WIDTH, SCREEN_HEIGHT, {", ".join(map(str, params))}, filename);\n'
+                f'{callee_name}({cursor_name}, renderer, {", ".join(map(str, params))}, filename);\n'
                 f'fprintf(file, "%d,%d\\n", (int){cursor_name}->x, (int){cursor_name}->y);\n'
                 f'drawing_index++;\n'
             )
@@ -217,7 +211,7 @@ class DrawScriptDeserializerC:
             def format_code(callee_name, *params):
                 base_code = (
                     f'snprintf(filename, sizeof(filename), "Data/Outputs/drawing_%d.bmp", drawing_index);\n'
-                    f'{callee_name}(renderer, SCREEN_WIDTH, SCREEN_HEIGHT, {", ".join(map(str, params))}, filename);\n'
+                    f'{callee_name}(renderer, {", ".join(map(str, params))}, filename);\n'
                     f'fprintf(file, "%d,%d\\n", (int){params[0]}, (int){params[1]});\n'
                     f'drawing_index++;\n'
                 )

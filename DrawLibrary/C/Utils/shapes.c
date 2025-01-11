@@ -7,8 +7,9 @@
 #include "cursor.h"
 #include "shapes.h"
 #include "utils.h"
+#include "globals.h"
 
-void drawCircle(SDL_Renderer *renderer, int windowWidth, int windowHeight, int x, int y, int radius, int r, int g, int b, int a, char* filename){
+void drawCircle(SDL_Renderer *renderer, int x, int y, int radius, int r, int g, int b, int a, char* filename){
     // Draw the rectangle on the renderer (red color)
     circleRGBA(renderer, x, y, radius, r, g, b, a);
 
@@ -30,12 +31,12 @@ void drawCircle(SDL_Renderer *renderer, int windowWidth, int windowHeight, int x
     }
 
     // Check if the rectangle extends beyond the window (right and bottom)
-    if (captureRect.x + captureRect.w > windowWidth) {  // Window width (640px in this case)
-        captureRect.w = windowWidth - captureRect.x;  // Adjust the width to fit within the window
+    if (captureRect.x + captureRect.w > SCREEN_WIDTH) {  // Window width (640px in this case)
+        captureRect.w = SCREEN_WIDTH - captureRect.x;  // Adjust the width to fit within the window
     }
 
-    if (captureRect.y + captureRect.h > windowHeight) {  // Window height (480px in this case)
-        captureRect.h = windowHeight - captureRect.y;  // Adjust the height to fit within the window
+    if (captureRect.y + captureRect.h > SCREEN_HEIGHT) {  // Window height (480px in this case)
+        captureRect.h = SCREEN_HEIGHT - captureRect.y;  // Adjust the height to fit within the window
     }
 
     // Capture the current content of the renderer into an SDL_Surface
@@ -62,7 +63,7 @@ void drawCircle(SDL_Renderer *renderer, int windowWidth, int windowHeight, int x
     ClearCanvas(renderer, 255, 255, 255, 255);
 }
 
-void drawSegment(SDL_Renderer *renderer, int windowWidth, int windowHeight, int x0, int y0, int x1, int y1, int thickness, int r, int g, int b, int a, char* filename){
+void drawSegment(SDL_Renderer *renderer, int x0, int y0, int x1, int y1, int thickness, int r, int g, int b, int a, char* filename){
     thickLineRGBA(renderer, x0, y0, x1, y1, thickness, r, g, b, a);
 
     // Render the content to the window
@@ -106,15 +107,15 @@ void drawSegment(SDL_Renderer *renderer, int windowWidth, int windowHeight, int 
     ClearCanvas(renderer, 255, 255, 255, 255);
 }
 
-void drawRectangle(SDL_Renderer *renderer, int windowWidth, int windowHeight, int x0, int y0, int width, int height, int angle, int r, int g, int b, int a, char* filename){
+void drawRectangle(SDL_Renderer *renderer, int x, int y, int width, int height, int angle, int r, int g, int b, int a, char* filename){
     // Draw the rectangle on the renderer (red color)
-    boxRGBA(renderer, x0, y0, x0 + width, y0 + height, r, g, b, a);
+    boxRGBA(renderer, x, y, x + width, y + height, r, g, b, a);
 
     // Render the content to the window
     SDL_RenderPresent(renderer);
 
     // Define the area to capture (the area where the rectangle was drawn)
-    SDL_Rect captureRect = { x0, y0, width, height };
+    SDL_Rect captureRect = { x, y, width, height };
 
     // Capture the current content of the renderer into an SDL_Surface
     SDL_Surface *surface = SDL_CreateRGBSurfaceWithFormat(0, captureRect.w, captureRect.h, 32, SDL_PIXELFORMAT_RGBA32);
