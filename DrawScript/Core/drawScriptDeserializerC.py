@@ -98,40 +98,6 @@ class DrawScriptDeserializerC:
         constructor_args = ast_node["constructor_args"]
         return f'Cursor* {ast_node["name"]} = Cursor_Constructor({constructor_args[0]["value"]}, {constructor_args[1]["value"]});\n'
 
-    def deserialize_cursor_method(self, ast_node):
-        cursor_name = ast_node["cursor_name"]
-        method = ast_node["method"]
-        arguments = ast_node["arguments"]
-
-        def format_code(callee_name, *params):
-            base_code = (
-                f'snprintf(filename, sizeof(filename), "Data/Outputs/drawing_%d.bmp", drawing_index);\n'
-                f'{callee_name}({cursor_name}, renderer, {", ".join(map(str, params))}, filename);\n'
-                f'fprintf(file, "%d,%d\\n", (int){cursor_name}->x, (int){cursor_name}->y);\n'
-                f'drawing_index++;\n'
-            )
-            return base_code
-
-        deserialized = ""
-        if method == "move":
-            deserialized += f'Cursor_Move({cursor_name}, {arguments[0]["value"]}, {arguments[1]["value"]});\n'
-        elif method == "rotate":
-            deserialized += f'Cursor_Rotate({cursor_name}, {arguments[0]["value"]});\n'
-        elif method == "drawCircle":
-            radius = arguments[0]["value"]
-            # Cursor_DrawCircle(radius)
-            deserialized += format_code("Cursor_DrawCircle", radius)
-        elif method == "drawRectangle":
-            width, height = arguments[0]["value"], arguments[1]["value"]
-            # Cursor_DrawRectangle(width, height) 
-            deserialized += format_code("Cursor_DrawRectangle", width, height)
-        elif method == "drawSegment":
-            length = arguments[0]["value"]
-            # Cursor_DrawSegment(length)
-            deserialized += format_code("Cursor_DrawSegment", length)
-
-        return deserialized
-
     def deserialize_function_declaration(self, ast_node):
         params = ""
         for i in range(len(ast_node["params"])):
@@ -198,15 +164,18 @@ class DrawScriptDeserializerC:
 
         callee = ast_node["callee"]
         
-        arguments = ast_node["arguments"]
+        arguments = []
         arguments_deserialized = ""
         for i in range(len(ast_node["arguments"])):
-            arguments_deserialized += self.deserialize_node_type(ast_node["arguments"][i])
+            argument_deserialized = self.deserialize_node_type(ast_node["arguments"][i])
+            arguments.append(argument_deserialized)
+            arguments_deserialized += argument_deserialized
             if i != len(ast_node["arguments"]) - 1:
                 arguments_deserialized += ", "
 
         deserialized = f'{callee}({arguments_deserialized})'
 
+        # Check if it's a predefined functions
         if callee in GLOBAL_SYMBOLS_FUNCTIONS:
             def format_code(callee_name, *params):
                 base_code = (
@@ -222,17 +191,93 @@ class DrawScriptDeserializerC:
 
             # drawCircle(x, y, radius, r, g, b, a)
             if callee == "drawCircle":
-                x, y, radius = (arg["value"] for arg in arguments[:3])
+                x, y, radius = arguments[:3]
                 deserialized += format_code("drawCircle", x, y, radius, r, g, b, a)
-            # drawSegment(x0, y0, x1, y1, int thickness, r, g, b, a);
+            elif callee == "drawFilledCircle":
+                x, y, radius = arguments[:3]
+                deserialized += format_code("drawFilledCircle", x, y, radius, r, g, b, a)
+            elif callee == "drawEllipse":
+                x, y, rx, ry = arguments[:4]
+                deserialized += format_code("drawEllipse", x, y, rx, ry, 0, r, g, b, a)
+            elif callee == "drawFilledEllipse":
+                x, y, rx, ry = arguments[:4]
+                deserialized += format_code("drawFilledEllipse", x, y, rx, ry, 0, r, g, b, a)
+            elif callee == "drawRoundedRectangle":
+                x, y, width, height, radius = arguments[:5]
+                deserialized += format_code("drawRoundedRectangle", x, y, width, height, radius, 0, r, g, b, a)
+            elif callee == "drawBox":
+                x, y, width, height = arguments[:4]
+                deserialized += format_code("drawBox", x, y, width, height, 0, r, g, b, a)
+            elif callee == "drawRoundedBox":
+                x, y, width, height, radius = arguments[:5]
+                deserialized += format_code("drawRoundedBox", x, y, width, height, radius, 0, r, g, b, a)
             elif callee == "drawSegment":
-                x0, y0, x1, y1 = (arg["value"] for arg in arguments[:4])
+                x0, y0, x1, y1 = arguments[:4]
                 deserialized += format_code("drawSegment", x0, y0, x1, y1, 1, r, g, b, a)
-            # drawRectangle(x, y, width, height, angle, r, g, b, a);
+            elif callee == "drawTriangle":
+                x0, y0, x1, y1, x2, y2 = arguments[:6]
+                deserialized += format_code("drawTriangle", x0, y0, x1, y1, x2, y2, 0, r, g, b, a)
             elif callee == "drawRectangle":
-                x, y, width, height = (arg["value"] for arg in arguments[:4])
+                x, y, width, height = arguments[:4]
                 deserialized += format_code("drawRectangle", x, y, width, height, 0, r, g, b, a)
             else:
                 print(callee)
+
+
+        return deserialized
+    
+    def deserialize_cursor_method(self, ast_node):
+        cursor_name = ast_node["cursor_name"]
+        method = ast_node["method"]
+        
+        arguments = []
+        for i in range(len(ast_node["arguments"])):
+            argument_deserialized = self.deserialize_node_type(ast_node["arguments"][i])
+            arguments.append(argument_deserialized)
+
+        def format_code(callee_name, *params):
+            base_code = (
+                f'snprintf(filename, sizeof(filename), "Data/Outputs/drawing_%d.bmp", drawing_index);\n'
+                f'{callee_name}({cursor_name}, renderer, {", ".join(map(str, params))}, filename);\n'
+                f'fprintf(file, "%d,%d\\n", (int){cursor_name}->x, (int){cursor_name}->y);\n'
+                f'drawing_index++;\n'
+            )
+            return base_code
+
+        deserialized = ""
+        if method == "move":
+            deserialized += f'Cursor_Move({cursor_name}, {arguments[0]}, {arguments[1]});\n'
+        elif method == "rotate":
+            deserialized += f'Cursor_Rotate({cursor_name}, {arguments[0]});\n'
+        elif method == "drawCircle":
+            radius = arguments[0]
+            deserialized += format_code("Cursor_DrawCircle", radius)
+        elif method == "drawFilledCircle":
+            radius = arguments[0]
+            deserialized += format_code("Cursor_DrawFilledCircle", radius)
+        elif method == "drawEllipse":
+            rx, ry = arguments[:2]
+            deserialized += format_code("Cursor_DrawEllipse", rx, ry)
+        elif method == "drawFilledEllipse":
+            rx, ry = arguments[:2]
+            deserialized += format_code("Cursor_DrawFilledEllipse", rx, ry)
+        elif method == "drawRoundedRectangle":
+            width, height, radius = arguments[:3]
+            deserialized += format_code("Cursor_DrawRoundedRectangle", width, height, radius)
+        elif method == "drawBox":
+            width, height = arguments[:2]
+            deserialized += format_code("Cursor_DrawBox", width, height)
+        elif method == "drawRoundedBox":
+            width, height, radius = arguments[:3]
+            deserialized += format_code("Cursor_DrawRoundedBox", width, height, radius)
+        elif method == "drawRectangle":
+            width, height = arguments[:2]
+            deserialized += format_code("Cursor_DrawRectangle", width, height)
+        elif method == "drawSegment":
+            length = arguments[0]
+            deserialized += format_code("Cursor_DrawSegment", length)
+        elif method == "drawTriangle":
+            x0, y0, x1, y1 = arguments[:4]
+            deserialized += format_code("Cursor_DrawTriangle", x0, y0, x1, y1)
 
         return deserialized
