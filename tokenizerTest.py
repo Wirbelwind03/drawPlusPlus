@@ -24,27 +24,11 @@ var angle = 0;
 var speed = 0.05;
 var isAnimating = true;
 
+// 11. Appel de fonction
+drawCircle(250, 250, 75);
+
 // 2. Déclaration d'une variable de type cursor
 Cursor cursor1 = Cursor(centerX, centerY);
-
-// 5. Boucle for pour dessiner plusieurs cercles
-for (var i = 0; i < numCircles; i = i + 1) {
-    var offsetX = centerX + (radius * 3) * cos(angle + (i * (360 / numCircles)));
-    var offsetY = centerY + (radius * 3) * sin(angle + (i * (360 / numCircles)));
-    drawCircle(offsetX, offsetY, radius);
-}
-
-// 9. Boucle while imbriquée pour créer une grille
-var gridX = 0;
-while (gridX <= CANVAS_WIDTH) {
-    var gridY = 0;
-    while (gridY <= CANVAS_HEIGHT) {
-        // Dessiner un petit cercle à chaque point de la grille
-        drawCircle(gridX, gridY, 5);
-        gridY = gridY + 50;
-    }
-    gridX = gridX + 50;
-}
 
 // 10. Utilisation du curseur pour dessiner une forme géométrique
 cursor1.move(400, 300);      // Déplacer le curseur en traçant une ligne
@@ -52,9 +36,6 @@ cursor1.rotate(90);            // Tourner le curseur de 90 degrés
 cursor1.drawSegment(600);    // Dessiner une ligne qui fait 600 de longueur
 cursor1.drawCircle(50);        // Dessiner un cercle de rayon 50 à la position actuelle
 cursor1.drawRectangle(100, 50);// Dessiner un rectangle de largeur 100 et hauteur 50
-
-// 11. Appel de fonction
-drawCircle(250, 250, 75);
 
 // 12. Fin du script
 var dox = 10;
