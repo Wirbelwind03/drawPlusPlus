@@ -58,6 +58,7 @@ class CanvasController:
         self.view.bind("<Control-Key-v>", self.on_control_v)
         self.view.bind("<Control-Key-x>", self.on_control_x)
         self.view.bind("<Left>", self.on_left)
+        self.view.bind("<Right>", self.on_right)
     
     #region Public Methods
 
@@ -128,7 +129,7 @@ class CanvasController:
         canvasImage.applyTransformations(width, height, degrees)
         # Update the image on the canvas
         self.view.itemconfig(canvasImage.id, image=canvasImage.photoImage)
-    
+
     def deleteImage(self, canvasImage: CanvasImage) -> None:
         """
         Delete a specific image
@@ -284,5 +285,16 @@ class CanvasController:
             The event object containing details about the keypress event.
         """
         self.__invoke_active_tool_method("on_left", event)
+
+    def on_right(self, event: tk.Event) -> None:
+        """
+        Triggered when the right arrow key on the keyboard is pressed.
+
+        Parameters
+        ----------
+        event : tk.Event
+            The event object containing details about the keypress event.
+        """
+        self.__invoke_active_tool_method("on_right", event)
 
     #endregion Event
