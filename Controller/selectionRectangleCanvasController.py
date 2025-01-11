@@ -29,6 +29,8 @@ class SelectionRectangleCanvasController:
     -----------
     CC : CanvasController
         A Controller used to communicate with the Canvas
+    clipBoardImage : CanvasImage
+        The Canvas image stored in the clip board
     """
 
     def __init__(self, CC: CanvasController, TBC: ToolBarController) -> None:
@@ -179,6 +181,8 @@ class SelectionRectangleCanvasController:
         # Create the selection rectangle around the selected image
         self.setSelectionRectangle(SelectionRectangle.fromCoordinates(image.bbox.min.x, image.bbox.min.y, image.bbox.max.x, image.bbox.max.y), image)
 
+        self.toolBar.selectionRectangleWidth.set(self.selectionRectangle.attachedImage.width)  # Update the value
+        self.toolBar.selectionRectangleHeight.set(self.selectionRectangle.attachedImage.height)  # Update the value
         self.activate_operations()
 
         # Check the action to move since the cursor is inside the image
@@ -186,9 +190,6 @@ class SelectionRectangleCanvasController:
         self.CC.view.config(cursor="fleur") # Change the cursor look
 
     def activate_operations(self):
-        self.toolBar.selectionRectangleWidth.set(self.selectionRectangle.attachedImage.bbox.width)  # Update the value
-        self.toolBar.selectionRectangleHeight.set(self.selectionRectangle.attachedImage.bbox.height)  # Update the value
-
         self.toolBar.widthInput.configure(state="normal") # Activate the width input to not be read only
         self.toolBar.heightInput.configure(state="normal") # Activate the height input to not be read only
         self.toolBar.rotationInput.configure(state="normal")
@@ -199,6 +200,9 @@ class SelectionRectangleCanvasController:
         self.TBC.handle_button_activation("eraser", True)
 
     def clipBoardPaste(self) -> None:
+        """
+        Paste (aka draw) the clip board image on the canvas
+        """
         if self.hasSelectionRectangle() and self.clipBoardImage:
             if DEBUG:
                 print("Pasting the image")
@@ -211,7 +215,10 @@ class SelectionRectangleCanvasController:
             )
             #self.selectImage(newCanvasImage)
 
-    def clipBoardCopy(self):
+    def clipBoardCopy(self) -> None:
+        """
+        Copy the attached image of the selection rectangle in the clip board
+        """
         if self.hasSelectionRectangle() and self.selectionRectangle.attachedImage:
             if DEBUG:
                 print("Copying the image")
@@ -219,7 +226,7 @@ class SelectionRectangleCanvasController:
             # Activate the paste function of the clipboard
             self.TBC.handle_button_activation("paste", True, self.clipBoardPaste)
 
-    def clipBoardCut(self):
+    def clipBoardCut(self) -> None:
         if self.hasSelectionRectangle() and self.selectionRectangle.attachedImage:
             if DEBUG:
                 print("Cutting the image")
@@ -250,18 +257,17 @@ class SelectionRectangleCanvasController:
         if not self.selectionRectangle:
             return
         
-        # Update the dimension
-        if dimension == "width":
-            self.selectionRectangle.width = self.toolBar.selectionRectangleWidth.get()
-        elif dimension == "height":
-            self.selectionRectangle.height = self.toolBar.selectionRectangleHeight.get()
-
         # If the rectangle is attached to an image, resize and update it
         if self.selectionRectangle.attachedImage:
+            if dimension == "width":
+                self.selectionRectangle.attachedImage.width = self.toolBar.selectionRectangleWidth.get()
+            elif dimension == "height":
+                self.selectionRectangle.attachedImage.height = self.toolBar.selectionRectangleHeight.get()
+
             self.CC.applyTransformations(
                 self.selectionRectangle.attachedImage,
-                self.toolBar.selectionRectangleWidth.get(),
-                self.toolBar.selectionRectangleHeight.get()
+                self.selectionRectangle.attachedImage.width,
+                self.selectionRectangle.attachedImage.height
             )
             self.selectionRectangle.setCoords(
                 self.selectionRectangle.attachedImage.bbox.topLeft,
@@ -271,6 +277,13 @@ class SelectionRectangleCanvasController:
             # Draw debug information if debugging is enabled
             if DEBUG and self.CC.DCC is not None:
                 self.CC.DCC.drawCanvasImageDebugInfos(self.selectionRectangle.attachedImage)
+
+        else:
+            if dimension == "width":
+                self.selectionRectangle.width = self.toolBar.selectionRectangleWidth.get()
+            elif dimension == "height":
+                self.selectionRectangle.height = self.toolBar.selectionRectangleHeight.get()
+
 
         # Update the canvas rectangle's coordinates
         self.CC.view.coords(
@@ -387,7 +400,9 @@ class SelectionRectangleCanvasController:
     def on_left(self, event: tk.Event) -> None:
         mouseCoords = Vector2(event.x, event.y)
 
+        self.CC.applyTransformations(self.selectionRectangle.attachedImage, self.toolBar.selectionRectangleWidth.get(), self.toolBar.selectionRectangleHeight.get(), 15)
         self.selectionRectangle.setCoords(self.selectionRectangle.attachedImage.bbox.topLeft, self.selectionRectangle.attachedImage.bbox.bottomRight)
+        print(self.selectionRectangle.attachedImage)
 
         # Render the selection rectangle to the new position
         self.render()
