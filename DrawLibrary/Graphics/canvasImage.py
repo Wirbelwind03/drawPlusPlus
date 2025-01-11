@@ -133,7 +133,7 @@ class CanvasImage:
 
         canvasImage.width = self.width
         canvasImage.height = self.height
-        canvasImage.angle = 0
+        canvasImage._angle = self.angle
 
         return canvasImage
 
@@ -164,6 +164,10 @@ class CanvasImage:
         self.photoImage = ImageTk.PhotoImage(new_img)
     
     def crop(self, x: int, y: int, width: int, height: int) -> None:
+        # Resize and rotate the image
+        # resized_image = self.image.resize((self.width, self.height))
+        # rotated_image = resized_image.rotate(self.angle, expand=True)
+
         self.image = self.image.crop((x, y, x + width, y + height))
 
     def copy(self, x: int, y: int, width: int, height: int) -> 'CanvasImage':
@@ -208,7 +212,7 @@ class CanvasImage:
 
         self.image.paste(canvasImage.image, (x, y))
 
-    def applyTransformations(self, width, height, degrees = 0):
+    def applyTransformations(self, width: int, height: int, degrees: int = 0):
         self.angle = degrees
         # Resize and rotate the image
         resized_image = self.image.resize((width, height))
