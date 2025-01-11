@@ -4,6 +4,13 @@ import os
 from DrawLibrary.Core.Math.vector2 import Vector2
 from DrawLibrary.Core.Collision.aabb import AABB
 
+class CutImageInfos:
+    def __init__(self, x, y, width, height):
+        self.x = x
+        self.y = y
+        self.width = width
+        self.height = height
+
 class CanvasImage:
     #region Constructor
     
@@ -42,6 +49,7 @@ class CanvasImage:
         self.originalImage : Image = None
         self.image: Image = None
         self.photoImage: ImageTk.PhotoImage = None
+        self.cuts = []
 
         self.debugBbox: int = -1  
 
@@ -107,8 +115,8 @@ class CanvasImage:
         return self._angle
     
     @angle.setter
-    def angle(self, degrees: int):
-        self._angle = (self.angle + degrees) % 360
+    def angle(self, newValue: int):
+        self._angle = newValue % 360
     
     #endregion Property
 
@@ -139,6 +147,8 @@ class CanvasImage:
         canvasImage.height = self.height
         canvasImage._angle = self.angle
 
+        canvasImage.cuts = self.cuts
+
         return canvasImage
 
     def cut(self, x: int, y: int, width: int, height: int) -> None:
@@ -157,6 +167,8 @@ class CanvasImage:
             The height the image is going to be cut from
         """
 
+        self.cuts.append(CutImageInfos(x, y, width, height))
+
         # Create a blank image
         new_img = self.image.convert("RGBA")
         mask = Image.new("RGBA", (width, height), (0, 0, 0, 0))
@@ -168,9 +180,6 @@ class CanvasImage:
         self.photoImage = ImageTk.PhotoImage(new_img)
     
     def crop(self, x: int, y: int, width: int, height: int) -> None:
-        # Resize and rotate the image
-        # resized_image = self.image.resize((self.width, self.height))
-        # rotated_image = resized_image.rotate(self.angle, expand=True)
         self.image = self.image.crop((x, y, x + width, y + height))
 
     def copy(self, x: int, y: int, width: int, height: int) -> 'CanvasImage':
