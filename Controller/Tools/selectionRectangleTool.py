@@ -245,7 +245,7 @@ class SelectionRectangleTool:
 
     def on_delete(self, event: tk.Event) -> None:
         if self.SRCC.hasSelectionRectangle() and not self.selectionRectangle.attachedImage:
-            def deleteCallBack(image, intersectRectangle: AABB, relativeCoords: Vector2):
+            def deleteCallBack(image: CanvasImage, intersectRectangle: AABB, relativeCoords: Vector2):
                 # Cut the intersecting region from the image
                 image.cut(
                     relativeCoords.x, relativeCoords.y,
