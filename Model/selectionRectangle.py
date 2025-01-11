@@ -152,12 +152,6 @@ class SelectionRectangle(AABB):
 
     def setCoords(self, newMin: Vector2, newMax: Vector2) -> None:
         # Update the selection rectangle coordinates
-        if newMin.x < 0:
-            newMin.x = 0
-            newMax.x = self.max.x
-        if newMin.y < 0:
-            newMin.y = 0
-            newMax.y = self.max.y
         self.min = newMin
         self.max = newMax
 
