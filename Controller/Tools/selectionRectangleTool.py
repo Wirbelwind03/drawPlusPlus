@@ -92,6 +92,42 @@ class SelectionRectangleTool:
                 # Execute the callback
                 callback(image, intersectRectangle, relative_coords)
 
+    def clipBoardCopy(self):
+        if self.SRCC.hasSelectionRectangle():
+            sr = self.selectionRectangle
+            blankCanvasImage = CanvasImage.createTransparent(sr.width, sr.height)
+            isBlank = True
+
+            def copyCallBack(image: CanvasImage, intersectRectangle: AABB, relativeCoords: Vector2) -> None:
+                nonlocal isBlank
+                region = image.copy(
+                    relativeCoords.x, relativeCoords.y,
+                    intersectRectangle.width, intersectRectangle.height
+                )
+                blankCanvasImage.paste(
+                    intersectRectangle.min.x - sr.topLeft.x,
+                    intersectRectangle.min.y - sr.topLeft.y,
+                    region
+                )
+                isBlank = False
+            
+            self.processIntersections(copyCallBack)
+
+            # If there have images detected inside the selection rectangle
+            # Attach it to the selection rectangle
+            if not isBlank:
+                # Draw the composed image (created from detected regions) on the canvas
+                blankCanvasImage = self.SRCC.CC.drawImage(
+                    blankCanvasImage, 
+                    self.selectionRectangle.min.x + self.selectionRectangle.width // 2, 
+                    self.selectionRectangle.min.y + self.selectionRectangle.height // 2, 
+                    self.selectionRectangle.width, 
+                    self.selectionRectangle.height
+                )
+                # Attach the created image to the selection rectangle
+                self.selectionRectangle.attachedImage = blankCanvasImage 
+                self.SRCC.clipBoardCopy()
+
     #region Event
 
     def on_mouse_over(self, event):
@@ -224,40 +260,7 @@ class SelectionRectangleTool:
             self.SRCC.deleteSelectionRectangle()
 
     def on_control_c(self, event: tk.Event) -> None:
-        if self.SRCC.hasSelectionRectangle():
-            sr = self.selectionRectangle
-            blankCanvasImage = CanvasImage.createTransparent(sr.width, sr.height)
-            isBlank = True
-
-            def copyCallBack(image, intersectRectangle: AABB, relativeCoords: Vector2):
-                nonlocal isBlank
-                region = image.copy(
-                    relativeCoords.x, relativeCoords.y,
-                    intersectRectangle.width, intersectRectangle.height
-                )
-                blankCanvasImage.paste(
-                    intersectRectangle.min.x - sr.topLeft.x,
-                    intersectRectangle.min.y - sr.topLeft.y,
-                    region
-                )
-                isBlank = False
-            
-            self.processIntersections(copyCallBack)
-
-            # If there have images detected inside the selection rectangle
-            # Attach it to the selection rectangle
-            if not isBlank:
-                # Draw the composed image (created from detected regions) on the canvas
-                blankCanvasImage = self.SRCC.CC.drawImage(
-                    blankCanvasImage, 
-                    self.selectionRectangle.min.x + self.selectionRectangle.width // 2, 
-                    self.selectionRectangle.min.y + self.selectionRectangle.height // 2, 
-                    self.selectionRectangle.width, 
-                    self.selectionRectangle.height
-                )
-                # Attach the created image to the selection rectangle
-                self.selectionRectangle.attachedImage = blankCanvasImage 
-                self.SRCC.on_control_c(event)
+        self.clipBoardCopy()
 
     def on_control_v(self, event: tk.Event) -> None:
         self.SRCC.on_control_v(event)
