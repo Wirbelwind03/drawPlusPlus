@@ -1,6 +1,6 @@
 from DrawLibrary.Graphics.canvasImage import CanvasImage
 
-class CanvasEntities:
+class CanvasImages:
     def __init__(self) -> None:
         self.images: dict[int, CanvasImage] = {}
 
