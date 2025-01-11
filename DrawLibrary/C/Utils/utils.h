@@ -23,4 +23,7 @@ int SaveDrawing(SDL_Renderer* renderer, SDL_Rect captureRect, int angle, char* f
 
 void ClearCanvas(SDL_Renderer *renderer, int r, int g, int b, int a);
 
+// Function to ensure the capture rectangle is within valid bounds
+void AdjustCaptureRect(SDL_Rect* captureRect);
+
 #endif

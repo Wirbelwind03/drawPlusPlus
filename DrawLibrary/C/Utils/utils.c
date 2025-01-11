@@ -2,6 +2,7 @@
 #include <SDL2_rotozoom.h>
 
 #include "utils.h"
+#include "globals.h"
 
 int SDL_Start(){
     // Initialisation de SDL
@@ -108,4 +109,26 @@ int SaveDrawing(SDL_Renderer* renderer, SDL_Rect captureRect, int angle, char* f
 void ClearCanvas(SDL_Renderer *renderer, int r, int g, int b, int a){
     SDL_SetRenderDrawColor(renderer, r, g, b, a);
     SDL_RenderClear(renderer);
+}
+
+void AdjustCaptureRect(SDL_Rect *captureRect) {
+    // Ensure the capture rectangle's coordinates are valid
+    if (captureRect->x < 0) {
+        captureRect->w += captureRect->x;  // Reduce width if it overflows to the left
+        captureRect->x = 0;  // Reset to 0 if it's off-screen
+    }
+
+    if (captureRect->y < 0) {
+        captureRect->h += captureRect->y;  // Reduce height if it overflows to the top
+        captureRect->y = 0;  // Reset to 0 if it's off-screen
+    }
+
+    // Check if the rectangle extends beyond the window (right and bottom)
+    if (captureRect->x + captureRect->w > SCREEN_WIDTH) {  
+        captureRect->w = SCREEN_WIDTH - captureRect->x;  // Adjust the width to fit within the window
+    }
+
+    if (captureRect->y + captureRect->h > SCREEN_HEIGHT) {  
+        captureRect->h = SCREEN_HEIGHT - captureRect->y;  // Adjust the height to fit within the window
+    }
 }
