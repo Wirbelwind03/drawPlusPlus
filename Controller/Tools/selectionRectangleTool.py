@@ -13,9 +13,11 @@ from Controller.toolBarController import ToolBarController
 
 from Model.selectionRectangle import SelectionRectangleAction, SelectionRectangle
 
+from View.Resources.Widgets.toolBar import ToolBar
+
 class TempRectangleState:
     """
-
+    Save the properties of the temporary rectangle created on the canvas
 
     Attributes
     -----------
@@ -24,9 +26,9 @@ class TempRectangleState:
     canvasRectangleID : int
         The ID of the selection rectangle drawn on the canvas, when the user is still resizing it
     """
-    def __init__(self):
-        self.startCoords = None
-        self.canvasRectangleID = -1
+    def __init__(self) -> None:
+        self.startCoords: Vector2 = None
+        self.canvasRectangleID: int = -1
 
 class SelectionRectangleTool:
     """
@@ -47,7 +49,6 @@ class SelectionRectangleTool:
         self.SRCC = srcc
         self.TBC = TBC
         
-        self.__debugBbox = -1
         self.__tempRectangleState = TempRectangleState()
 
     @property
@@ -61,24 +62,22 @@ class SelectionRectangleTool:
     @property
     def selectionRectangle(self) -> SelectionRectangle:
         return self.SRCC.selectionRectangle
+    
+    @property
+    def toolBar(self) -> ToolBar:
+        return self.TBC.view
         
-    def createDebugBbox(self):
-        if self.__debugBbox:
-            self.canvas.delete(self.__debugBbox)
-
-        self.__debugBbox = self.canvas.create_rectangle(self.selectionRectangle.min.x, self.selectionRectangle.min.y, self.selectionRectangle.max.x, self.selectionRectangle.max.y, outline="black", width=2)
-
     #region Event
 
-    def on_mouse_over(self, event):
+    def on_mouse_over(self, event: tk.Event) -> None:
         """
-        A event for when the mouse is hovering on the canvas
+        Triggered when the mouse is over the canvas
 
         Parameters
-        -----------
-        event : 
+        ----------
+        event : tk.Event
+            The event object containing details about the mouse event, such as position (x, y).
         """
-
         # Get the cursor position
         mouseCoords = Vector2(event.x, event.y)
 
@@ -86,13 +85,13 @@ class SelectionRectangleTool:
 
     def on_button_press(self, event):
         """
-        A event for when the user left click on the canvas
+        Triggered when the left mouse button is pressed on the canvas.
 
         Parameters
-        -----------
-        event : 
+        ----------
+        event : tk.Event
+            The event object containing details about the button press event, such as position (x, y).
         """
-
         # Get the cursor position
         mouseCoords = Vector2(event.x, event.y)
 
@@ -123,13 +122,13 @@ class SelectionRectangleTool:
 
     def on_mouse_drag(self, event):
         """
-        A event for when the mouse is dragged over on the canvas
+        Triggered when the mouse is dragged across the canvas while the mouse left click is hold.
 
         Parameters
-        -----------
-        event : 
+        ----------
+        event : tk.Event
+            The event object containing details about the drag event, such as position (x, y) and button state.
         """
-
         # Get the cursor position
         mouseCoords = Vector2(event.x, event.y)
 
@@ -153,16 +152,17 @@ class SelectionRectangleTool:
         
     def on_button_release(self, event):
         """
-        A event for when the left click is released on the canvas
+        Triggered when the left mouse click is released on the canvas.
 
         Parameters
-        -----------
-        event : 
+        ----------
+        event : tk.Event
+            The event object containing details about the button release event, such as position (x, y).
         """
-
         # Get the cursor position
         mouseCoords = Vector2(event.x, event.y)
 
+        # Since the selection rectangle has been created, stop this function
         if self.SRCC.hasSelectionRectangle() and self.SRCC.action != SelectionRectangleAction.NONE:
             return
         
@@ -185,18 +185,58 @@ class SelectionRectangleTool:
         self.SRCC.deleteSelectionRectangle()
 
     def on_control_c(self, event: tk.Event) -> None:
+        """
+        Triggered when the "Ctrl+C" keyboard shortcut is pressed (Copy command).
+
+        Parameters
+        ----------
+        event : tk.Event
+            The event object containing details about the keypress event.
+        """
         self.SRCC.on_control_c(event)
 
     def on_control_v(self, event: tk.Event) -> None:
+        """
+        Triggered when the "Ctrl+V" keyboard shortcut is pressed (Paste command).
+
+        Parameters
+        ----------
+        event : tk.Event
+            The event object containing details about the keypress event.
+        """
         self.SRCC.on_control_v(event)
 
     def on_control_x(self, event: tk.Event) -> None:
+        """
+        Triggered when the "Ctrl+X" keyboard shortcut is pressed (Cut command).
+
+        Parameters
+        ----------
+        event : tk.Event
+            The event object containing details about the keypress event.
+        """
         self.SRCC.on_control_x(event)
 
     def on_left(self, event: tk.Event) -> None:
+        """
+        Triggered when the left arrow key on the keyboard is pressed.
+
+        Parameters
+        ----------
+        event : tk.Event
+            The event object containing details about the keypress event.
+        """
         self.SRCC.on_left(event)
 
     def on_right(self, event: tk.Event) -> None:
+        """
+        Triggered when the right arrow key on the keyboard is pressed.
+
+        Parameters
+        ----------
+        event : tk.Event
+            The event object containing details about the keypress event.
+        """
         self.SRCC.on_right(event)
 
     #endregion Event

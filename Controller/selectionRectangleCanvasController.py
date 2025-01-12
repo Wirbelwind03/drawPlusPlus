@@ -16,6 +16,8 @@ from Model.selectionRectangle import SelectionRectangleAction
 
 from Controller.toolBarController import ToolBarController
 
+from View.Resources.Widgets.toolBar import ToolBar
+
 class GapOffset:
     def __init__(self):
         self.start = Vector2(0, 0)
@@ -68,7 +70,7 @@ class SelectionRectangleCanvasController:
         return self.CC.model.images.items()
 
     @property
-    def toolBar(self):
+    def toolBar(self) -> ToolBar:
         return self.TBC.view
     
     @property
@@ -459,7 +461,7 @@ class SelectionRectangleCanvasController:
 
     def on_mouse_over(self, event) -> None:
         """
-        Triggered when the mouse is over the selection rectangle
+        Triggered when the mouse is over the canvas
 
         Parameters
         ----------
@@ -481,7 +483,7 @@ class SelectionRectangleCanvasController:
 
     def on_button_press(self, event: tk.Event) -> None:
         """
-        Triggered when the left mouse button is pressed on the selection rectangle.
+        Triggered when the left mouse button is pressed on the canvas.
 
         Parameters
         ----------
@@ -498,7 +500,7 @@ class SelectionRectangleCanvasController:
 
     def on_mouse_drag(self, event: tk.Event) -> None:
         """
-        Triggered when the mouse is dragged across the canvas while a button is pressed.
+        Triggered when the mouse is dragged across the canvas while the mouse left click is hold.
 
         Parameters
         ----------
@@ -522,7 +524,7 @@ class SelectionRectangleCanvasController:
 
     def on_button_release(self, event: tk.Event) -> None:
         """
-        Triggered when the left mouse button is released on the canvas.
+        Triggered when the left mouse click is released on the canvas.
 
         Parameters
         ----------
