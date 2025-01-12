@@ -348,6 +348,18 @@ class AABB(Rectangle):
             raise TypeError()
     
     def getIntersectRectangle(self, other) -> 'AABB':
+        """
+        Get the intersection rectangle
+
+        Parameters
+        -----------
+        other : Rectangle
+            
+        Returns
+        -----------
+        AABB
+            A rectangle that is the intersection between the two
+        """
         if isinstance(other, Rectangle):
             # Top-left corner of the intersecting rectangle
             x1 = max(self.topLeft.x, other.topLeft.x)

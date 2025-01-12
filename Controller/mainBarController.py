@@ -7,11 +7,16 @@ from View.Resources.Widgets.gear import SettingsWindow
 
 class MainBarController:
     """
+        A class to communicate with the main bar (the one at top right)
+
         Attributes
         -----------
         view : MainBar
+            The view where the controller is tied to
         SC : SettingsWindowController
+            Used to communicate settings from the MainBarController to the SettingsWindowController
         on_settings_window_closed_callback : callable
+            What event would be tied to when the settings window is closed
     """
     def __init__(self, view: MainBar, SC: SettingsWindowController) -> None:
         self.view = view
@@ -56,7 +61,9 @@ class MainBarController:
         event : tk.Event
             The event to be called when the settings window get closed
         """
-        if event.widget == self.SC.gearWindow:  # Ensure it's the gearWindow that triggered the event
+        if event.widget == self.SC.settingsWindow:
+            # Save the settings before closing
             self.SC.save_settings()
+            # If the event for the settings window close is not empty, call it
             if self.on_settings_window_closed_callback:
                 self.on_settings_window_closed_callback()

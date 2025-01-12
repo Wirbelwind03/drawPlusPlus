@@ -36,6 +36,8 @@ class CanvasController:
         -----------
         view : tk.Canvas
             The canvas where the ViewModel is going to be tied to
+        model : CanvasImages
+            The model used for the controller, used to get informations on the canvasImages present on the canvas
         toolManager : ToolManager
             The tools tied to this controller, for example, the selection tool, the selection rectangle creation tool, etc.
         DCC : DebugCanvasController
@@ -106,7 +108,7 @@ class CanvasController:
         # Draw debug informations of the canvas Image
         if DEBUG and self.DCC != None:
             self.DCC.addCanvasID(newCanvasImage)
-            self.DCC.drawCanvasImageDebugInfos(newCanvasImage)
+            self.DCC.drawCanvasImageDebugInformations(newCanvasImage)
 
         # Put the image to dictionary with the canvas id as the key
         self.model.addEntity(imageId, newCanvasImage)

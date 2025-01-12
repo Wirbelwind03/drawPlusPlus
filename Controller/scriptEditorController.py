@@ -64,10 +64,21 @@ class ScriptEditorController:
 
         self.refresh_widgets_event = None  # Callback attribute
 
-    def set_event_refresh_widgets(self, event):
+    def set_event_refresh_widgets(self, event: callable) -> None:
+        """
+        Set the event for refreshing the widgets
+
+        Parameters
+        -----------
+        event : callable
+            The event to set for refreshing the widgets
+        """
         self.refresh_widgets_event = event
 
     def executeCode(self):
+        """
+        Execute the code inside the textEditor
+        """
         # Retrieve the entire text content from the text editor starting at line 1, character 0, to the end
         code = self.textEditor.openedTab.get("1.0", tk.END)
 
@@ -90,40 +101,40 @@ class ScriptEditorController:
             parser = DrawScriptParser(tokens)
             ast_nodes, parse_errors = parser.parse()
 
-            # -- Vérification: si le parseur a retourné des erreurs, on les affiche:
+            # -- If the parser has error, show them
             if parse_errors:
-                print("=== Erreurs de parsing détectées ===")
+                print("=== Parsing errors detected ===")
                 for err in parse_errors:
-                    # Chaque err est un dict: {"message": str(e), "line": line}
+                    # Each error is a dict: {"message": str(e), "line": line}
                     ligne = err["line"]
                     message = err["message"]
                     self.terminal.text_widget.insert(tk.END, f"Ligne {ligne}: {message}\n")
                     print(f"Ligne {ligne}: {message}")
 
-                    # Met la ligne incriminée en rouge
+                    # Put the error line in red
                     self.highlight_error(message, ligne)
-                print("Impossible de poursuivre l'analyse sémantique.")
+                print("Impossible to continue with the semantic analysis.")
                 raise Exception
             else:
-                print("Aucune erreur de parsing.")
-                # Si pas d'erreur de parsing, on effectue l'analyse sémantique
+                print("No parsing errors.")
+                # Do the semantic analysis
                 analyzer = SemanticAnalyzer()
                 semantic_errors = analyzer.analyze(ast_nodes)
 
                 if semantic_errors:
-                    print("=== Erreurs sémantiques détectées ===")
+                    print("=== Semantic errors detected ===")
                     for err in semantic_errors:
                         self.terminal.text_widget.insert(tk.END, err)
                         print(err)
-                    print("Annulation de la génération du code C.")
+                    print("Cancel generation of code C")
                     raise Exception
                 else:
-                    print("Aucune erreur sémantique, génération du code C en cours.")
+                    print("No semantic errors, generating code C")
                     interpreter = DrawScriptDeserializerC(ast_nodes, self.CC)
                     interpreter.write_c()
 
                     # Indicate successful execution in the terminal
-                    self.terminal.text_widget.insert(tk.END, "Exécution réussie !\n")
+                    self.terminal.text_widget.insert(tk.END, "Compilation successful !\n")
 
                     # Get the directory where the code is ran
                     current_directory = os.getcwd()
@@ -189,31 +200,42 @@ class ScriptEditorController:
         self.textEditor.openedTab.tag_add("error", f"{line_number}.0", f"{line_number}.end")
         self.textEditor.openedTab.tag_config("error", underlinefg="red", underline=True)
 
-    # Fonction pour charger un fichier
     def load_file(self):
+        """
+        Event when the user click on load on the menu bar
+        """
+        # Open a file dialog to ask where the user want to load the file
         file_path = filedialog.askopenfilename(filetypes=[("Text Files", "*.txt")])
         if file_path:
             with open(file_path, "r") as file:
+                # Open the file in a new tab
                 self.textEditor.add_editor_tab(Path(file_path).stem)
+                # Select the open tab
                 self.textEditor.notebook.select(len(self.textEditor.editor_tabs) - 1)
+                # Write the text in the new tab
                 self.textEditor.openedTab.insert(tk.END, file.read())
+                # Refresh the widgets so they take the settings font and color
                 if self.refresh_widgets_event:
                     self.refresh_widgets_event()
 
-    # Fonction pour sauvegarder le fichier
-    def save_file(self):
+    def save_file(self) -> None:
+        """
+        Event when the user click on save on the menu bar
+        """
+        # Open a file dialog to ask where the user want to save the file
         file_path = filedialog.asksaveasfilename(defaultextension=".txt", filetypes=[("Text Files", "*.txt")])
         if file_path:
             with open(file_path, "w") as file:
+                # Open a new tab in the textEditor
                 file.write(self.textEditor.openedTab.get("1.0", tk.END))
 
-    # Fonction de création de fichier (pour l'instant vide)
     def create_new_file(self):
         # "+ 1" because the new tab has not been added yet
         self.textEditor.add_editor_tab(f'Fenêtre {len(self.textEditor.editor_tabs) + 1}')
-        # Select the new tab
         # "- 1" because the new tab has been added
+         # Select the new tab
         self.textEditor.notebook.select(len(self.textEditor.editor_tabs) - 1)
+        # Refresh the widgets so they take the settings font and color
         if self.refresh_widgets_event:
             self.refresh_widgets_event()
 

@@ -377,7 +377,7 @@ class SelectionRectangleCanvasController:
 
                 # Draw debug information if debugging is enabled
                 if DEBUG and self.CC.DCC is not None:
-                    self.CC.DCC.drawCanvasImageDebugInfos(self.selectionRectangle.attachedImage)
+                    self.CC.DCC.drawCanvasImageDebugInformations(self.selectionRectangle.attachedImage)
 
             # If there is not image in the selection rectangle, resize the selection rectangle
             else:
@@ -518,7 +518,7 @@ class SelectionRectangleCanvasController:
 
         if DEBUG and self.CC.DCC != None:
             if self.selectionRectangle.attachedImage:
-                self.CC.DCC.drawCanvasImageDebugInfos(self.selectionRectangle.attachedImage)
+                self.CC.DCC.drawCanvasImageDebugInformations(self.selectionRectangle.attachedImage)
 
     def on_button_release(self, event: tk.Event) -> None:
         """
@@ -554,7 +554,7 @@ class SelectionRectangleCanvasController:
         self.render()
 
         if DEBUG and self.CC.DCC != None:
-            self.CC.DCC.drawCanvasImageDebugInfos(self.selectionRectangle.attachedImage)
+            self.CC.DCC.drawCanvasImageDebugInformations(self.selectionRectangle.attachedImage)
 
     def on_right(self, event: tk.Event) -> None:
         """
@@ -574,7 +574,7 @@ class SelectionRectangleCanvasController:
         self.render()
 
         if DEBUG and self.CC.DCC != None:
-            self.CC.DCC.drawCanvasImageDebugInfos(self.selectionRectangle.attachedImage)
+            self.CC.DCC.drawCanvasImageDebugInformations(self.selectionRectangle.attachedImage)
 
     def on_control_c(self, event: tk.Event) -> None:
         """
