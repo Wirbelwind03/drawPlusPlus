@@ -22,22 +22,22 @@ class SettingsWindowController:
         self.gearWindow = gearWindow
         self.gearWindow.save_button.configure(command=lambda : self.save_settings())
         
-   # Fonction pour charger les paramètres depuis le fichier JSON
+   # Load settings from the "appSettings.json"
     def load_settings(self):
-        # Vérifie si le fichier existe et n'est pas vide
+        # Check if file exist and is not empty
         if os.path.exists(self.settingsJsonPath) and os.path.getsize(self.settingsJsonPath) > 0:
             with open(self.settingsJsonPath, "r") as file:
                 self.settings = json.load(file)
         # If the file doesn't exist
         else:
-            # Valeurs par défaut
+            # Default settings
             self.settings = {
                 "font": "Helvetica",
                 "font_size": 12,
                 "dark_mode": False,
             }
 
-            # Crée ou réécrit le fichier avec les valeurs par défaut
+            # Create the settings file
             with open(self.settingsJsonPath, "w") as file:
                 json.dump(self.settings, file, indent=4)
 
@@ -50,7 +50,7 @@ class SettingsWindowController:
         return self.settings
 
 
-    # Fonction pour sauvegarder les paramètres dans le fichier JSON
+    # Save the settings in json file
     def save_settings(self):
         # Récupérer les valeurs actuelles des widgets
         self.settings = {

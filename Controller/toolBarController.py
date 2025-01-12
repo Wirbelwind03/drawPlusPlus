@@ -58,11 +58,6 @@ class ToolBarController:
             print(f"{buttonName} button {'activated' if activate else 'deactivated'}")
 
     def __reset_buttons(self):
-        # self.view.pasteButton.configure(state="disabled")
-        # self.view.copyButton.configure(state="disabled")
-        # self.view.cutButton.configure(state="disabled")
-        # self.view.trashButton.configure(state="disabled")
-
         self.view.mouseButton.configure(bg="#f0f0f0")
         self.view.rectangleButton.configure(bg="#f0f0f0")
 
