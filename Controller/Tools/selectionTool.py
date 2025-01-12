@@ -47,8 +47,7 @@ class SelectionTool:
     def on_mouse_over(self, event: tk.Event) -> None:
         mouseCoords = Vector2(event.x, event.y)
 
-        if self.SRCC.hasSelectionRectangle():
-            self.SRCC.on_mouse_over(event)
+        self.SRCC.on_mouse_over(event)
 
     def on_button_press(self, event: tk.Event) -> None:
         mouseCoords = Vector2(event.x, event.y)

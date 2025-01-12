@@ -82,8 +82,7 @@ class SelectionRectangleTool:
         # Get the cursor position
         mouseCoords = Vector2(event.x, event.y)
 
-        if self.SRCC.hasSelectionRectangle():
-            self.SRCC.on_mouse_over(event)
+        self.SRCC.on_mouse_over(event)
 
     def on_button_press(self, event):
         """
