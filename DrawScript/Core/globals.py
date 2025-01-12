@@ -1,6 +1,5 @@
 GLOBAL_SYMBOLS_FUNCTIONS = {
-    "setColorRGB": 3,   #(r, g, b)
-    "setColorRGBA": 4,  #(r, g, b, a)
+    "setRGBA": 4,  #(r, g, b, a)
     "drawCircle": 3,    #(x, y, radius)
     "drawFilledCircle": 3,    #(x, y, radius)
     "drawEllipse": 4,   #(x, y, rx, ry)
@@ -29,7 +28,7 @@ GLOBAL_SYMBOLS_CURSOR_FUNCTIONS = {
     "drawTriangle": 4,   # (x0, y0, x1, y1)
     "drawRectangle": 2,  # (width, height)
     "drawPoint": 0,      # ()
-    "setColor": 1,       #  
+    "setRGBA": 4,       #  
     "setThickness": 1    # 
 }
 

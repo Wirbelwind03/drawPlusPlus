@@ -220,6 +220,10 @@ class DrawScriptDeserializerC:
             elif callee == "drawRectangle":
                 x, y, width, height = arguments[:4]
                 deserialized += format_code("drawRectangle", x, y, width, height, 0, r, g, b, a)
+            elif callee == "setRGBA":
+                r, g, b, a = arguments[:4]
+                r, g, b, a = [255 - int(value) if int(value) > 255 else int(value) for value in (r, g, b, a)]
+                self.current_color = [r, g, b, a]
             else:
                 print(callee)
 
@@ -279,5 +283,9 @@ class DrawScriptDeserializerC:
         elif method == "drawTriangle":
             x0, y0, x1, y1 = arguments[:4]
             deserialized += format_code("Cursor_DrawTriangle", x0, y0, x1, y1)
+        elif method == "setRGBA":
+            r, g, b, a = arguments[:4]
+            r, g, b, a = [255 - int(value) if int(value) > 255 else int(value) for value in (r, g, b, a)]
+            deserialized += format_code("Cursor_SetRGBA", r, g, b, a)
 
         return deserialized
