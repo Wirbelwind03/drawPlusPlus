@@ -47,7 +47,7 @@ class MainBarController:
         # Load the settings saved in "appSettings.json"
         self.SC.load_settings()
 
-    def on_settings_window_closed(self, event: callable) -> None:
+    def on_settings_window_closed(self, event: tk.Event) -> None:
         """
         Callback triggered when the gearWindow is destroyed.
 

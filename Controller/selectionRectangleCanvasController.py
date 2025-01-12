@@ -10,7 +10,7 @@ from DrawLibrary.Core.Collision.aabb import AABB
 from DrawLibrary.Graphics.canvasImage import CanvasImage
 from DrawLibrary.Graphics.imageUtils import ImageUtils
 
-from Model.canvasEntities import CanvasEntities
+from Model.canvasImages import CanvasImages
 from Model.selectionRectangle import SelectionRectangle
 from Model.selectionRectangle import SelectionRectangleAction
 
@@ -29,6 +29,8 @@ class SelectionRectangleCanvasController:
     -----------
     CC : CanvasController
         A Controller used to communicate with the Canvas
+    clipBoardImage : CanvasImage
+        The Canvas image stored in the clip board
     """
 
     def __init__(self, CC: CanvasController, TBC: ToolBarController) -> None:
@@ -39,12 +41,12 @@ class SelectionRectangleCanvasController:
         self.clipBoardImage : CanvasImage = None
         
         # Connect event to the input of the rotation
-        self.selectionRectangleRotation_trace_id = self.toolBar.selectionRectangleRotation.trace_add("write", self.on_selection_rectangle_rotation_change)
+        self.toolBar.selectionRectangleRotation.trace_add("write", lambda *args: self.on_selection_rectangle_dimension_change("rotation"))
         self.toolBar.rotationInput.configure(command=self.on_rotation_input_change)
 
         # Connect event to the inputs of the resize
-        self.selectionRectangleWidth_trace_id = self.toolBar.selectionRectangleWidth.trace_add("write", lambda *args: self.on_selection_rectangle_dimension_change("width"))
-        self.selectionRectangleHeight_trace_id = self.toolBar.selectionRectangleHeight.trace_add("write", lambda *args: self.on_selection_rectangle_dimension_change("height"))
+        self.toolBar.selectionRectangleWidth.trace_add("write", lambda *args: self.on_selection_rectangle_dimension_change("width"))
+        self.toolBar.selectionRectangleHeight.trace_add("write", lambda *args: self.on_selection_rectangle_dimension_change("height"))
         self.toolBar.widthInput.configure(command=self.on_width_input_change)
         self.toolBar.heightInput.configure(command=self.on_height_input_change)
 
@@ -56,6 +58,14 @@ class SelectionRectangleCanvasController:
         self.__gapOffset = GapOffset()
 
     #region Properties
+
+    @property
+    def canvas(self) -> tk.Canvas:
+        return self.CC.view
+    
+    @property
+    def canvasImages(self):
+        return self.CC.model.images.items()
 
     @property
     def toolBar(self):
@@ -92,8 +102,8 @@ class SelectionRectangleCanvasController:
         else:
             self.CC.view.config(cursor="arrow")
 
-        if DEBUG:
-            print(f"Selection Rectangle Action set: {action.name}")
+        # if DEBUG:
+        #     print(f"Selection Rectangle Action set: {action.name}")
 
     #endregion
 
@@ -103,6 +113,13 @@ class SelectionRectangleCanvasController:
         self.selectionRectangle = selectionRectangle
         if attachedImage:
             self.selectionRectangle.attachedImage = attachedImage
+
+        # Draw the main frame of the selection rectangle
+        self.selectionRectangle.canvasIdRectangle = self.CC.view.create_rectangle(
+            self.selectionRectangle.x, self.selectionRectangle.y, 
+            self.selectionRectangle.x + self.selectionRectangle.width, self.selectionRectangle.y + self.selectionRectangle.height, 
+            outline="black", width=2, dash=(2, 2)
+        )
 
     def hasSelectionRectangle(self) -> bool:
         """
@@ -114,19 +131,32 @@ class SelectionRectangleCanvasController:
             If there is a selection rectangle present on the canvas
         """
         return self.selectionRectangle is not None
-    
-    def create(self) -> None:
+        
+    def processIntersections(self, callback: callable):
+        """Process intersections between the selection rectangle and canvas images.
+        A callback is executed for each intersection, receiving:
+        - `image`: The intersecting CanvasImage.
+        - `intersect_rectangle`: The intersecting rectangle.
+        - `relative_coords`: The relative position of the intersection.
         """
-        Create a selection rectangle on a canvas.
-        """
-        # Draw the main frame of the selection rectangle
-        self.selectionRectangle.canvasIdRectangle = self.CC.view.create_rectangle(self.selectionRectangle.x, self.selectionRectangle.y, self.selectionRectangle.x + self.selectionRectangle.width, self.selectionRectangle.y + self.selectionRectangle.height, outline="black", width=2, dash=(2, 2))
-    
-    def erase(self) -> None:
-        """
-        Erase all the drawn shapes tied to the selection rectangle on the canvas.
-        """
-        self.CC.view.delete(self.selectionRectangle.canvasIdRectangle)
+        sr = self.selectionRectangle
+        for image_id, image in self.canvasImages:
+            if sr.isIntersecting(image.bbox):
+                intersectRectangle = sr.getIntersectRectangle(image.bbox)
+                relative_coords = Vector2(
+                    intersectRectangle.min.x - image.bbox.min.x,
+                    intersectRectangle.min.y - image.bbox.min.y
+                )
+
+                if DEBUG:
+                    self.canvas.create_rectangle(
+                        intersectRectangle.min.x, intersectRectangle.min.y,
+                        intersectRectangle.max.x, intersectRectangle.max.y,
+                        outline="red", width=2
+                    )
+
+                # Execute the callback
+                callback(image, intersectRectangle, relative_coords)
 
     def render(self) -> None:
         sr = self.selectionRectangle
@@ -144,18 +174,39 @@ class SelectionRectangleCanvasController:
         if not self.selectionRectangle:
             return
         
-        if DEBUG:
-            print("Deselecting the selection rectangle")
-            self.CC.DCC.erase(self.selectionRectangle.attachedImage)
-
         # If there is a attached image in the selection rectangle
         if self.selectionRectangle.attachedImage:
             # Delete the image first
             self.CC.deleteImage(self.selectionRectangle.attachedImage)
             self.selectionRectangle.attachedImage = None
             self.TBC.handle_button_activation("paste", False)
+            if DEBUG:
+                print("Deleting the selection rectangle")
+                self.CC.DCC.erase(self.selectionRectangle.attachedImage)
+            self.deSelect()
 
-        self.deSelect()
+        elif not self.selectionRectangle.attachedImage:
+            def deleteCallBack(image: CanvasImage, intersectRectangle: AABB, relativeCoords: Vector2):
+                # Cut the intersecting region from the image
+                image.cut(
+                    relativeCoords.x, relativeCoords.y,
+                    intersectRectangle.width, intersectRectangle.height
+                )
+            
+            self.processIntersections(deleteCallBack)
+            self.CC.update()
+        
+
+    def deSelect(self):
+        """
+        Deselect the selection rectangle on the canvas.
+        """
+        # Erase the rendering of the selection rectangle
+        self.CC.view.delete(self.selectionRectangle.canvasIdRectangle)
+        # Completly remove the selection rectangle
+        self.selectionRectangle = None
+        # Set the cursor to default (arrow)
+        self.CC.view.config(cursor="arrow")
 
         # Deactivate the buttons
         self.TBC.handle_button_activation("paste", False)
@@ -166,69 +217,39 @@ class SelectionRectangleCanvasController:
         # Deactive the inputs of the resize
         self.toolBar.selectionRectangleWidth.set(0)
         self.toolBar.selectionRectangleHeight.set(0)
+        self.toolBar.selectionRectangleRotation.set(0)
         self.toolBar.widthInput.configure(state="disabled")
         self.toolBar.heightInput.configure(state="disabled")
         self.toolBar.rotationInput.configure(state="disabled")
 
-    def deSelect(self):
-        """
-        Deselect the selection rectangle on the canvas.
-        """
-        # Erase the rendering of the selection rectangle
-        self.erase()
-        # Completly remove the selection rectangle
-        self.selectionRectangle = None
-        # Set the cursor to default (arrow)
-        self.CC.view.config(cursor="arrow")
-
     def selectImage(self, image: CanvasImage):
         # Create the selection rectangle around the selected image
         self.setSelectionRectangle(SelectionRectangle.fromCoordinates(image.bbox.min.x, image.bbox.min.y, image.bbox.max.x, image.bbox.max.y), image)
-        self.create()
 
-        # Temporarily remove the trace for selectionRectangleWidth
-        self.toolBar.selectionRectangleWidth.trace_remove("write", self.selectionRectangleWidth_trace_id)
-        self.toolBar.selectionRectangleWidth.set(self.selectionRectangle.attachedImage.bbox.width)  # Update the value
-        # Re-add the trace for selectionRectangleWidth
-        self.selectionRectangleWidth_trace_id = self.toolBar.selectionRectangleWidth.trace_add(
-            "write", lambda *args: self.on_selection_rectangle_dimension_change("width")
-        )
-
-        # Temporarily remove the trace for selectionRectangleHeight
-        self.toolBar.selectionRectangleHeight.trace_remove("write", self.selectionRectangleHeight_trace_id)
-        self.toolBar.selectionRectangleHeight.set(self.selectionRectangle.attachedImage.bbox.height)  # Update the value
-        # Re-add the trace for selectionRectangleHeight
-        self.selectionRectangleHeight_trace_id = self.toolBar.selectionRectangleHeight.trace_add(
-            "write", lambda *args: self.on_selection_rectangle_dimension_change("height")
-        )
-        
-        self.toolBar.widthInput.configure(state="normal") # Activate the width input to not be read only
-        self.toolBar.heightInput.configure(state="normal") # Activate the height input to not be read only
-        self.toolBar.rotationInput.configure(state="normal")
-        self.handle_clipboard_cut_activation(True)
-        self.handle_clipboard_copy_activation(True)
-        self.TBC.handle_button_activation("eraser", True)
+        self.toolBar.selectionRectangleWidth.set(self.selectionRectangle.attachedImage.width)  # Update the value
+        self.toolBar.selectionRectangleHeight.set(self.selectionRectangle.attachedImage.height)  # Update the value
+        self.toolBar.selectionRectangleRotation.set(self.selectionRectangle.attachedImage.angle)
+        print(self.selectionRectangle.attachedImage.angle)
+        self.activate_operations()
 
         # Check the action to move since the cursor is inside the image
         self.action = SelectionRectangleAction.MOVE # Set the action that the user can move the image
         self.CC.view.config(cursor="fleur") # Change the cursor look
 
-    def handle_clipboard_paste_activation(self, activate: bool) -> None:
-        if DEBUG:
-            print("Handling paste button state")
-        self.TBC.handle_button_activation("paste", activate, self.clipBoardPaste)
+    def activate_operations(self):
+        self.toolBar.widthInput.configure(state="normal") # Activate the width input to not be read only
+        self.toolBar.heightInput.configure(state="normal") # Activate the height input to not be read only
+        self.toolBar.rotationInput.configure(state="normal")
 
-    def handle_clipboard_copy_activation(self, activate: bool) -> None:
-        if DEBUG:
-            print("Handling copy button state")
-        self.TBC.handle_button_activation("copy", activate, self.clipBoardCopy)
-
-    def handle_clipboard_cut_activation(self, activate: bool) -> None:
-        if DEBUG:
-            print("Handling cut button state")
-        self.TBC.handle_button_activation("cut", activate, self.clipBoardCut)
+        # Activate clip board operations
+        self.TBC.handle_button_activation("cut", True, self.clipBoardCut)
+        self.TBC.handle_button_activation("copy", True, self.clipBoardCopy)
+        self.TBC.handle_button_activation("eraser", True)
 
     def clipBoardPaste(self) -> None:
+        """
+        Paste (aka draw) the clip board image on the canvas
+        """
         if self.hasSelectionRectangle() and self.clipBoardImage:
             if DEBUG:
                 print("Pasting the image")
@@ -241,25 +262,73 @@ class SelectionRectangleCanvasController:
             )
             #self.selectImage(newCanvasImage)
 
-    def clipBoardCopy(self):
-        if self.hasSelectionRectangle() and self.selectionRectangle.attachedImage:
+    def clipBoardCopy(self) -> None:
+        """
+        Copy the attached image of the selection rectangle in the clip board
+        """
+        if not self.hasSelectionRectangle():
+            return
+        
+        # If there only a selection rectangle
+        if not self.selectionRectangle.attachedImage:
+            sr = self.selectionRectangle
+            blankCanvasImage = CanvasImage.createTransparent(sr.width, sr.height)
+            isBlank = True
+
+            def copyCallBack(image: CanvasImage, intersectRectangle: AABB, relativeCoords: Vector2) -> None:
+                nonlocal isBlank
+                region = image.copy(
+                    relativeCoords.x, relativeCoords.y,
+                    intersectRectangle.width, intersectRectangle.height
+                )
+                blankCanvasImage.paste(
+                    intersectRectangle.min.x - sr.topLeft.x,
+                    intersectRectangle.min.y - sr.topLeft.y,
+                    region
+                )
+                isBlank = False
+            
+            self.processIntersections(copyCallBack)
+
+            # If there have images detected inside the selection rectangle
+            # Attach it to the selection rectangle
+            if not isBlank:
+                # Draw the composed image (created from detected regions) on the canvas
+                blankCanvasImage = self.CC.drawImage(
+                    blankCanvasImage, 
+                    self.selectionRectangle.min.x + self.selectionRectangle.width // 2, 
+                    self.selectionRectangle.min.y + self.selectionRectangle.height // 2, 
+                    self.selectionRectangle.width, 
+                    self.selectionRectangle.height
+                )
+                # Attach the created image to the selection rectangle
+                self.selectionRectangle.attachedImage = blankCanvasImage 
+
+        # If a image has been selected
+        if self.selectionRectangle.attachedImage:
             if DEBUG:
                 print("Copying the image")
             self.clipBoardImage = self.selectionRectangle.attachedImage.clone()
             # Activate the paste function of the clipboard
-            self.handle_clipboard_paste_activation(True)
+            self.TBC.handle_button_activation("paste", True, self.clipBoardPaste)
 
-    def clipBoardCut(self):
-        if self.hasSelectionRectangle() and self.selectionRectangle.attachedImage:
+    def clipBoardCut(self) -> None:
+        if not self.hasSelectionRectangle:
+            return
+        
+        if not self.selectionRectangle.attachedImage:
+            self.clipBoardCopy()
+
+        if self.selectionRectangle.attachedImage:
             if DEBUG:
                 print("Cutting the image")
             self.clipBoardImage = self.selectionRectangle.attachedImage.clone()
             self.CC.deleteImage(self.selectionRectangle.attachedImage)
             # Activate the paste function of the clipboard
-            self.handle_clipboard_paste_activation(True)
+            self.TBC.handle_button_activation("paste", True, self.clipBoardPaste)
             # Deactive the cut and copy function of the clipboard
-            self.handle_clipboard_copy_activation(False)
-            self.handle_clipboard_cut_activation(False)
+            self.TBC.handle_button_activation("copy", False, self.clipBoardCopy)
+            self.TBC.handle_button_activation("cut", False, self.clipBoardCut)
 
     #endregion Public Methods
 
@@ -269,53 +338,68 @@ class SelectionRectangleCanvasController:
 
     #region ToolBar Events
 
-    def on_selection_rectangle_rotation_change(self):
-        pass
-
-    def on_rotation_input_change(self):
-        self.toolBar.selectionRectangleRotation.set(int(self.toolBar.rotationInput.get()))
-
     def on_selection_rectangle_dimension_change(self, dimension):
         """Handles changes in selection rectangle dimensions (width or height)."""
-        if not self.selectionRectangle:
-            return
-        
-        # Update the dimension
-        if dimension == "width":
-            self.selectionRectangle.width = self.toolBar.selectionRectangleWidth.get()
-        elif dimension == "height":
-            self.selectionRectangle.height = self.toolBar.selectionRectangleHeight.get()
+        try:
+            if (not self.selectionRectangle):
+                return
+            
+            # If the rectangle is attached to an image, resize and update it
+            if self.selectionRectangle.attachedImage:
+                if dimension == "width":
+                    self.selectionRectangle.attachedImage.width = self.toolBar.selectionRectangleWidth.get()
+                elif dimension == "height":
+                    self.selectionRectangle.attachedImage.height = self.toolBar.selectionRectangleHeight.get()
+                elif dimension == "rotation":
+                    self.selectionRectangle.attachedImage.angle = self.toolBar.rotationInput.get()
 
-        # If the rectangle is attached to an image, resize and update it
-        if self.selectionRectangle.attachedImage:
-            self.CC.applyTransformations(
-                self.selectionRectangle.attachedImage,
-                self.toolBar.selectionRectangleWidth.get(),
-                self.toolBar.selectionRectangleHeight.get()
+                self.CC.applyTransformations(
+                    self.selectionRectangle.attachedImage,
+                    self.selectionRectangle.attachedImage.width,
+                    self.selectionRectangle.attachedImage.height,
+                    self.selectionRectangle.attachedImage.angle
+                )
+                self.selectionRectangle.setCoords(
+                    self.selectionRectangle.attachedImage.bbox.topLeft,
+                    self.selectionRectangle.attachedImage.bbox.bottomRight
+                )
+
+                # Draw debug information if debugging is enabled
+                if DEBUG and self.CC.DCC is not None:
+                    self.CC.DCC.drawCanvasImageDebugInfos(self.selectionRectangle.attachedImage)
+
+            else:
+                if dimension == "width":
+                    self.selectionRectangle.width = self.toolBar.selectionRectangleWidth.get()
+                elif dimension == "height":
+                    self.selectionRectangle.height = self.toolBar.selectionRectangleHeight.get()
+
+
+            # Update the selection rectangle
+            self.CC.view.coords(
+                self.selectionRectangle.canvasIdRectangle,
+                self.selectionRectangle.x,
+                self.selectionRectangle.y,
+                self.selectionRectangle.bottomRight.x,
+                self.selectionRectangle.bottomRight.y
             )
-            self.selectionRectangle.setCoords(
-                self.selectionRectangle.attachedImage.bbox.topLeft,
-                self.selectionRectangle.attachedImage.bbox.bottomRight
-            )
 
-            # Draw debug information if debugging is enabled
-            if DEBUG and self.CC.DCC is not None:
-                self.CC.DCC.drawCanvasImageDebugInfos(self.selectionRectangle.attachedImage)
-
-        # Update the canvas rectangle's coordinates
-        self.CC.view.coords(
-            self.selectionRectangle.canvasIdRectangle,
-            self.selectionRectangle.x,
-            self.selectionRectangle.y,
-            self.selectionRectangle.bottomRight.x,
-            self.selectionRectangle.bottomRight.y
-        )
+        except tk.TclError:
+            if dimension == "width":
+                self.toolBar.selectionRectangleWidth.set(0)
+            elif dimension == "height":
+                self.toolBar.selectionRectangleHeight.set(0)
+            elif dimension == "rotation":
+                self.toolBar.selectionRectangleRotation.set(0)
 
     def on_width_input_change(self):
         self.toolBar.selectionRectangleWidth.set(int(self.toolBar.widthInput.get()))
 
     def on_height_input_change(self):
         self.toolBar.selectionRectangleHeight.set(int(self.toolBar.heightInput.get()))
+
+    def on_rotation_input_change(self):
+        self.toolBar.selectionRectangleRotation.set(int(self.toolBar.rotationInput.get()))
 
     def on_copy_button_click(self):
         self.clipBoardCopy()
@@ -417,6 +501,23 @@ class SelectionRectangleCanvasController:
     def on_left(self, event: tk.Event) -> None:
         mouseCoords = Vector2(event.x, event.y)
 
+        if not self.hasSelectionRectangle():
+            return
+
+        if self.selectionRectangle.attachedImage:
+            self.TBC.view.selectionRectangleRotation.set(self.selectionRectangle.attachedImage.angle + 15)
+            self.selectionRectangle.setCoords(self.selectionRectangle.attachedImage.bbox.topLeft, self.selectionRectangle.attachedImage.bbox.bottomRight)
+
+        # Render the selection rectangle to the new position
+        self.render()
+
+        if DEBUG and self.CC.DCC != None:
+            self.CC.DCC.drawCanvasImageDebugInfos(self.selectionRectangle.attachedImage)
+
+    def on_right(self, event: tk.Event) -> None:
+        mouseCoords = Vector2(event.x, event.y)
+
+        self.TBC.view.selectionRectangleRotation.set(self.selectionRectangle.attachedImage.angle - 15)
         self.selectionRectangle.setCoords(self.selectionRectangle.attachedImage.bbox.topLeft, self.selectionRectangle.attachedImage.bbox.bottomRight)
 
         # Render the selection rectangle to the new position

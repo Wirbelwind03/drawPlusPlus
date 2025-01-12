@@ -8,7 +8,7 @@ from Controller.debugCanvasController import DebugCanvasController
 from DrawLibrary.Graphics.canvasImage import CanvasImage
 from DrawLibrary.Core.Math.vector2 import Vector2
 
-from Model.canvasEntities import CanvasEntities
+from Model.canvasImages import CanvasImages
 from Model.toolManager import ToolManager
 
 class CanvasController:
@@ -42,7 +42,7 @@ class CanvasController:
             A controller used to communicate with the debug informations
         """
         self.view: tk.Canvas = canvas
-        self.model: CanvasEntities = CanvasEntities()
+        self.model: CanvasImages = CanvasImages()
         self.toolManager = toolManager
         self.DCC = DCC
 
@@ -58,6 +58,7 @@ class CanvasController:
         self.view.bind("<Control-Key-v>", self.on_control_v)
         self.view.bind("<Control-Key-x>", self.on_control_x)
         self.view.bind("<Left>", self.on_left)
+        self.view.bind("<Right>", self.on_right)
     
     #region Public Methods
 
@@ -91,14 +92,12 @@ class CanvasController:
         newCanvasImage.width = width
         newCanvasImage.height = height
         
-        # Create the bounding box of the image
+        # Create the bounding box in the center of the image
         newCanvasImage.createAABB(x - width // 2, y - height // 2, width, height)
 
         # Apply the transformations like resize and rotations to the created image
         newCanvasImage.applyTransformations(width, height, degrees)
 
-        # Set the CanvasImage position in the center
-        newCanvasImageCenter = Vector2(x + width // 2, y + height // 2)
         # Draw the image on the tkinter canvas
         imageId = self.view.create_image(x, y, image=newCanvasImage.photoImage) 
         # Assign the canvas id to be stored in the CanvasImage
@@ -130,7 +129,7 @@ class CanvasController:
         canvasImage.applyTransformations(width, height, degrees)
         # Update the image on the canvas
         self.view.itemconfig(canvasImage.id, image=canvasImage.photoImage)
-    
+
     def deleteImage(self, canvasImage: CanvasImage) -> None:
         """
         Delete a specific image
@@ -286,5 +285,16 @@ class CanvasController:
             The event object containing details about the keypress event.
         """
         self.__invoke_active_tool_method("on_left", event)
+
+    def on_right(self, event: tk.Event) -> None:
+        """
+        Triggered when the right arrow key on the keyboard is pressed.
+
+        Parameters
+        ----------
+        event : tk.Event
+            The event object containing details about the keypress event.
+        """
+        self.__invoke_active_tool_method("on_right", event)
 
     #endregion Event

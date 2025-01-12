@@ -4,6 +4,13 @@ import os
 from DrawLibrary.Core.Math.vector2 import Vector2
 from DrawLibrary.Core.Collision.aabb import AABB
 
+class CutImageInfos:
+    def __init__(self, x, y, width, height):
+        self.x = x
+        self.y = y
+        self.width = width
+        self.height = height
+
 class CanvasImage:
     #region Constructor
     
@@ -39,8 +46,10 @@ class CanvasImage:
         self.width = 0
         self.height = 0
         self._angle: int = 0
+        self.originalImage : Image = None
         self.image: Image = None
         self.photoImage: ImageTk.PhotoImage = None
+        self.cuts = []
 
         self.debugBbox: int = -1  
 
@@ -49,6 +58,7 @@ class CanvasImage:
         blankCanvasImage = CanvasImage()
 
         blankImage = Image.new("RGBA", (width, height), (0, 0, 0, 0))
+        blankCanvasImage.originalImage = blankImage
         blankCanvasImage.image = blankImage
         blankCanvasImage.photoImage = ImageTk.PhotoImage(blankImage)
 
@@ -71,7 +81,8 @@ class CanvasImage:
                 raise FileNotFoundError(f"The file '{filePath}' does not exist.")
             canvasImage = CanvasImage()
             canvasImage.filePath = filePath
-            canvasImage.image = Image.open(filePath)
+            canvasImage.originalImage = Image.open(filePath)
+            canvasImage.image = canvasImage.originalImage
             canvasImage.photoImage = ImageTk.PhotoImage(canvasImage.image)
             canvasImage.width = canvasImage.image.width
             canvasImage.height = canvasImage.image.height
@@ -82,6 +93,21 @@ class CanvasImage:
 
     #endregion Constructor
 
+    def __repr__(self) -> str:
+        return (
+            f"{self.__class__.__name__}("
+            f"id={self.id}, "
+            f"_center={self._center}, "
+            f"bbox={self.bbox},"
+            f"filePath='{self.filePath}', "
+            f"width={self.width}, "
+            f"height={self.height}, "
+            f"_angle={self.angle}, "
+            f"image={self.image}, "
+            f"photoImage={self.photoImage}, "
+            f"debugBbox={self.debugBbox})"
+        )
+
     #region Property
 
     @property
@@ -89,8 +115,8 @@ class CanvasImage:
         return self._angle
     
     @angle.setter
-    def angle(self, degrees: int):
-        self._angle = (self.angle + degrees) % 360
+    def angle(self, newValue: int):
+        self._angle = newValue % 360
     
     #endregion Property
 
@@ -112,13 +138,16 @@ class CanvasImage:
         canvasImage.id = -1
         canvasImage.bbox = self.bbox
         
-        canvasImage.image = self.image.copy()
+        canvasImage.originalImage = self.originalImage
+        canvasImage.image = self.image 
         canvasImage.photoImage = ImageTk.PhotoImage(canvasImage.image)
         canvasImage.filePath = self.filePath
 
         canvasImage.width = self.width
         canvasImage.height = self.height
-        canvasImage.angle = 0
+        canvasImage._angle = self.angle
+
+        canvasImage.cuts = self.cuts
 
         return canvasImage
 
@@ -137,6 +166,8 @@ class CanvasImage:
         height : int
             The height the image is going to be cut from
         """
+
+        self.cuts.append(CutImageInfos(x, y, width, height))
 
         # Create a blank image
         new_img = self.image.convert("RGBA")
@@ -193,10 +224,10 @@ class CanvasImage:
 
         self.image.paste(canvasImage.image, (x, y))
 
-    def applyTransformations(self, width, height, degrees = 0):
+    def applyTransformations(self, width: int, height: int, degrees: int = 0):
         self.angle = degrees
         # Resize and rotate the image
-        resized_image = self.image.resize((width, height))
+        resized_image = self.originalImage.resize((width, height))
         rotated_image = resized_image.rotate(self.angle, expand=True)
 
         img_width, img_height = rotated_image.size
@@ -209,6 +240,7 @@ class CanvasImage:
         self.bbox.max = Vector2(x1, y1)
         
         # Update canvas with transformed image
+        self.image = rotated_image
         self.photoImage = ImageTk.PhotoImage(rotated_image)
 
     def removeWhiteBackground(self) -> None:

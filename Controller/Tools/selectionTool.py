@@ -18,15 +18,11 @@ class SelectionTool:
     -----------
     srcc : SelectionRectangleCanvasController
         A Controller used to communicate with the selection rectangle
-    __copiedCanvasImage : CanvasImage
-        The copied Canvas image, used for the pasting
     """
 
     def __init__(self, SRCC: SelectionRectangleCanvasController):
         # Connect the selection rectangle controller to the tool
         self.SRCC = SRCC
-
-        self.__copiedCanvasImage = None
 
     @property
     def toolBar(self):
@@ -99,11 +95,10 @@ class SelectionTool:
         self.SRCC.on_control_x(event)
 
     def on_left(self, event: tk.Event) -> None:
-        if self.SRCC.hasSelectionRectangle():
-            sr = self.SRCC.selectionRectangle
-            self.SRCC.CC.applyTransformations(sr.attachedImage, sr.attachedImage.width, sr.attachedImage.height, 10)
-            self.SRCC.on_left(event)
-            print(sr.attachedImage.angle)
+        self.SRCC.on_left(event)
+
+    def on_right(self, event: tk.Event) -> None:
+        self.SRCC.on_right(event)
 
     #endregion Event
 

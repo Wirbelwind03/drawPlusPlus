@@ -95,7 +95,7 @@ void Cursor_Rotate(Cursor* cursor, int degrees){
     cursor->angle = degrees;
 }
 
-void Cursor_SetColor(Cursor* cursor, int r, int g, int b, int a){
+void Cursor_SetRGBA(Cursor* cursor, int r, int g, int b, int a){
     cursor->rgba[0] = r;
     cursor->rgba[1] = g;
     cursor->rgba[2] = b;

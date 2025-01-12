@@ -29,7 +29,7 @@ void Cursor_DrawSegment(Cursor* cursor, SDL_Renderer* renderer, int length, char
 void Cursor_DrawTriangle(Cursor* cursor, SDL_Renderer* renderer, int x0, int y0, int x1, int y1, char* filename);
 
 void Cursor_Rotate(Cursor* cursor, int degrees);
-void Cursor_SetColor(Cursor* cursor, int r, int g, int b, int a);
+void Cursor_SetRGBA(Cursor* cursor, int r, int g, int b, int a);
 void Cursor_SetThickness(Cursor* cursor, int thickness);
 
 #endif
