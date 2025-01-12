@@ -66,68 +66,6 @@ class SelectionRectangleTool:
 
         self.__debugBbox = self.canvas.create_rectangle(self.selectionRectangle.min.x, self.selectionRectangle.min.y, self.selectionRectangle.max.x, self.selectionRectangle.max.y, outline="black", width=2)
 
-    def processIntersections(self, callback: callable):
-        """Process intersections between the selection rectangle and canvas images.
-        A callback is executed for each intersection, receiving:
-        - `image`: The intersecting CanvasImage.
-        - `intersect_rectangle`: The intersecting rectangle.
-        - `relative_coords`: The relative position of the intersection.
-        """
-        sr = self.selectionRectangle
-        for image_id, image in self.canvasImages:
-            if sr.isIntersecting(image.bbox):
-                intersectRectangle = sr.getIntersectRectangle(image.bbox)
-                relative_coords = Vector2(
-                    intersectRectangle.min.x - image.bbox.min.x,
-                    intersectRectangle.min.y - image.bbox.min.y
-                )
-
-                if DEBUG:
-                    self.canvas.create_rectangle(
-                        intersectRectangle.min.x, intersectRectangle.min.y,
-                        intersectRectangle.max.x, intersectRectangle.max.y,
-                        outline="red", width=2
-                    )
-
-                # Execute the callback
-                callback(image, intersectRectangle, relative_coords)
-
-    def clipBoardCopy(self):
-        if self.SRCC.hasSelectionRectangle():
-            sr = self.selectionRectangle
-            blankCanvasImage = CanvasImage.createTransparent(sr.width, sr.height)
-            isBlank = True
-
-            def copyCallBack(image: CanvasImage, intersectRectangle: AABB, relativeCoords: Vector2) -> None:
-                nonlocal isBlank
-                region = image.copy(
-                    relativeCoords.x, relativeCoords.y,
-                    intersectRectangle.width, intersectRectangle.height
-                )
-                blankCanvasImage.paste(
-                    intersectRectangle.min.x - sr.topLeft.x,
-                    intersectRectangle.min.y - sr.topLeft.y,
-                    region
-                )
-                isBlank = False
-            
-            self.processIntersections(copyCallBack)
-
-            # If there have images detected inside the selection rectangle
-            # Attach it to the selection rectangle
-            if not isBlank:
-                # Draw the composed image (created from detected regions) on the canvas
-                blankCanvasImage = self.SRCC.CC.drawImage(
-                    blankCanvasImage, 
-                    self.selectionRectangle.min.x + self.selectionRectangle.width // 2, 
-                    self.selectionRectangle.min.y + self.selectionRectangle.height // 2, 
-                    self.selectionRectangle.width, 
-                    self.selectionRectangle.height
-                )
-                # Attach the created image to the selection rectangle
-                self.selectionRectangle.attachedImage = blankCanvasImage 
-                self.SRCC.clipBoardCopy()
-
     #region Event
 
     def on_mouse_over(self, event):
@@ -240,32 +178,24 @@ class SelectionRectangleTool:
 
         self.TBC.view.selectionRectangleWidth.set(self.selectionRectangle.width)
         self.TBC.view.selectionRectangleHeight.set(self.selectionRectangle.height)
-        self.TBC.view.widthInput.configure(state="normal")
-        self.TBC.view.heightInput.configure(state="normal")
+        self.SRCC.activate_operations()
 
     def on_delete(self, event: tk.Event) -> None:
-        if self.SRCC.hasSelectionRectangle() and not self.selectionRectangle.attachedImage:
-            def deleteCallBack(image: CanvasImage, intersectRectangle: AABB, relativeCoords: Vector2):
-                # Cut the intersecting region from the image
-                image.cut(
-                    relativeCoords.x, relativeCoords.y,
-                    intersectRectangle.width, intersectRectangle.height
-                )
-            
-            self.processIntersections(deleteCallBack)
-            self.SRCC.CC.update()
-            self.canvas.delete(self.__debugBbox)
-
-        if self.SRCC.hasSelectionRectangle() and self.selectionRectangle.attachedImage:
-            self.SRCC.deleteSelectionRectangle()
+        self.SRCC.deleteSelectionRectangle()
 
     def on_control_c(self, event: tk.Event) -> None:
-        self.clipBoardCopy()
+        self.SRCC.on_control_c(event)
 
     def on_control_v(self, event: tk.Event) -> None:
         self.SRCC.on_control_v(event)
 
     def on_control_x(self, event: tk.Event) -> None:
         self.SRCC.on_control_x(event)
+
+    def on_left(self, event: tk.Event) -> None:
+        self.SRCC.on_left(event)
+
+    def on_right(self, event: tk.Event) -> None:
+        self.SRCC.on_right(event)
 
     #endregion Event

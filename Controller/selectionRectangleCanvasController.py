@@ -60,6 +60,14 @@ class SelectionRectangleCanvasController:
     #region Properties
 
     @property
+    def canvas(self) -> tk.Canvas:
+        return self.CC.view
+    
+    @property
+    def canvasImages(self):
+        return self.CC.model.images.items()
+
+    @property
     def toolBar(self):
         return self.TBC.view
     
@@ -124,6 +132,32 @@ class SelectionRectangleCanvasController:
         """
         return self.selectionRectangle is not None
         
+    def processIntersections(self, callback: callable):
+        """Process intersections between the selection rectangle and canvas images.
+        A callback is executed for each intersection, receiving:
+        - `image`: The intersecting CanvasImage.
+        - `intersect_rectangle`: The intersecting rectangle.
+        - `relative_coords`: The relative position of the intersection.
+        """
+        sr = self.selectionRectangle
+        for image_id, image in self.canvasImages:
+            if sr.isIntersecting(image.bbox):
+                intersectRectangle = sr.getIntersectRectangle(image.bbox)
+                relative_coords = Vector2(
+                    intersectRectangle.min.x - image.bbox.min.x,
+                    intersectRectangle.min.y - image.bbox.min.y
+                )
+
+                if DEBUG:
+                    self.canvas.create_rectangle(
+                        intersectRectangle.min.x, intersectRectangle.min.y,
+                        intersectRectangle.max.x, intersectRectangle.max.y,
+                        outline="red", width=2
+                    )
+
+                # Execute the callback
+                callback(image, intersectRectangle, relative_coords)
+
     def render(self) -> None:
         sr = self.selectionRectangle
 
@@ -140,18 +174,28 @@ class SelectionRectangleCanvasController:
         if not self.selectionRectangle:
             return
         
-        if DEBUG:
-            print("Deselecting the selection rectangle")
-            self.CC.DCC.erase(self.selectionRectangle.attachedImage)
-
         # If there is a attached image in the selection rectangle
         if self.selectionRectangle.attachedImage:
             # Delete the image first
             self.CC.deleteImage(self.selectionRectangle.attachedImage)
             self.selectionRectangle.attachedImage = None
             self.TBC.handle_button_activation("paste", False)
+            if DEBUG:
+                print("Deleting the selection rectangle")
+                self.CC.DCC.erase(self.selectionRectangle.attachedImage)
+            self.deSelect()
 
-        self.deSelect()
+        elif not self.selectionRectangle.attachedImage:
+            def deleteCallBack(image: CanvasImage, intersectRectangle: AABB, relativeCoords: Vector2):
+                # Cut the intersecting region from the image
+                image.cut(
+                    relativeCoords.x, relativeCoords.y,
+                    intersectRectangle.width, intersectRectangle.height
+                )
+            
+            self.processIntersections(deleteCallBack)
+            self.CC.update()
+        
 
     def deSelect(self):
         """
@@ -222,7 +266,46 @@ class SelectionRectangleCanvasController:
         """
         Copy the attached image of the selection rectangle in the clip board
         """
-        if self.hasSelectionRectangle() and self.selectionRectangle.attachedImage:
+        if not self.hasSelectionRectangle():
+            return
+        
+        # If there only a selection rectangle
+        if not self.selectionRectangle.attachedImage:
+            sr = self.selectionRectangle
+            blankCanvasImage = CanvasImage.createTransparent(sr.width, sr.height)
+            isBlank = True
+
+            def copyCallBack(image: CanvasImage, intersectRectangle: AABB, relativeCoords: Vector2) -> None:
+                nonlocal isBlank
+                region = image.copy(
+                    relativeCoords.x, relativeCoords.y,
+                    intersectRectangle.width, intersectRectangle.height
+                )
+                blankCanvasImage.paste(
+                    intersectRectangle.min.x - sr.topLeft.x,
+                    intersectRectangle.min.y - sr.topLeft.y,
+                    region
+                )
+                isBlank = False
+            
+            self.processIntersections(copyCallBack)
+
+            # If there have images detected inside the selection rectangle
+            # Attach it to the selection rectangle
+            if not isBlank:
+                # Draw the composed image (created from detected regions) on the canvas
+                blankCanvasImage = self.CC.drawImage(
+                    blankCanvasImage, 
+                    self.selectionRectangle.min.x + self.selectionRectangle.width // 2, 
+                    self.selectionRectangle.min.y + self.selectionRectangle.height // 2, 
+                    self.selectionRectangle.width, 
+                    self.selectionRectangle.height
+                )
+                # Attach the created image to the selection rectangle
+                self.selectionRectangle.attachedImage = blankCanvasImage 
+
+        # If a image has been selected
+        if self.selectionRectangle.attachedImage:
             if DEBUG:
                 print("Copying the image")
             self.clipBoardImage = self.selectionRectangle.attachedImage.clone()
@@ -230,7 +313,13 @@ class SelectionRectangleCanvasController:
             self.TBC.handle_button_activation("paste", True, self.clipBoardPaste)
 
     def clipBoardCut(self) -> None:
-        if self.hasSelectionRectangle() and self.selectionRectangle.attachedImage:
+        if not self.hasSelectionRectangle:
+            return
+        
+        if not self.selectionRectangle.attachedImage:
+            self.clipBoardCopy()
+
+        if self.selectionRectangle.attachedImage:
             if DEBUG:
                 print("Cutting the image")
             self.clipBoardImage = self.selectionRectangle.attachedImage.clone()
@@ -412,8 +501,12 @@ class SelectionRectangleCanvasController:
     def on_left(self, event: tk.Event) -> None:
         mouseCoords = Vector2(event.x, event.y)
 
-        self.TBC.view.selectionRectangleRotation.set(self.selectionRectangle.attachedImage.angle + 15)
-        self.selectionRectangle.setCoords(self.selectionRectangle.attachedImage.bbox.topLeft, self.selectionRectangle.attachedImage.bbox.bottomRight)
+        if not self.hasSelectionRectangle():
+            return
+
+        if self.selectionRectangle.attachedImage:
+            self.TBC.view.selectionRectangleRotation.set(self.selectionRectangle.attachedImage.angle + 15)
+            self.selectionRectangle.setCoords(self.selectionRectangle.attachedImage.bbox.topLeft, self.selectionRectangle.attachedImage.bbox.bottomRight)
 
         # Render the selection rectangle to the new position
         self.render()

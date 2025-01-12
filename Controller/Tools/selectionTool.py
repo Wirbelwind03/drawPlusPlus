@@ -95,12 +95,10 @@ class SelectionTool:
         self.SRCC.on_control_x(event)
 
     def on_left(self, event: tk.Event) -> None:
-        if self.SRCC.hasSelectionRectangle():
-            self.SRCC.on_left(event)
+        self.SRCC.on_left(event)
 
     def on_right(self, event: tk.Event) -> None:
-        if self.SRCC.hasSelectionRectangle():
-            self.SRCC.on_right(event)
+        self.SRCC.on_right(event)
 
     #endregion Event
 
