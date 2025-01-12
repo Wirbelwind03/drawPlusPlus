@@ -1,24 +1,24 @@
-import re  # Bibliothèque pour les expressions régulières
+import re  # Library for regular expressions
 from config import DEBUG
 
-# Définir les expressions régulières pour chaque type de jeton
+# Define regular expressions for each token type
 TOKEN_SPECIFICATION = [
-    ('NEWLINE',             r'\n'),                      # Nouvelle ligne
-    ('WHITESPACE',          r'[ \t]+'),                  # Espaces et tabulations
-    ('MULTILINE_COMMENT', r'/\*[\s\S]*?\*/'),           # Commentaire sur plusieurs lignes
-    ('COMMENT',             r'//.*'),                    # Commentaire sur une ligne
-    ('NUMBER', r'-?\d+(\.\d+)?|\.\d+'),                  # Nombres entiers ou décimaux (positifs et négatifs)
-    ('STRING',              r'"[^"\n]*"'),               # Chaînes de caractères entre guillemets (sans saut de ligne)
-    ('BOOLEAN',             r'\b(true|false)\b'),        # Booléens
-    ('IDENTIFIER',          r'[A-Za-z_]\w*'),            # Identifiants
-    ('ACCESS_OPERATOR',     r'\.'),                      # Opérateur d'accès (séparé des autres opérateurs)
-    ('OPERATOR',            r'\+|\-|\*|\/|\%|==|!=|<=|>=|<|>|&&|\|\||!'),  # Autres opérateurs
-    ('DELIMITER',           r'\(|\)|\{|\}|;|,|\:'),      # Délimiteurs
-    ('ASSIGN',              r'='),                       # Opérateur d'affectation
-    ('MISMATCH',            r'.'),                       # Caractère non reconnu
+    ('NEWLINE',             r'\n'),                      # New line
+    ('WHITESPACE',          r'[ \t]+'),                  # Spaces and tabs
+    ('MULTILINE_COMMENT',   r'/\*[\s\S]*?\*/'),          # Multi-line comment
+    ('COMMENT',             r'//.*'),                    # Single-line comment
+    ('NUMBER',              r'-?\d+(\.\d+)?|\.\d+'),     # Integer or decimal numbers (positive or negative)
+    ('STRING',              r'"[^"\n]*"'),               # String literals in quotes (no newlines)
+    ('BOOLEAN',             r'\b(true|false)\b'),        # Boolean values
+    ('IDENTIFIER',          r'[A-Za-z_]\w*'),            # Identifiers
+    ('ACCESS_OPERATOR',     r'\.'),                      # Dot operator (separated from other operators)
+    ('OPERATOR',            r'\+|\-|\*|\/|\%|==|!=|<=|>=|<|>|&&|\|\||!'),  # Operators
+    ('DELIMITER',           r'\(|\)|\{|\}|;|,|\:'),      # Delimiters
+    ('ASSIGN',              r'='),                       # Assignment operator
+    ('MISMATCH',            r'.'),                       # Unrecognized character
 ]
 
-# Définition des mots-clés du langage
+# Language keywords
 KEYWORDS = [
     'var', 'function', 'if', 'else', 'while', 'for',
     'copy', 'animate', 'to', 'Cursor', 'return', 'do',
@@ -26,71 +26,91 @@ KEYWORDS = [
 
 class DrawScriptTokenizer:
     def __init__(self):
-        # Initialisation du tokenizer
-        self.cursors = {}  # Dictionnaire pour stocker les curseurs (non utilisé dans ce code)
+        """
+        Constructor for the tokenizer class.
+        In this case, 'cursors' is a dictionary meant to store cursor information
+        (not used in this snippet, but available for potential extensions).
+        """
+        self.cursors = {}  # Dictionary to store cursors (not used in this code)
 
     def tokenize(self, code):
         """
-        Cette méthode prend en entrée une chaîne de caractères 'code' contenant le code source du langage draw++.
-        Elle retourne une liste de tokens et une liste d'erreurs correspondantes.
+        This method takes a string 'code' containing the source code of the draw++ language.
+        It returns a list of tokens and a corresponding list of errors.
+        
+        Each token is represented as a dictionary with keys like 'type', 'value', and 'line'.
+        Each error is represented by an integer (0 if no error, 1 if there was an error with the token).
         """
 
-        # Compilation des expressions régulières en une seule expression
+        # Compile all regular expressions into one pattern
         tok_regex = '|'.join('(?P<%s>%s)' % pair for pair in TOKEN_SPECIFICATION)
-        get_token = re.compile(tok_regex, re.MULTILINE).match  # Utilisation de MULTILINE pour gérer les débuts de lignes correctement
+        # Use MULTILINE so that '^' and '$' anchors match lines appropriately if needed
+        get_token = re.compile(tok_regex, re.MULTILINE).match
 
-        # Initialisation des variables pour la tokenisation
-        pos = 0          # Position actuelle dans le code
-        tokens = []      # Liste des tokens générés
-        errors = []      # Liste des erreurs (0 si pas d'erreur, 1 si erreur)
-        line_number = 1  # Numéro de ligne, commence à 1
+        # Variables for tokenization
+        pos = 0          # Current position in the code string
+        tokens = []      # List of produced tokens
+        errors = []      # List of error flags (0 or 1)
+        line_number = 1  # Start line numbering at 1
 
-        # Démarrer la correspondance des tokens
-        mo = get_token(code, pos)  # mo est un objet Match
+        # Start matching tokens from the beginning of the code
+        mo = get_token(code, pos)  # 'mo' is a Match object
         while mo is not None:
-            kind = mo.lastgroup    # Type du token correspondant
-            value = mo.group(kind) # Valeur du token
+            kind = mo.lastgroup    # The type of the token (group name)
+            value = mo.group(kind) # The actual text matched by this token
+
             if DEBUG:
-                # Debug: Afficher le token courant
+                # Debug: Print the current token information
+                # 'repr(value)' adds quotes; [1:-1] removes them for tidier output
                 print(f"Matched {kind}: '{repr(value)[1:-1]}' at line {line_number}")
+
             if kind == 'NEWLINE':
+                # If we encounter a newline, increment the line counter
                 line_number += 1
             elif kind == 'WHITESPACE':
-                pass  # Ignorer les espaces blancs
+                # Whitespace is ignored (not stored as a token)
+                pass
             elif kind == 'MULTILINE_COMMENT':
-                line_number += value.count('\n')  # Compter les nouvelles lignes dans les commentaires
+                # For a multi-line comment, count the number of newlines it contains
+                line_number += value.count('\n')
             elif kind == 'COMMENT':
-                pass  # Ignorer les commentaires sur une ligne
+                # Single-line comment is ignored
+                pass
             elif kind == 'NUMBER':
+                # Convert the string to a float; if it's an integer value, round it
                 number = float(value)
                 if float.is_integer(number):
                     number = round(number)
                 tokens.append({'type': kind, 'value': number, 'line': line_number})
                 errors.append(0)
             elif kind == 'STRING':
-                # Enlever les guillemets de début et de fin
+                # Remove the surrounding quotes
                 tokens.append({'type': kind, 'value': value[1:-1], 'line': line_number})
                 errors.append(0)
             elif kind == 'BOOLEAN':
                 tokens.append({'type': kind, 'value': value, 'line': line_number})
                 errors.append(0)
             elif kind == 'IDENTIFIER':
+                # If the identifier is a language keyword, change its type to KEYWORD
                 if value in KEYWORDS:
-                    kind = 'KEYWORD'  # Si l'identifiant est un mot-clé, changer son type
+                    kind = 'KEYWORD'
                 tokens.append({'type': kind, 'value': value, 'line': line_number})
-                errors.append(0)  # Pas d'erreur pour ce token
+                errors.append(0)
             elif kind in {'OPERATOR', 'DELIMITER', 'ASSIGN', 'ACCESS_OPERATOR'}:
+                # Operators, delimiters, assignment signs, or dot operators
                 tokens.append({'type': kind, 'value': value, 'line': line_number})
                 errors.append(0)
             elif kind == 'MISMATCH':
-                # Token non reconnu, enregistrer une erreur
+                # Unrecognized token: record an error
                 tokens.append({'type': 'UNKNOWN', 'value': value, 'line': line_number})
-                errors.append(1)  # Indiquer une erreur pour ce jeton
-            pos = mo.end()  # Mettre à jour la position
-            mo = get_token(code, pos)  # Correspondance suivante
+                errors.append(1)
 
+            # Move to the end of the current match and look for the next token
+            pos = mo.end()
+            mo = get_token(code, pos)
+
+        # If we haven't reached the end of the string, treat the remaining text as errors
         if pos != len(code):
-            # Gérer le cas où la tokenisation s'arrête avant la fin du code
             remaining = code[pos:]
             for char in remaining:
                 if char == '\n':
@@ -98,5 +118,5 @@ class DrawScriptTokenizer:
                 tokens.append({'type': 'UNKNOWN', 'value': char, 'line': line_number})
                 errors.append(1)
 
-        print("\nTokenisation terminée.\n")
+        print("\nTokenization complete.\n")
         return tokens, errors
