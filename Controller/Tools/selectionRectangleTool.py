@@ -146,6 +146,7 @@ class SelectionRectangleTool:
             mouseCoords.y
         )
 
+        # Update the values in the toolbar
         self.TBC.view.selectionRectangleWidth.set(abs(mouseCoords.x - self.__tempRectangleState.startCoords.x))
         self.TBC.view.selectionRectangleHeight.set(abs(mouseCoords.y - self.__tempRectangleState.startCoords.y))
 
@@ -175,6 +176,7 @@ class SelectionRectangleTool:
         if self.__tempRectangleState.startCoords == mouseCoords:
             return
 
+        # Set the selection rectangle created to the SelectionRectangleCanvasController
         self.SRCC.setSelectionRectangle(SelectionRectangle.fromCoordinates(self.__tempRectangleState.startCoords.x, self.__tempRectangleState.startCoords.y, mouseCoords.x, mouseCoords.y))
 
         self.TBC.view.selectionRectangleWidth.set(self.selectionRectangle.width)

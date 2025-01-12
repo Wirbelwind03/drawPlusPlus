@@ -19,7 +19,17 @@ from Controller.toolBarController import ToolBarController
 from View.Resources.Widgets.toolBar import ToolBar
 
 class GapOffset:
-    def __init__(self):
+    """
+    The gap offset between the cursor and interior of the rectangle
+
+    Attributes
+    -----------
+    start : Vector2
+        The coordinates of the start gap offset
+    end : Vector2
+        The coordinates of the end gap offset
+    """
+    def __init__(self) -> None:
         self.start = Vector2(0, 0)
         self.end = Vector2(0, 0)
 
@@ -31,6 +41,10 @@ class SelectionRectangleCanvasController:
     -----------
     CC : CanvasController
         A Controller used to communicate with the Canvas
+    TBC : ToolBarController
+        A Controller used to communicate with the ToolBar
+    selectionRectangle : SelectionRectangle
+        The selection rectangle present on the canvas
     clipBoardImage : CanvasImage
         The Canvas image stored in the clip board
     """
@@ -112,6 +126,16 @@ class SelectionRectangleCanvasController:
     #region Public Methods
 
     def setSelectionRectangle(self, selectionRectangle: SelectionRectangle, attachedImage: CanvasImage = None) -> None:
+        """
+        Set the selection rectangle on this controller
+
+        Parameters
+        -----------
+        selectionRectangle : SelectionRectangle
+            The selection rectangle the user want to set on this controller
+        attachedImage: CanvasImage
+            The image attached to the selection rectangle
+        """
         self.selectionRectangle = selectionRectangle
         if attachedImage:
             self.selectionRectangle.attachedImage = attachedImage
@@ -137,10 +161,19 @@ class SelectionRectangleCanvasController:
     def processIntersections(self, callback: callable):
         """
         Process intersections between the selection rectangle and canvas images.
-        A callback is executed for each intersection, receiving:
-        - `image`: The intersecting CanvasImage.
-        - `intersect_rectangle`: The intersecting rectangle.
-        - `relative_coords`: The relative position of the intersection.
+        For each intersection, a callback is called
+        The callback need to have as arguments :
+            image : CanvasImage
+                The intersecting CanvasImage
+            intersect_rectangle : Rectangle
+                The intersecting rectangle.
+            relative_coords : Vector2
+                The relative position of the intersection.
+
+        Parameters
+        ----------
+        callback : callable
+            The callback the user want to call for processing the intersections
         """
         sr = self.selectionRectangle
         for image_id, image in self.canvasImages:
@@ -162,8 +195,12 @@ class SelectionRectangleCanvasController:
                 callback(image, intersectRectangle, relative_coords)
 
     def render(self) -> None:
+        """
+        Render the selection rectangle on the canvas
+        """
         sr = self.selectionRectangle
 
+        # Render the selection rectangle to the new position
         self.CC.view.coords(sr.canvasIdRectangle, sr.topLeft.x, sr.topLeft.y, sr.bottomRight.x,  sr.bottomRight.y)
         
         # Render the image to the new position
@@ -226,13 +263,21 @@ class SelectionRectangleCanvasController:
         self.toolBar.rotationInput.configure(state="disabled")
 
     def selectImage(self, image: CanvasImage):
+        """
+        Select a image that is present on the canvas
+
+        Parameters
+        -----------
+        image : CanvasImage
+            The image the user want to select
+        """
         # Create the selection rectangle around the selected image
         self.setSelectionRectangle(SelectionRectangle.fromCoordinates(image.bbox.min.x, image.bbox.min.y, image.bbox.max.x, image.bbox.max.y), image)
 
-        self.toolBar.selectionRectangleWidth.set(self.selectionRectangle.attachedImage.width)  # Update the value
-        self.toolBar.selectionRectangleHeight.set(self.selectionRectangle.attachedImage.height)  # Update the value
+        # Update the values
+        self.toolBar.selectionRectangleWidth.set(self.selectionRectangle.attachedImage.width) 
+        self.toolBar.selectionRectangleHeight.set(self.selectionRectangle.attachedImage.height)  
         self.toolBar.selectionRectangleRotation.set(self.selectionRectangle.attachedImage.angle)
-        print(self.selectionRectangle.attachedImage.angle)
         self.activate_operations()
 
         # Check the action to move since the cursor is inside the image
@@ -240,6 +285,9 @@ class SelectionRectangleCanvasController:
         self.CC.view.config(cursor="fleur") # Change the cursor look
 
     def activate_operations(self):
+        """
+        Activate the operations on the ToolBar
+        """
         self.toolBar.widthInput.configure(state="normal") # Activate the width input to not be read only
         self.toolBar.heightInput.configure(state="normal") # Activate the height input to not be read only
         self.toolBar.rotationInput.configure(state="normal")
@@ -267,7 +315,7 @@ class SelectionRectangleCanvasController:
 
     def clipBoardCopy(self) -> None:
         """
-        Copy the attached image of the selection rectangle in the clip board
+        Copy the attached image/images of the selection rectangle in the clip board
         """
         if not self.hasSelectionRectangle():
             return
@@ -316,6 +364,9 @@ class SelectionRectangleCanvasController:
             self.TBC.handle_button_activation("paste", True, self.clipBoardPaste)
 
     def clipBoardCut(self) -> None:
+        """
+        Cut the attached image/images of the selection rectangle in the clip board
+        """
         if not self.hasSelectionRectangle:
             return
         
