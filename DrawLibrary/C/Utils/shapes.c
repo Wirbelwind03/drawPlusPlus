@@ -12,13 +12,13 @@ void drawCircle(SDL_Renderer *renderer,
                 int radius, 
                 int r, int g, int b, int a, 
                 char* filename) {
-    // Draw the rectangle on the renderer (red color)
+    // Draw the circle on the renderer
     aacircleRGBA(renderer, x, y, radius, r, g, b, a);
 
-    // Render the content to the window
+    // Render the drawing to the window
     SDL_RenderPresent(renderer);
 
-    // Define the area to capture (the area where the rectangle was drawn)
+    // Define the bounding box
     SDL_Rect captureRect = { x - radius, y - radius, 2 * radius + 1, 2 * radius + 1 };
 
     AdjustCaptureRect(&captureRect);
@@ -34,10 +34,10 @@ void drawFilledCircle(SDL_Renderer *renderer,
     
     filledCircleRGBA(renderer, x, y, radius, r, g, b, a);
 
-    // Render the content to the window
+    // Render the drawing to the window
     SDL_RenderPresent(renderer);
 
-    // Define the area to capture (the area where the rectangle was drawn)
+    // Define the bounding box
     SDL_Rect captureRect = { x - radius, y - radius, 2 * radius + 1, 2 * radius + 1 };
 
     AdjustCaptureRect(&captureRect);
@@ -54,10 +54,10 @@ void drawEllipse(SDL_Renderer *renderer,
     // Draw the anti-aliased ellipse on the renderer
     aaellipseRGBA(renderer, x, y, rx, ry, r, g, b, a);
 
-    // Render the content to the window
+    // Render the drawing to the window
     SDL_RenderPresent(renderer);
 
-    // Define the bounding box of the ellipse
+    // Define the bounding box
     SDL_Rect captureRect = {
         x - rx, 
         y - ry, 
@@ -80,10 +80,10 @@ void drawFilledEllipse(SDL_Renderer *renderer,
     // Draw the filled ellipse on the renderer
     filledEllipseRGBA(renderer, x, y, rx, ry, r, g, b, a);
 
-    // Render the content to the window
+    // Render the drawing to the window
     SDL_RenderPresent(renderer);
 
-    // Define the bounding box of the ellipse
+    // Define the bounding box
     SDL_Rect captureRect = {
         x - rx, 
         y - ry, 
@@ -104,7 +104,7 @@ void drawSegment(SDL_Renderer *renderer,
                 char* filename) {
     thickLineRGBA(renderer, x0, y0, x1, y1, thickness, r, g, b, a);
 
-    // Render the content to the window
+    // Render the drawing to the window
     SDL_RenderPresent(renderer);
 
     // Define the area to capture (based on the line's bounding box)
@@ -129,13 +129,13 @@ void drawRectangle(SDL_Renderer *renderer,
                 int angle, 
                 int r, int g, int b, int a,
                 char* filename) {
-    // Draw the rectangle on the renderer (red color)
+    // Draw the rectangle on the renderer
     rectangleRGBA(renderer, x, y, x + width, y + height, r, g, b, a);
     
-    // Render the content to the window
+    // Render the drawing to the window
     SDL_RenderPresent(renderer);
     
-    // Define the area to capture (the area where the rectangle was drawn)
+    // Define the area to capture
     SDL_Rect captureRect = { x, y, width, height };
     
     SaveDrawing(renderer, captureRect, angle, filename);
@@ -147,7 +147,7 @@ void drawTriangle(SDL_Renderer *renderer,
                 char* filename) {
     aatrigonRGBA(renderer, x1, y1, x2, y2, x3, y3, r, g, b, a);
 
-    // Render the content to the window
+    // Render the drawing to the window
     SDL_RenderPresent(renderer);
 
     // Define the bounding box of the trigon
@@ -176,7 +176,7 @@ void drawRoundedRectangle(SDL_Renderer *renderer,
     // Draw the rounded rectangle on the renderer
     roundedRectangleRGBA(renderer, x, y, x + width, y + height, radius, r, g, b, a);
 
-    // Render the content to the window
+    // Render the drawing to the window
     SDL_RenderPresent(renderer);
 
     // Define the bounding box of the rounded rectangle
@@ -196,13 +196,13 @@ void drawBox(SDL_Renderer *renderer,
                 int angle, 
                 int r, int g, int b, int a,
                 char* filename) {
-    // Draw the rectangle on the renderer (red color)
+    // Draw the box on the renderer
     boxRGBA(renderer, x, y, x + width, y + height, r, g, b, a);
     
-    // Render the content to the window
+    // Render the drawing to the window
     SDL_RenderPresent(renderer);
     
-    // Define the area to capture (the area where the rectangle was drawn)
+    // Define the bounding box
     SDL_Rect captureRect = {
         x, 
         y, 
@@ -222,7 +222,7 @@ void drawRoundedBox(SDL_Renderer *renderer,
     // Draw the rounded rectangle on the renderer
     roundedBoxRGBA(renderer, x, y, x + width, y + height, radius, r, g, b, a);
 
-    // Render the content to the window
+    // Render the drawing to the window
     SDL_RenderPresent(renderer);
 
     // Define the bounding box of the rounded rectangle

@@ -184,6 +184,14 @@ class SelectionRectangleTool:
         self.SRCC.activate_operations()
 
     def on_delete(self, event: tk.Event) -> None:
+        """
+        Triggered when the "Del" key on the keyboard is pressed.
+
+        Parameters
+        ----------
+        event : tk.Event
+            The event object containing details about the keypress event.
+        """
         self.SRCC.deleteSelectionRectangle()
 
     def on_control_c(self, event: tk.Event) -> None:
