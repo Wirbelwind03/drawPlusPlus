@@ -138,8 +138,8 @@ class CanvasImage:
         canvasImage.id = -1
         canvasImage.bbox = self.bbox
         
-        canvasImage.originalImage = self.image.copy()
-        canvasImage.image = canvasImage.originalImage 
+        canvasImage.originalImage = self.originalImage
+        canvasImage.image = self.image 
         canvasImage.photoImage = ImageTk.PhotoImage(canvasImage.image)
         canvasImage.filePath = self.filePath
 
