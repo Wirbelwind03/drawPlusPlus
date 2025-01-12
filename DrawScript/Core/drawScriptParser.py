@@ -17,9 +17,9 @@ class DrawScriptParser:
 
     def parse(self):
         """
-        Méthode principale du parseur qui parcourt tous les tokens
-        et parse 'statement' jusqu'à la fin.
-        Retourne une liste plat de nœuds (ou None si erreur fatale).
+        Main method of the parser that iterates through all tokens
+        and parses 'statement' to the end.
+        Returns a flat list of nodes (or None on fatal error).
         """
         ast_nodes = []
         max_iterations = len(self.tokens) + 1000  # Ajouter une limite
@@ -57,26 +57,26 @@ class DrawScriptParser:
         return ast_nodes, self.errors
 
 
-    # ----------------- Méthodes utilitaires -------------------
-    def advance(self): #incrémente simplement l’index current_token_index pour passer au token suivant
+    # ----------------- Utilitary Methods -------------------
+    def advance(self): #simply increments the current_token_index to move to the next token
         if not self.is_at_end():
             self.current_token_index += 1
 
 
-    def current_token(self): #renvoie le token courant sans recourir à la propriété currentToken
+    def current_token(self): #returns the current token without using the currentToken property
         if self.is_at_end():
             return None
         return self.tokens[self.current_token_index]
 
-    def previous_token(self): #retourne le token situé juste avant l’index courant, ou None si on est déjà au tout début
+    def previous_token(self): #returns the token located just before the current index, or None if we are already at the very beginning
         if self.current_token_index == 0:
             return None
         return self.tokens[self.current_token_index - 1]
 
-    def is_at_end(self): # indique si l’index courant a dépassé ou atteint la fin de la liste de tokens
+    def is_at_end(self): #indicates whether the current index has exceeded or reached the end of the token list
         return self.current_token_index >= len(self.tokens)
 
-    def match(self, expected_type, expected_value=None): #vérifie que le token courant correspond à un type (et éventuellement à une valeur) donnés, sans pour autant consommer ce token
+    def match(self, expected_type, expected_value=None): #checks that the current token matches a given type (and possibly a value), without consuming this token
         if self.is_at_end():
             return False
         token = self.current_token()
@@ -87,10 +87,10 @@ class DrawScriptParser:
         return True
 
 
-    def consume(self, expected_type, expected_value=None): #contrôle que le token courant correspond à un type (et/ou une valeur) attendus, puis le « consomme » en avançant l’index.
+    def consume(self, expected_type, expected_value=None): #checks that the current token matches an expected type (and/or value), then “consumes” it by advancing the index
         """
-        Consume le token courant s'il correspond (type, value).
-        Sinon, lève une ParserError.
+        Consumes the current token if it matches (type, value).
+        Otherwise, raises a ParserError.
         """
         if self.is_at_end():
             raise ParserError(
@@ -110,7 +110,7 @@ class DrawScriptParser:
         self.advance()
         return token
 
-    def synchronize(self): #sert à « resynchroniser » le parseur en cas d’erreur, en avançant dans les tokens jusqu’à rencontrer un délimiteur fiable (souvent ; ou }).
+    def synchronize(self): #is used to "resynchronize" the parser in case of error, by advancing through the tokens until a reliable delimiter is encountered (often ; or }).
         while not self.is_at_end():
             prev = self.previous_token()
             if prev and prev["value"] == ";":
@@ -120,43 +120,43 @@ class DrawScriptParser:
                 return
             self.advance()
 
-    def pushContext(self, ctx_type, line): #empile un nouveau contexte (ex. for, if, block, etc.) avec la ligne correspondante
+    def pushContext(self, ctx_type, line): #stacks a new context (eg for, if, block, etc) with the corresponding line
         self.context_stack.append({"type": ctx_type, "line": line})
 
-    def popContext(self): #Inverse de pushContext, elle retire le dernier contexte ajouté dans la pile
+    def popContext(self): #Inverse of pushContext, it removes the last context added to the stack
         """
-        Dépile le dernier contexte. 
-        À appeler quand on termine la structure correspondante.
+        Pops the last context.
+        To be called when the corresponding structure is finished.
         """
         if self.context_stack:
             self.context_stack.pop()
 
 
     # ----------------- Parsing statements -------------------
-    def parse_statement(self): #tente de parser une instruction à partir du token courant (variable, if, for, etc.).
+    def parse_statement(self): #attempts to parse a statement from the current token (variable, if, for, etc.).
         start_line = self.current_token()['line'] if not self.is_at_end() else -1
-        start_index = self.current_token_index  # <-- On mémorise l'index de départ
+        start_index = self.current_token_index  # <-- We memorize the starting index
 
         try:
             return self._parse_statement_internal()
         except ParserError as e:
-            # On enregistre l'erreur
+            # The error is recorded
             self.errors.append({
                 "message": str(e),
                 "line": start_line
             })
-            # On appelle la synchronisation
+            # We call synchronization
             self.synchronize()
 
-            # Si on n'a pas avancé du tout, on avance d'un token
-            # pour éviter de retomber en boucle sur la même erreur
+            # If we have not advanced at all, we advance one token
+            # to avoid repeating the same mistake over and over again
             if self.current_token_index == start_index and not self.is_at_end():
                 self.advance()
 
             return None
 
 
-    def _parse_statement_internal(self): #partie interne du parseur d’instruction, où se trouve la logique pour identifier chaque type de statement et former les noeuds
+    def _parse_statement_internal(self): #internal part of the statement parser, where the logic is to identify each type of statement and form the nodes
         
         if self.match('KEYWORD', 'var'):
             return self.parse_var_declaration()
@@ -194,14 +194,14 @@ class DrawScriptParser:
         if self.looks_like_cursor_method():
             return self.parse_cursor_method_statement()
 
-        # Sinon => expression statement
+        # Otherwise => expression statement
         return self.parse_expression_statement()
 
 
 
-# ------------------------------------------ différents statements (plus utilitaires de type boucles etc) -----------------------------------
+# ------------------------------------------ different statements (more utility like loops etc) -----------------------------------
 
-    def parse_var_declaration(self): #gère la syntaxe d’une déclaration de variable, par exemple var x = 10;.
+    def parse_var_declaration(self): #handles the syntax of a variable declaration, for example var x = 10;
         '''
         var IDENTIFIER [":" IDENTIFIER] "=" EXPRESSION ";" 
         '''
@@ -217,26 +217,26 @@ class DrawScriptParser:
 
         if self.match('DELIMITER', ':'):
             self.consume('DELIMITER', ':')
-            # On attend un identifiant pour le type
-            # (et tu peux exiger qu’il soit "cursor", ou pas)
+            # An identifier is expected for the type
+            # (and you can require it to be "cursor", or not)
             type_token = self.consume('IDENTIFIER')
             var_type = type_token['value']  # ex. "cursor"
 
-        # 4) On s'attend à un '=' (token ASSIGN)
+        # Expecting an '=' (ASSIGN token)
         if not self.match('ASSIGN', '='):
             raise ParserError(f"Déclaration invalide pour '{var_name}' : signe '=' attendu.")
         self.consume('ASSIGN', '=')
 
-        # 5) Parse l'expression qui suit le '='
+        #Parse the expression following the '='
         expr = self.parse_expression()
-        # Assigner le typage de la variable
+        # Assign variable typing
         if expr["node_type"] == "number":
-            # Voir si c'est un float ou un int
+            # See if it is a float or an int
             var_type = "int" if isinstance(expr["value"], int) else "float" 
         elif expr["node_type"] == "bool_literal":
             var_type = "bool"
 
-        # 6) On s'attend à un point-virgule final
+        #A trailing semicolon is expected
         if not self.match('DELIMITER', ';'):
             raise ParserError(f"Point-virgule manquant après la déclaration de '{var_name}'.")
         self.consume('DELIMITER', ';')
@@ -250,7 +250,7 @@ class DrawScriptParser:
         }
 
 
-    def parse_if_statement(self): #  parse une structure if(...) { ... } [else { ... }].
+    def parse_if_statement(self): #  parse a structure if(...) { ... } [else { ... }].
         line_num = self.current_token()["line"]
         
         self.pushContext("if", line_num)
@@ -266,7 +266,7 @@ class DrawScriptParser:
             self.consume('KEYWORD', 'else')
             else_block = self.parse_block()
 
-        # fin du if
+        # end of if 
         self.popContext()
 
         return {
@@ -279,10 +279,10 @@ class DrawScriptParser:
 
 
 
-    def parse_for_statement(self): #analyse la structure d’une boucle for(...) { ... } qui comprend une initialisation, une condition et un incrément.
+    def parse_for_statement(self): #analyzes the structure of a for(...) { ... } loop that includes an initialization, a condition, and an increment.
         line_num = self.current_token()["line"]
         
-        # Empiler "for"
+        # Stack "for"
         self.pushContext("for", line_num)
 
         self.consume('KEYWORD', 'for')
@@ -296,7 +296,7 @@ class DrawScriptParser:
 
         body_node = self.parse_block()
 
-        # On arrive ici => on a bien parse le 'for' + block => on dépile
+        # We arrive here => we have successfully parsed the 'for' + block => we unstack
         self.popContext()
 
         return {
@@ -309,7 +309,7 @@ class DrawScriptParser:
         }
 
 
-    def parse_while_statement(self): #parse une boucle while(...) { ... }, en vérifiant la présence de parenthèses, d’une condition et d’un bloc
+    def parse_while_statement(self): #parse a while(...) { ... } loop, checking for parentheses, a condition, and a block
         line_num = self.current_token()["line"]
         
         self.pushContext("while", line_num)
@@ -330,7 +330,7 @@ class DrawScriptParser:
         }
 
 
-    def parse_do_while_statement(self): # gère la boucle do { ... } while(...); dont la syntaxe oblige le bloc à précéder la condition.
+    def parse_do_while_statement(self): # handles the do { ... } while(...); loop whose syntax requires the block to precede the condition.
         line_num = self.current_token()["line"]
         
         self.pushContext("do-while", line_num)
@@ -353,7 +353,7 @@ class DrawScriptParser:
         }
 
 
-    def parse_function_declaration(self): # parse une déclaration de fonction du type function nom(...) { ... }.
+    def parse_function_declaration(self): # parse a function declaration of type function name(...) { ... }.
 
         line_num = self.current_token()["line"]
         self.pushContext("function", line_num)
@@ -381,7 +381,7 @@ class DrawScriptParser:
         
         
 
-    def parse_block(self): # attend une accolade ouvrante {, puis parse de multiples instructions jusqu’à l’accolade fermante }.
+    def parse_block(self): # expects an opening brace {, then parses multiple statements until the closing brace }.
         line_num = self.current_token()["line"]
         
         self.pushContext("block", line_num)
@@ -394,7 +394,7 @@ class DrawScriptParser:
             if stmt:
                 statements.append(stmt)
         self.consume('DELIMITER', '}')
-        # On a trouvé la '}', on peut dépiler le contexte
+        # We found the '}', we can unstack the context
         self.popContext()
         return {
             "node_type": "block",
@@ -403,7 +403,7 @@ class DrawScriptParser:
         }
 
 
-    def parse_expression_statement(self): # parse une simple expression suivie d’un point-virgule, ce qui forme un statement comme x + 3;.
+    def parse_expression_statement(self): # parses a simple expression followed by a semicolon, which forms a statement like x + 3;.
         line_num = -1
         if not self.is_at_end():
             line_num = self.current_token()["line"]
@@ -418,49 +418,49 @@ class DrawScriptParser:
 
 
 
-    def parse_empty_statement(self): #gère le cas d’un point-virgule isolé ;, qui représente un statement vide.
+    def parse_empty_statement(self): #handles the case of an isolated semicolon ;, which represents an empty statement.
         """
         parse_empty_statement ::= ";"
         """
-        # On consomme le point-virgule
+        # Consume a semi-colon
         self.consume('DELIMITER', ';')
-        # On renvoie un nœud vide (ou un dict indiquant un empty statement)
+        # An empty node is returned (or a dict indicating an empty statement)
         return {
             "node_type": "empty_statement"
         }
 
 
 
-# ----------------------------------- Expressions et hiérarchie des expressions ---------------------------- #
+# ----------------------------------- Expressions and hierarchy of expressions ---------------------------- #
 
 
 
 
-#Une expression générale 
-    def parse_expression(self): # invoque parse_simple_assignment_expr pour analyser les expressions.
+#A general expression 
+    def parse_expression(self): # invokes parse_simple_assignment_expr to parse expressions.
         """
         parse_expression ::= parse_assignment_expr()
         """
         return self.parse_simple_assignment_expr() #
 
-# Expression d'assignation 
-    def parse_simple_assignment_expr(self): #gère en premier lieu une expression logique (logical_or_expr).
+# Assignment expression 
+    def parse_simple_assignment_expr(self): #first handles a logical expression (logical_or_expr).
         """
         assignment_expr ::= logical_or_expr
                         | IDENTIFIER '=' assignment_expr
-        (ou plus formel: left = right)
+        (or more formal: left = right)
 
-        On se base sur un schéma:
-            - On parse d'abord un left = parse_logical_or_expr()
-            - Si on voit un '=', on consomme et parse la suite comme assignment_expr()
-            - Sinon on retourne left
+        We base ourselves on a schema:
+            - We first parse a left = parse_logical_or_expr()
+            - If we see an '=', we consume and parse the rest as assignment_expr()
+            - Otherwise we return left
         """
         left = self.parse_logical_or_expr()
 
         # Regarde si c'est un =
         if self.match('ASSIGN', '='):
             self.consume('ASSIGN', '=')
-            right = self.parse_simple_assignment_expr() #prend bien en compte toute les expressions x = y + 1, ou même x = y = z + 2
+            right = self.parse_simple_assignment_expr() #takes into account all the expressions x = y + 1, or even x = y = z + 2
             return {
                 "node_type": "binary_op",
                 "op": "=",
@@ -471,15 +471,15 @@ class DrawScriptParser:
         return left
 
 
-# expression logique "OU" ||
-    def parse_logical_or_expr(self): #analyse la structure d’une opération de type expr || expr.
+# logical expression "OR" ||
+    def parse_logical_or_expr(self): #analyzes the structure of an operation of type expr || expr.
         """
         logical_or_expr ::= logical_and_expr
                         | logical_or_expr "||" logical_and_expr
         """
         left = self.parse_logical_and_expr()
 
-        # Tant qu'on trouve l’opérateur "||" (type='OPERATOR', value='||'), on enchaîne
+        # As long as we find the operator "||" (type='OPERATOR', value='||'), we continue
         while self.match('OPERATOR', '||'):
             op_token = self.consume('OPERATOR', '||')
             right = self.parse_logical_and_expr()
@@ -492,8 +492,8 @@ class DrawScriptParser:
 
         return left
 
-#expression logique "ET" &&
-    def parse_logical_and_expr(self): # est très similaire à parse_logical_or_expr mais pour les opérations &&.
+#logical expression "AND" &&
+    def parse_logical_and_expr(self): # is very similar to parse_logical_or_expr but for && operations.
         """
         logical_and_expr ::= equality_expr
                         | logical_and_expr "&&" equality_expr
@@ -512,8 +512,8 @@ class DrawScriptParser:
 
         return left
 
-# expression logique égal ou PAS égal "==" "!="
-    def parse_equality_expr(self): #vérifie la présence d’opérateurs d’égalité == ou != entre des expressions relationnelles.
+# logical expression equal or NOT equal "==" "!="    
+    def parse_equality_expr(self): #checks for the presence of equality operators == or != between relational expressions.
         """
         equality_expr ::= relational_expr
                         | equality_expr ("==" | "!=") relational_expr
@@ -521,7 +521,7 @@ class DrawScriptParser:
         left = self.parse_relational_expr()
 
         while not self.is_at_end():
-            # On teste si on a "==" ou "!="
+            # We test if we have "==" or "!="
             if self.match('OPERATOR', '=='):
                 self.consume('OPERATOR', '==')
                 right = self.parse_relational_expr()
@@ -541,12 +541,12 @@ class DrawScriptParser:
                     "right": right
                 }
             else:
-                break  # on sort de la boucle
+                break  # we get out of the loop
 
         return left
 
-# expression logique de comparaison 
-    def parse_relational_expr(self): # traite les opérateurs de comparaison <, <=, >, >= entre des expressions additives.
+# logical comparison expression
+    def parse_relational_expr(self): # handles comparison operators <, <=, >, >= between additive expressions.
         """
         relational_expr ::= additive_expr
                         | relational_expr ("<" | "<=" | ">" | ">=") additive_expr
@@ -595,8 +595,8 @@ class DrawScriptParser:
 
         return left
 
-# expression logique d'addition ou de soustraction
-    def parse_additive_expr(self): # s’occupe des additions et soustractions, donc les opérateurs + et -. Après avoir appelé parse_multiplicative_expr, elle enchaîne tant qu’elle voit + ou -
+# logical expression of addition or subtraction
+    def parse_additive_expr(self): # handles addition and subtraction, so the + and - operators. After calling parse_multiplicative_expr, it continues as long as it sees + or -
         """
         additive_expr ::= multiplicative_expr
                         | additive_expr ("+" | "-") multiplicative_expr
@@ -627,8 +627,8 @@ class DrawScriptParser:
 
         return left
 
-# expression logique de multiplication
-    def parse_multiplicative_expr(self): #parse les multiplications, divisions et modulos (*, /, %).
+# logical multiplication expression
+    def parse_multiplicative_expr(self): #parses multiplications, divisions and modulos (*, /, %).
         """
         multiplicative_expr ::= unary_expr
                             | multiplicative_expr ("*" | "/" | "%") unary_expr
@@ -669,8 +669,8 @@ class DrawScriptParser:
         return left
 
 #
-    def parse_unary_expr(self): # détecte en priorité les opérateurs unaires !, + et - placés avant une expression.
-# Si un opérateur unaire est trouvé, elle consomme ce token, puis parse récursivement la suite.
+    def parse_unary_expr(self): # detects unary operators !, + and - placed before an expression as a priority.
+# If a unary operator is found, it consumes that token, then recursively parses the rest.
 
         """
         unary_expr ::= ("!" | "+" | "-") unary_expr
@@ -703,12 +703,12 @@ class DrawScriptParser:
                     "expr": expr
                 }
 
-        # Sinon, on tombe sur la fonction parse_primary_expr
+        # Otherwise, we come across the parse_primary_expr function
         return self.parse_primary_expr()
 
 #
-    def parse_primary_expr(self):# gère les littéraux (nombre, booléen, chaîne) ainsi que les identifiants et expressions parenthésées.
-#Si l’expression est un identifiant suivi de (, elle suppose qu’il s’agit d’un appel de fonction et parse ensuite les arguments.
+    def parse_primary_expr(self):# handles literals (number, boolean, string) as well as identifiers and parenthesized expressions.
+#If the expression is an identifier followed by (, it assumes it is a function call and then parses the arguments.
         """
         primary_expr ::= NUMBER
                     | STRING
@@ -716,7 +716,7 @@ class DrawScriptParser:
                     | IDENTIFIER [ ( DELIMITER("(") argument_list DELIMITER(")") )? ]
                     | "(" expression ")"
         """
-        # 1) Parenthèses
+        # 1) Parentheses
         if self.match('DELIMITER', '('):
             self.consume('DELIMITER', '(')
             expr = self.parse_expression()
@@ -731,8 +731,8 @@ class DrawScriptParser:
                 "value": token["value"]
             }
 
-        # 3) BOOLEAN (si tu as un token "BOOLEAN" => true/false)
-        #    ou KEYWORD("true"/"false"), selon ton tokenizer
+        # 3) BOOLEAN ("BOOLEAN" => true/false)
+        #    or KEYWORD("true"/"false"), 
         if self.match('BOOLEAN', 'true'):
             self.consume('BOOLEAN', 'true')
             return {"node_type": "bool_literal", "value": "true"}
@@ -748,7 +748,7 @@ class DrawScriptParser:
                 "value": token["value"]
             }
 
-        # 5) IDENTIFIER (variable ou potentiel appel de fonction)
+        # 5) IDENTIFIER (variable or potential function call)
         if self.match('IDENTIFIER'):
             id_token = self.consume('IDENTIFIER')
             node = {
@@ -756,7 +756,7 @@ class DrawScriptParser:
                 "value": id_token["value"]
             }
 
-            # Optionnel : si on voit "(", alors c’est un appel de fonction
+            # Optional: if we see "(", then it is a function call
             # ex: drawCircle(...)
             if self.match('DELIMITER', '('):
                 self.consume('DELIMITER', '(')
@@ -764,7 +764,7 @@ class DrawScriptParser:
                 if not self.match('DELIMITER', ')'):
                     args = self.parse_argument_list()
                 self.consume('DELIMITER', ')')
-                # On construit un node d’appel
+                # We build a call node
                 node = {
                     "node_type": "call_expr",
                     "callee": id_token["value"],
@@ -773,38 +773,37 @@ class DrawScriptParser:
 
             return node
 
-        # Sinon, erreur
+        # Otherwise, error
         raise ParserError("Expression primaire invalide.")
 
 
-#-------------------------        Arguments des fonctions for, if etc..   --------------------------------------------------------
+#-------------------------        Arguments of the for, if etc functions.   --------------------------------------------------------
 
-    #Initialisation
-    def parse_for_init(self): # parse la partie « init » d’une boucle for, qui peut être une déclaration var, une affectation ou rien du tout.
+    #Initialization
+    def parse_for_init(self): # parses the "init" part of a for loop, which can be a var declaration, an assignment, or nothing at all.
         """
         for_init ::= var_declaration_no_semi
                 | assignment_expr
-                | (vide)
+                | (empty)
         """
-        # Si on a un 'var', on parse une déclaration *sans consommer le ';'*
+        # If we have a 'var', we parse a declaration *without consuming the ';'
         if self.match('KEYWORD', 'var'):
             return self.parse_var_declaration_no_semi()
 
-        # Sinon, si on a un IDENTIFIER -> potentiellement un assignment
-        # comme i = 0
+        # Otherwise, if we have an IDENTIFIER -> potentially an assignment
+        # as i = 0
         if self.match('IDENTIFIER'):
             return self.parse_simple_assignment()
 
-        # Sinon, c’est vide (rien)
+        # Otherwise, it's empty (nothing)
         return None
 
-    #Initialisation en cas de variable deja existante (pas de declaration de variable var)
-    def parse_var_declaration_no_semi(self):#est similaire à parse_var_declaration, sauf qu’elle ne consomme pas le point-virgule final.
-# On l’utilise dans la syntaxe du for(...) pour l’initialisation, qui ne se termine pas toujours par ; dans la parenthèse.
-
+    #Initialization in case of already existing variable (no declaration of var variable)
+    def parse_var_declaration_no_semi(self):#is similar to parse_var_declaration, except that it does not consume the trailing semicolon.
+# It is used in the for(...) syntax for initialization, which does not always end with ; in the parenthesis.
         """
         var IDENTIFIER [":" TYPE] "=" EXPRESSION
-        (A ne pas confondre avec la version 'parse_var_declaration' qui consomme le ';')
+        (Not to be confused with the 'parse_var_declaration' version which consumes the ';')
         """
         line_num = self.current_token()["line"]
         self.consume('KEYWORD', 'var')
@@ -813,7 +812,7 @@ class DrawScriptParser:
         var_name = id_token['value']
         var_type = None
 
-        # Optionnel: si tu gères le typage ex: var x : int
+        # Optional: if you handle typing ex: var x : int
         # if self.match('DELIMITER', ':'):
         #     self.consume('DELIMITER', ':')
         #     type_token = self.consume('IDENTIFIER')
@@ -830,20 +829,20 @@ class DrawScriptParser:
             "line": line_num
         }
 
-    # Incrémentation
-    def parse_assignment_expr(self): #gère la forme identifiant = expression sans se préoccuper des autres opérateurs d’affectation comme += ou -=.
+    # Increment
+    def parse_assignment_expr(self): #handles the identifier = expression form without worrying about other assignment operators like += or -=.
         """
         assignment_expr ::= IDENTIFIER '=' expression
-        (dans certains langages, on gère aussi +=, -=, etc.
-        mais ici on se limite à '=')
+        (in some languages, we also manage +=, -=, etc.
+        but here we limit ourselves to '=')
         """
-        # On s'attend à un identifiant
+        # An identifier is expected
         id_token = self.consume('IDENTIFIER')
         var_name = id_token['value']
         line_num = id_token["line"]
-        # On s'attend à '='
+        # Expected '='
         self.consume('ASSIGN', '=')
-        # On parse l'expression
+        # We parse the expression
         expr = self.parse_expression()
         return {
             "node_type": "assignment_expr",
@@ -852,18 +851,19 @@ class DrawScriptParser:
             "line": line_num
         }
 
-    # Pour la creation de fonction 
-    def parse_parameter_list(self): #lit une liste de paramètres formée de plusieurs identifiants séparés par des virgules.
+    # For function creation
+    def parse_parameter_list(self): #reads a parameter list consisting of multiple identifiers separated by commas.
         """
         parameter_list ::= IDENTIFIER { ',' IDENTIFIER }
         """
         params = []
 
-        # On s'attend d'abord à un IDENTIFIER
+    # We first expect an IDENTIFIER
         first_param = self.consume('IDENTIFIER')
         params.append(first_param["value"])
 
-        # Tant qu'on voit une virgule, on consomme la virgule et on attend un ident
+
+    # As long as we see a comma, we consume the comma and expect an ident
         while self.match('DELIMITER', ','):
             self.consume('DELIMITER', ',')
             param_token = self.consume('IDENTIFIER')
@@ -871,7 +871,7 @@ class DrawScriptParser:
 
         return params
 
-    def parse_argument_list(self): #parse une liste d’arguments, c’est-à-dire plusieurs expressions séparées par des virgules.
+    def parse_argument_list(self): #parses a list of arguments, that is, several expressions separated by commas.
         """
         argument_list ::= expression { ',' expression }
         """
@@ -886,15 +886,15 @@ class DrawScriptParser:
 
         return args
 
-# Le return d'une fonction 
-    def parse_return_statement(self): #gère la syntaxe return suivie éventuellement d’une expression et d’un point-virgule ;.
+# The return of a function 
+    def parse_return_statement(self): #handles the return syntax optionally followed by an expression and a semicolon ;.
         """
         return_statement ::= 'return' [expression] ';'
         """
         line_num = self.current_token()["line"]
         self.consume('KEYWORD', 'return')
 
-        # Vérifier si on a un point-virgule direct ou pas
+    # Check if we have a direct semicolon or not
         if self.match('DELIMITER', ';'):
             self.consume('DELIMITER', ';')
             return {
@@ -913,13 +913,13 @@ class DrawScriptParser:
 
 
 
-#-------------------------        Fonctions de "vrai" dessin.   --------------------------------------------------------
+#-------------------------        "Real" drawing functions.   --------------------------------------------------------
 
-    def parse_copy_statement(self): #parse l’instruction copy(expr, expr, expr, expr) to (expr, expr);, utilisée pour copier quelque chose d’un point à un autre.
+    def parse_copy_statement(self): #parse the copy(expr, expr, expr, expr) to (expr, expr); instruction, used to copy something from one point to another.
         line_num = self.current_token()["line"]
         self.consume('KEYWORD', 'copy')
         self.consume('DELIMITER', '(')
-        # 3) Lire 4 expressions (séparées par des virgules)
+        #Read 4 expressions (separated by commas)
         #    => ARG_LIST_4 = expr, expr, expr, expr
         expr1 = self.parse_expression()
         self.consume('DELIMITER', ',')
@@ -929,22 +929,22 @@ class DrawScriptParser:
         self.consume('DELIMITER', ',')
         expr4 = self.parse_expression()
 
-        # 4) consommer ')'
+        # consume ')'
         self.consume('DELIMITER', ')')
 
-        # 5) consommer le mot-clé 'to'
+        # consume keyword 'to'
         self.consume('KEYWORD', 'to')
 
-        # 6) consommer '('
+        # consume '('
         self.consume('DELIMITER', '(')
 
-        # 7) Lire 2 expressions (séparées par une virgule)
+        # Read 2 expressions (separated by a comma)
         #    => ARG_LIST_2 = expr, expr
         expr5 = self.parse_expression()
         self.consume('DELIMITER', ',')
         expr6 = self.parse_expression()
 
-        # 8) consommer ')'
+        # consume ')'
         self.consume('DELIMITER', ')')        
         self.consume('DELIMITER', ';')
 
@@ -955,16 +955,16 @@ class DrawScriptParser:
             "line": line_num
         }
 
-    def parse_animate_statement(self): # occupe de la syntaxe animate(expr, expr) { ... }, qui permet d’animer un objet ou une propriété.
+    def parse_animate_statement(self): # deals with the syntax animate(expr, expr) { ... }, which allows you to animate an object or property.
         line_num = self.current_token()["line"]
         self.consume('KEYWORD', 'animate')
         self.consume('DELIMITER', '(')
         expr1 = self.parse_expression()
-        # 4) Consommer la virgule
+        # Consume the comma
         self.consume('DELIMITER', ',')
-        # 5) Deuxième expression (par ex. 10)
+        # Second expression (eg 10)
         expr2 = self.parse_expression()
-        # 6) Consommer ')'
+        # Consume ')'
         self.consume('DELIMITER', ')')        
         body_node = self.parse_block()
         return {
@@ -975,45 +975,45 @@ class DrawScriptParser:
             "line": line_num
         }
 
-#████████████████████████████████████████████ CURSEURS ████████████████████████████████████████████
+#████████████████████████████████████████████ CURSORS ████████████████████████████████████████████
 
-# Declaration de curseur
-    def parse_cursor_declaration(self): #  gère la déclaration d’un curseur via Cursor monCurseur = Cursor(...);.
+# Cursor declaration
+    def parse_cursor_declaration(self): #  handles the declaration of a cursor via Cursor myCursor = Cursor(...);.
         """
         cursor_declaration ::= 'cursor' IDENTIFIER '=' 'cursor' '(' [ argument_list ] ')' ';'
         """
         line_num = self.current_token()["line"]
         
-        # 1) On consomme le mot-clé 'cursor'
+        # 1) We consume the keyword 'cursor'
         self.consume('KEYWORD', 'Cursor')
         
-        # 2) On attend un identifiant (ex: myCursor)
+        # 2) We are waiting for an identifier (eg: myCursor)
         id_token = self.consume('IDENTIFIER')
         var_name = id_token['value']
         
-        # 3) On attend '='
+        # 3) We are waiting for '='
         self.consume('ASSIGN', '=')
         
-        # 4) On attend le mot-clé 'cursor' pour appeler le "constructeur"
+        # 4) We are waiting for the keyword 'cursor' to call the "constructor"
         if not self.match('KEYWORD', 'Cursor'):
             raise ParserError("Initialisation de curseur invalide : 'cursor(...)' attendu.")
         self.consume('KEYWORD', 'Cursor')
         
-        # 5) On consomme '('
+        # 5) We consume '('
         self.consume('DELIMITER', '(')
 
-        # 6) On parse les arguments (optionnel ou non)
+        # 6) We parse the arguments (optional or not)
         args = []
         if not self.match('DELIMITER', ')'):
             args = self.parse_argument_list()
         
-        # 7) On consomme ')'
+        # 7) We consume ')'
         self.consume('DELIMITER', ')')
         
-        # 8) On consomme le ';'
+        # 8) We consume the ';'
         self.consume('DELIMITER', ';')
         
-        # 9) On construit le nœud AST
+        # 9) We build the AST node
         return {
             "node_type": "cursor_declaration",
             "name": var_name,
@@ -1021,11 +1021,11 @@ class DrawScriptParser:
             "line": line_num
         }
 
-    def looks_like_cursor_method(self): #  inspecte les tokens suivants pour déterminer si l’on a un motif du type identifiant . identifiant (.
-        # Vérifie qu'il y a assez de tokens
+    def looks_like_cursor_method(self): #  inspects the following tokens to determine if there is a pattern of type identifier . identifier (.
+        # Check that there are enough tokens
         if self.is_at_end():
             return False
-        # On veut au moins 4 tokens disponibles
+        # We want at least 4 tokens available
         if self.current_token_index + 3 >= len(self.tokens):
             return False
         
@@ -1041,35 +1041,35 @@ class DrawScriptParser:
             return True
         return False
 
-    def parse_cursor_method_statement(self): #gère les appels de méthodes sur un curseur, par exemple monCurseur.moveTo(100, 200);.
+    def parse_cursor_method_statement(self): #handles method calls on a cursor, for example myCursor.moveTo(100, 200);.
         """
         Pattern: IDENTIFIER '.' IDENTIFIER '(' [argument_list] ')' ';'
         """
         line_num = self.current_token()["line"]
         
-        # 1) Consommer l'objet (ex: myCursor)
+        # 1) Consume the object (eg: myCursor)
         obj_token = self.consume('IDENTIFIER')
         cursor_name = obj_token['value']
 
-        # 2) Consommer le '.'
+        # 2) Consume the '.'
         self.consume('ACCESS_OPERATOR', '.')
 
-        # 3) Consommer le nom de la méthode (ex: moveTo)
+        # 3) Consume the method name (eg: moveTo)
         method_token = self.consume('IDENTIFIER')
         method_name = method_token['value']
 
-        # 4) Consommer '('
+        # 4) Consume '('
         self.consume('DELIMITER', '(')
 
-        # 5) Parse l’argument_list
+        # 5) Parse the argument_list
         args = []
         if not self.match('DELIMITER', ')'):
             args = self.parse_argument_list()
 
-        # 6) Consommer ')'
+        # 6) Consume ')'
         self.consume('DELIMITER', ')')
 
-        # 7) Consommer le ';'
+        # 7) Consume the ';'
         self.consume('DELIMITER', ';')
 
         return {
