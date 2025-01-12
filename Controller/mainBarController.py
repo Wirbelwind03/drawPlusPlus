@@ -49,7 +49,7 @@ class MainBarController:
 
     def on_settings_window_closed(self, event: tk.Event) -> None:
         """
-        Callback triggered when the gearWindow is destroyed.
+        Call the callback when the settings window get closed
 
         Parameters
         ----------

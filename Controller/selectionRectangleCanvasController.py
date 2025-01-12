@@ -133,7 +133,8 @@ class SelectionRectangleCanvasController:
         return self.selectionRectangle is not None
         
     def processIntersections(self, callback: callable):
-        """Process intersections between the selection rectangle and canvas images.
+        """
+        Process intersections between the selection rectangle and canvas images.
         A callback is executed for each intersection, receiving:
         - `image`: The intersecting CanvasImage.
         - `intersect_rectangle`: The intersecting rectangle.
@@ -338,27 +339,37 @@ class SelectionRectangleCanvasController:
 
     #region ToolBar Events
 
-    def on_selection_rectangle_dimension_change(self, dimension):
-        """Handles changes in selection rectangle dimensions (width or height)."""
+    def on_selection_rectangle_dimension_change(self, configure):
+        """
+        Function get triggered whenever the user change the number in the inputs
+
+        Parameters
+        ----------
+        configure : str
+            What to change in the selection rectangle
+        """
         try:
             if (not self.selectionRectangle):
                 return
             
             # If the rectangle is attached to an image, resize and update it
             if self.selectionRectangle.attachedImage:
-                if dimension == "width":
+                if configure == "width":
                     self.selectionRectangle.attachedImage.width = self.toolBar.selectionRectangleWidth.get()
-                elif dimension == "height":
+                elif configure == "height":
                     self.selectionRectangle.attachedImage.height = self.toolBar.selectionRectangleHeight.get()
-                elif dimension == "rotation":
+                elif configure == "rotation":
                     self.selectionRectangle.attachedImage.angle = self.toolBar.rotationInput.get()
 
+                # Apply the transformations from the inputs
                 self.CC.applyTransformations(
                     self.selectionRectangle.attachedImage,
                     self.selectionRectangle.attachedImage.width,
                     self.selectionRectangle.attachedImage.height,
                     self.selectionRectangle.attachedImage.angle
                 )
+
+                # Update the selection rectangle position and dimensions
                 self.selectionRectangle.setCoords(
                     self.selectionRectangle.attachedImage.bbox.topLeft,
                     self.selectionRectangle.attachedImage.bbox.bottomRight
@@ -368,14 +379,15 @@ class SelectionRectangleCanvasController:
                 if DEBUG and self.CC.DCC is not None:
                     self.CC.DCC.drawCanvasImageDebugInfos(self.selectionRectangle.attachedImage)
 
+            # If there is not image in the selection rectangle, resize the selection rectangle
             else:
-                if dimension == "width":
+                if configure == "width":
                     self.selectionRectangle.width = self.toolBar.selectionRectangleWidth.get()
-                elif dimension == "height":
+                elif configure == "height":
                     self.selectionRectangle.height = self.toolBar.selectionRectangleHeight.get()
 
 
-            # Update the selection rectangle
+            # Update the selection rectangle on the canvas
             self.CC.view.coords(
                 self.selectionRectangle.canvasIdRectangle,
                 self.selectionRectangle.x,
@@ -384,39 +396,61 @@ class SelectionRectangleCanvasController:
                 self.selectionRectangle.bottomRight.y
             )
 
+        # If the input is empty
         except tk.TclError:
-            if dimension == "width":
+            if configure == "width":
                 self.toolBar.selectionRectangleWidth.set(0)
-            elif dimension == "height":
+            elif configure == "height":
                 self.toolBar.selectionRectangleHeight.set(0)
-            elif dimension == "rotation":
+            elif configure == "rotation":
                 self.toolBar.selectionRectangleRotation.set(0)
 
     def on_width_input_change(self):
+        """
+        Function get triggered whenever the user change the number in the width input with the spin box
+        """
         self.toolBar.selectionRectangleWidth.set(int(self.toolBar.widthInput.get()))
 
     def on_height_input_change(self):
+        """
+        Function get triggered whenever the user change the number in the height input with the spin box
+        """
         self.toolBar.selectionRectangleHeight.set(int(self.toolBar.heightInput.get()))
 
     def on_rotation_input_change(self):
+        """
+        Function get triggered whenever the user change the number in the rotation input with the spin box
+        """
         self.toolBar.selectionRectangleRotation.set(int(self.toolBar.rotationInput.get()))
 
     def on_copy_button_click(self):
+        """
+        Function get triggered whenever the user click the copy button
+        """
         self.clipBoardCopy()
         if DEBUG:
             print("Copy button clicked")
 
     def on_paste_button_click(self):
+        """
+        Function get triggered whenever the user click the paste button
+        """
         self.clipBoardPaste()
         if DEBUG:
             print("Paste button clicked")
 
     def on_cut_button_click(self):
+        """
+        Function get triggered whenever the user click the cut button
+        """
         self.clipBoardCut()
         if DEBUG:
             print("Cut button clicked")
 
     def on_delete_button_click(self):
+        """
+        Function get triggered whenever the user click the delete button
+        """
         self.deleteSelectionRectangle()
 
     #endregion
@@ -425,14 +459,16 @@ class SelectionRectangleCanvasController:
 
     def on_mouse_over(self, event) -> None:
         """
-        A event for when the mouse is hovering on the selection rectangle
+        Triggered when the mouse is over the selection rectangle
 
         Parameters
-        -----------
-        event : 
-        canvas : tk.Canvas
-            The canvas where the selection rectangle is drawn
+        ----------
+        event : tk.Event
+            The event object containing details about the mouse event, such as position (x, y).
         """
+        if not self.hasSelectionRectangle():
+            return
+
         mouseCoords = Vector2(event.x, event.y)
         
         # Check if the mouse is inside the selection rectangle    
@@ -445,15 +481,14 @@ class SelectionRectangleCanvasController:
 
     def on_button_press(self, event: tk.Event) -> None:
         """
-        A event for when a left click occur on the selection rectangle
+        Triggered when the left mouse button is pressed on the selection rectangle.
 
         Parameters
-        -----------
+        ----------
         event : tk.Event
+            The event object containing details about the button press event, such as position (x, y).
         """
         mouseCoords = Vector2(event.x, event.y)
-
-        self.drag_start = mouseCoords
 
         if self.action == SelectionRectangleAction.MOVE:
             # Get the gap between the cursor and the min and max of the AABB
@@ -463,11 +498,12 @@ class SelectionRectangleCanvasController:
 
     def on_mouse_drag(self, event: tk.Event) -> None:
         """
-        A event for when the user drag the selection rectangle
+        Triggered when the mouse is dragged across the canvas while a button is pressed.
 
         Parameters
-        -----------
+        ----------
         event : tk.Event
+            The event object containing details about the drag event, such as position (x, y) and button state.
         """
         mouseCoords = Vector2(event.x, event.y)
 
@@ -484,21 +520,27 @@ class SelectionRectangleCanvasController:
             if self.selectionRectangle.attachedImage:
                 self.CC.DCC.drawCanvasImageDebugInfos(self.selectionRectangle.attachedImage)
 
-        self.drag_start = mouseCoords
-
     def on_button_release(self, event: tk.Event) -> None:
         """
-        A event for when the left click is released on the canvas
+        Triggered when the left mouse button is released on the canvas.
 
         Parameters
-        -----------
+        ----------
         event : tk.Event
+            The event object containing details about the button release event, such as position (x, y).
         """
-
         # Get the cursor position
         mouseCoords = Vector2(event.x, event.y)
 
     def on_left(self, event: tk.Event) -> None:
+        """
+        Triggered when the left arrow key on the keyboard is pressed.
+
+        Parameters
+        ----------
+        event : tk.Event
+            The event object containing details about the keypress event.
+        """
         mouseCoords = Vector2(event.x, event.y)
 
         if not self.hasSelectionRectangle():
@@ -515,6 +557,14 @@ class SelectionRectangleCanvasController:
             self.CC.DCC.drawCanvasImageDebugInfos(self.selectionRectangle.attachedImage)
 
     def on_right(self, event: tk.Event) -> None:
+        """
+        Triggered when the right arrow key on the keyboard is pressed.
+
+        Parameters
+        ----------
+        event : tk.Event
+            The event object containing details about the keypress event.
+        """
         mouseCoords = Vector2(event.x, event.y)
 
         self.TBC.view.selectionRectangleRotation.set(self.selectionRectangle.attachedImage.angle - 15)
@@ -527,12 +577,36 @@ class SelectionRectangleCanvasController:
             self.CC.DCC.drawCanvasImageDebugInfos(self.selectionRectangle.attachedImage)
 
     def on_control_c(self, event: tk.Event) -> None:
+        """
+        Triggered when the "Ctrl+C" keyboard shortcut is pressed (Copy command).
+
+        Parameters
+        ----------
+        event : tk.Event
+            The event object containing details about the keypress event.
+        """
         self.clipBoardCopy()
 
     def on_control_v(self, event: tk.Event) -> None:
+        """
+        Triggered when the "Ctrl+V" keyboard shortcut is pressed (Paste command).
+
+        Parameters
+        ----------
+        event : tk.Event
+            The event object containing details about the keypress event.
+        """
         self.clipBoardPaste()
 
     def on_control_x(self, event: tk.Event) -> None:
+        """
+        Triggered when the "Ctrl+X" keyboard shortcut is pressed (Cut command).
+
+        Parameters
+        ----------
+        event : tk.Event
+            The event object containing details about the keypress event.
+        """
         self.clipBoardCut()
 
     #endregion Event
