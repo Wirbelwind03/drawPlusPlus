@@ -15,7 +15,7 @@ from Model.selectionRectangle import SelectionRectangleAction, SelectionRectangl
 
 class TempRectangleState:
     """
-    
+
 
     Attributes
     -----------
@@ -34,8 +34,10 @@ class SelectionRectangleTool:
 
     Attributes
     -----------
-    srcc : SelectionRectangleCanvasController
+    SRCC : SelectionRectangleCanvasController
         A Controller used to communicate with the selection rectangle
+    TBC : ToolBarController
+        A Controller used to communicate with the tools bar
     __tempRectangleState : Vector2
         Temporary variable to stock when the selection rectangle is going to be created
     """
@@ -53,7 +55,7 @@ class SelectionRectangleTool:
         return self.SRCC.CC.view
     
     @property
-    def canvasImages(self):
+    def canvasImages(self) -> CanvasImage:
         return self.SRCC.CC.model.images.items()
     
     @property
